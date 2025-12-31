@@ -17,7 +17,7 @@ interface HomeProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
   onOpenMobileSidebar?: () => void;
-  onCreateSubject?: () => void; // Add this
+  onCreateSubject?: () => void;
 }
 
 export default function Home({
@@ -27,7 +27,7 @@ export default function Home({
   darkMode,
   onToggleDarkMode,
   onOpenMobileSidebar,
-  onCreateSubject, // Add this
+  onCreateSubject,
 }: HomeProps) {
   const { subjects, activeSubjectId, getMcqsForSubject } = useSubjects();
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
@@ -35,7 +35,7 @@ export default function Home({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${
+      className={`min-h-screen flex items-center justify-center p-4 pt-20 transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"
@@ -49,7 +49,7 @@ export default function Home({
                 darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              MCQ Master
+              DITOR<sup className="text-sm text-gray-500">v2</sup>
             </h1>
             <p
               className={`text-xl ${
@@ -58,28 +58,6 @@ export default function Home({
             >
               Prepare for your exams with our intelligent testing platform
             </p>
-          </div>
-          <div className="flex gap-2 flex-col md:flex-row">
-            <Button
-              variant="outline"
-              onClick={onToggleDarkMode}
-              className={
-                darkMode
-                  ? "bg-slate-800 border-slate-600 text-yellow-400"
-                  : "bg-white"
-              }
-            >
-              {darkMode ? "☀️ Light" : "🌙 Dark"}
-            </Button>
-            {onOpenMobileSidebar && (
-              <Button
-                variant="outline"
-                onClick={onOpenMobileSidebar}
-                className="md:hidden bg-transparent"
-              >
-                Subjects
-              </Button>
-            )}
           </div>
         </div>
 
@@ -95,7 +73,7 @@ export default function Home({
               </p>
               {onOpenMobileSidebar && (
                 <Button
-                  onClick={onCreateSubject || onOpenMobileSidebar} // Use the new function
+                  onClick={onCreateSubject || onOpenMobileSidebar}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 mt-4"
                 >
                   Create Subject

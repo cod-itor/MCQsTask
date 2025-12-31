@@ -31,12 +31,12 @@ export default function SubjectSidebar({
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleCreateClick = () => {
-    console.log("[v0] Create subject button clicked");
+    console.log(" Create subject button clicked");
     setShowCreateModal(true);
   };
 
   const handleCloseModal = () => {
-    console.log("[v0] Closing modal");
+    console.log(" Closing modal");
     setShowCreateModal(false);
   };
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { SubjectProvider, useSubjects } from "@/lib/subject-context";
+import Navbar from "@/components/navbar";
 import Home from "@/components/pages/home";
 import MCQInput from "@/components/pages/mcq-input";
 import PracticeTest from "@/components/pages/practice-test";
@@ -72,122 +73,113 @@ function PageContent() {
   };
 
   const handleCreateSubject = () => {
-    console.log("handleCreateSubject called");
-    console.log("Window width:", window.innerWidth);
-
-    // Open mobile drawer first if on mobile
     if (window.innerWidth < 768) {
-      console.log("Opening mobile drawer");
       setMobileDrawerOpen(true);
     }
-
-    // Trigger the create modal after a short delay
     setTimeout(() => {
-      console.log(
-        "Checking for openCreateSubjectModal:",
-        (window as any).openCreateSubjectModal
-      );
       if ((window as any).openCreateSubjectModal) {
-        console.log("Calling openCreateSubjectModal");
         (window as any).openCreateSubjectModal();
-      } else {
-        console.log("openCreateSubjectModal not found on window");
       }
     }, 100);
   };
 
-  // Show sidebar on practice, exam-setup, exam, and results pages
   const showSidebar = ["practice", "exam-setup", "exam", "results"].includes(
     page
   );
 
   return (
-    <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
-      <div
-        className={`min-h-screen transition-colors duration-300 ${
-          darkMode
-            ? "bg-gradient-to-br from-slate-900 to-slate-800"
-            : "bg-gradient-to-br from-blue-50 to-indigo-50"
-        }`}
-      >
-        <div className="flex h-screen">
-          {/* Desktop Sidebar - Always render but hide on home */}
-          <div
-            className={`hidden md:block w-64 border-r ${
-              !showSidebar ? "md:hidden" : ""
-            }`}
-          >
-            <SubjectSidebar
+    <>
+      <Navbar
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
+        onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+      />
+
+      <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
+        <div
+          className={`min-h-screen transition-colors duration-300 ${
+            darkMode ? "bg-gray-950" : "bg-gray-50"
+          }`}
+        >
+          <div className="flex h-screen pt-16">
+            {/* Desktop Sidebar */}
+            <div
+              className={`hidden md:block w-64 border-r ${
+                !showSidebar ? "md:hidden" : ""
+              }`}
+            >
+              <SubjectSidebar
+                darkMode={darkMode}
+                onCreateSubjectClick={handleCreateSubject}
+              />
+            </div>
+
+            {/* Mobile Drawer */}
+            <MobileSidebarDrawer
+              isOpen={mobileDrawerOpen}
+              onClose={() => setMobileDrawerOpen(false)}
               darkMode={darkMode}
-              onCreateSubjectClick={handleCreateSubject}
             />
-          </div>
 
-          {/* Mobile Drawer - Always render the component */}
-          <MobileSidebarDrawer
-            isOpen={mobileDrawerOpen}
-            onClose={() => setMobileDrawerOpen(false)}
-            darkMode={darkMode}
-          />
-
-          {/* Main Content */}
-          <div className="flex-1 overflow-auto">
-            {page === "home" && (
-              <Home
-                onStartPractice={handleStartPractice}
-                onStartExam={handleStartExamSetup}
-                onInputMcqs={() => setPage("input")}
-                darkMode={darkMode}
-                onToggleDarkMode={toggleDarkMode}
-                onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-                onCreateSubject={handleCreateSubject}
-              />
-            )}
-            {page === "input" && (
-              <MCQInput
-                onMcqsLoaded={() => setPage("home")}
-                darkMode={darkMode}
-              />
-            )}
-            {page === "practice" && (
-              <PracticeTest
-                onBack={() => setPage("home")}
-                darkMode={darkMode}
-                onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-              />
-            )}
-            {page === "exam-setup" && (
-              <ExamSetup
-                onStart={handleStartExam}
-                onBack={() => setPage("home")}
-                darkMode={darkMode}
-                onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-              />
-            )}
-            {page === "exam" && examState && (
-              <ExamTest
-                state={examState}
-                setState={setExamState}
-                onComplete={handleExamComplete}
-                darkMode={darkMode}
-                onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-              />
-            )}
-            {page === "results" && examState && (
-              <Results
-                state={examState}
-                onRestart={() => {
-                  setExamState(null);
-                  setPage("home");
-                }}
-                darkMode={darkMode}
-                onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-              />
-            )}
+            {/* Main Content */}
+            <div className="flex-1 overflow-auto">
+              {page === "home" && (
+                <Home
+                  onStartPractice={handleStartPractice}
+                  onStartExam={handleStartExamSetup}
+                  onInputMcqs={() => setPage("input")}
+                  darkMode={darkMode}
+                  onToggleDarkMode={toggleDarkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+                  onCreateSubject={handleCreateSubject}
+                />
+              )}
+              {page === "input" && (
+                <MCQInput
+                  onMcqsLoaded={() => setPage("home")}
+                  darkMode={darkMode}
+                />
+              )}
+              {page === "practice" && (
+                <PracticeTest
+                  onBack={() => setPage("home")}
+                  darkMode={darkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+                />
+              )}
+              {page === "exam-setup" && (
+                <ExamSetup
+                  onStart={handleStartExam}
+                  onBack={() => setPage("home")}
+                  darkMode={darkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+                />
+              )}
+              {page === "exam" && examState && (
+                <ExamTest
+                  state={examState}
+                  setState={setExamState}
+                  onComplete={handleExamComplete}
+                  darkMode={darkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+                />
+              )}
+              {page === "results" && examState && (
+                <Results
+                  state={examState}
+                  onRestart={() => {
+                    setExamState(null);
+                    setPage("home");
+                  }}
+                  darkMode={darkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 
