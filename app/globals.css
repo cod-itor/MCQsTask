@@ -4,74 +4,75 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(98% 0 0);
-  --foreground: oklch(15% 0 0);
-  --card: oklch(98% 0 0);
-  --card-foreground: oklch(15% 0 0);
-  --popover: oklch(98% 0 0);
-  --popover-foreground: oklch(15% 0 0);
-  --primary: oklch(20% 0.1 250);
-  --primary-foreground: oklch(98% 0 0);
-  --secondary: oklch(97% 0 0);
-  --secondary-foreground: oklch(20% 0 0);
-  --muted: oklch(97% 0 0);
-  --muted-foreground: oklch(56% 0 0);
-  --accent: oklch(97% 0 0);
-  --accent-foreground: oklch(20% 0 0);
-  --destructive: oklch(58% 0.25 27);
-  --destructive-foreground: oklch(98% 0 0);
-  --border: oklch(92% 0 0);
-  --input: oklch(92% 0 0);
-  --ring: oklch(71% 0 0);
-  --chart-1: oklch(65% 0.22 41);
-  --chart-2: oklch(60% 0.12 185);
-  --chart-3: oklch(40% 0.07 227);
-  --chart-4: oklch(83% 0.19 84);
-  --chart-5: oklch(77% 0.19 70);
+  /* Updated color tokens for DITOR theme - indigo, teal, and neutral palette */
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  --primary: oklch(0.35 0.1 264);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.55 0.08 190);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(0.92 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.5 0.15 180);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.35 0.1 264);
+  --chart-1: oklch(0.35 0.1 264);
+  --chart-2: oklch(0.5 0.15 180);
+  --chart-3: oklch(0.55 0.08 190);
+  --chart-4: oklch(0.45 0.08 270);
+  --chart-5: oklch(0.4 0.12 260);
   --radius: 0.625rem;
-  --sidebar: oklch(98% 0 0);
-  --sidebar-foreground: oklch(15% 0 0);
-  --sidebar-primary: oklch(20% 0.1 250);
-  --sidebar-primary-foreground: oklch(98% 0 0);
-  --sidebar-accent: oklch(97% 0 0);
-  --sidebar-accent-foreground: oklch(20% 0 0);
-  --sidebar-border: oklch(92% 0 0);
-  --sidebar-ring: oklch(71% 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.35 0.1 264);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.5 0.15 180);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.35 0.1 264);
 }
 
 .dark {
-  --background: oklch(15% 0 0);
-  --foreground: oklch(98% 0 0);
-  --card: oklch(15% 0 0);
-  --card-foreground: oklch(98% 0 0);
-  --popover: oklch(15% 0 0);
-  --popover-foreground: oklch(98% 0 0);
-  --primary: oklch(98% 0 0);
-  --primary-foreground: oklch(20% 0 0);
-  --secondary: oklch(27% 0 0);
-  --secondary-foreground: oklch(98% 0 0);
-  --muted: oklch(27% 0 0);
-  --muted-foreground: oklch(71% 0 0);
-  --accent: oklch(27% 0 0);
-  --accent-foreground: oklch(98% 0 0);
-  --destructive: oklch(40% 0.14 26);
-  --destructive-foreground: oklch(64% 0.24 25);
-  --border: oklch(27% 0 0);
-  --input: oklch(27% 0 0);
-  --ring: oklch(44% 0 0);
-  --chart-1: oklch(49% 0.24 264);
-  --chart-2: oklch(70% 0.17 162);
-  --chart-3: oklch(77% 0.19 70);
-  --chart-4: oklch(63% 0.27 304);
-  --chart-5: oklch(65% 0.25 16);
-  --sidebar: oklch(20% 0 0);
-  --sidebar-foreground: oklch(98% 0 0);
-  --sidebar-primary: oklch(49% 0.24 264);
-  --sidebar-primary-foreground: oklch(98% 0 0);
-  --sidebar-accent: oklch(27% 0 0);
-  --sidebar-accent-foreground: oklch(98% 0 0);
-  --sidebar-border: oklch(27% 0 0);
-  --sidebar-ring: oklch(44% 0 0);
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.65 0.1 264);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.65 0.08 190);
+  --secondary-foreground: oklch(0.12 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.55 0.15 180);
+  --accent-foreground: oklch(0.12 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.28 0 0);
+  --ring: oklch(0.65 0.1 264);
+  --chart-1: oklch(0.65 0.1 264);
+  --chart-2: oklch(0.55 0.15 180);
+  --chart-3: oklch(0.65 0.08 190);
+  --chart-4: oklch(0.6 0.08 270);
+  --chart-5: oklch(0.62 0.12 260);
+  --sidebar: oklch(0.18 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.65 0.1 264);
+  --sidebar-primary-foreground: oklch(0.95 0 0);
+  --sidebar-accent: oklch(0.55 0.15 180);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.28 0 0);
+  --sidebar-ring: oklch(0.65 0.1 264);
 }
 
 @theme inline {
@@ -120,6 +121,57 @@
     @apply border-border outline-ring/50;
   }
   body {
+    /* Updated background image to use the actual teal waves image */
     @apply bg-background text-foreground;
+    background-image: url("/backgrounds/waves-teal.jpg");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
+}
+
+/* Added smooth scroll behavior and scroll-margin for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+*[id] {
+  scroll-margin-top: 80px;
+}
+
+/* Added semi-transparent white overlay on main content for better text readability */
+main {
+  background-color: rgba(255, 255, 255, 0.97);
+  background-attachment: scroll;
+}
+
+/* Exam mode styles - hide navigation and headers */
+body.exam-mode nav,
+body.exam-mode header,
+body.exam-mode .navbar {
+  display: none !important;
+}
+
+body.exam-mode {
+  overflow-x: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove any top spacing in exam mode */
+body.exam-mode * {
+  margin-top: 0 !important;
+}
+
+body.exam-mode > div:first-child,
+body.exam-mode > main:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Ensure exam container starts at top */
+html.exam-mode,
+body.exam-mode {
+  scroll-padding-top: 0 !important;
 }

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useSubjects } from "@/lib/subject-context";
-import { Moon, Sun, Menu } from "lucide-react";
+import { Moon, Sun, Menu, Download } from "lucide-react";
 import { useState } from "react";
 import CreateSubjectModal from "./create-subject-modal";
 import {
@@ -15,55 +15,96 @@ interface NavbarProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
   onOpenMobileSidebar?: () => void;
+  onNavigate: (page: "home" | "mcqs" | "about") => void;
+  currentPage?: "home" | "mcqs" | "about";
 }
 
 export default function Navbar({
   darkMode,
   onToggleDarkMode,
   onOpenMobileSidebar,
+  onNavigate,
+  currentPage = "home",
 }: NavbarProps) {
   const { subjects } = useSubjects();
   const hasSubjects = subjects.length > 0;
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleCreateClick = () => {
-    console.log(" Create subject button clicked");
     setShowCreateModal(true);
   };
 
   const handleCloseModal = () => {
-    console.log(" Closing modal");
     setShowCreateModal(false);
+  };
+
+  const getNavButtonClass = (page: "home" | "mcqs" | "about") => {
+    const isActive = currentPage === page;
+    return `px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
+      isActive
+        ? darkMode
+          ? "bg-slate-800 text-white"
+          : "bg-gray-100 text-gray-900"
+        : darkMode
+        ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+    }`;
   };
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 h-16 border-b z-40 ${
-          darkMode
-            ? "bg-slate-900 border-slate-800"
-            : "bg-white border-gray-200"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 ${
+          darkMode ? "bg-slate-900" : "bg-white"
+        } shadow-sm`}
       >
-        <div className="h-full px-4 flex items-center justify-between max-w-7xl mx-auto">
+        <div className="h-20 px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto">
           {/* Left: App Name */}
           <button
-            onClick={() => (window.location.href = "/")}
-            className={`font-semibold text-lg ${
+            onClick={() => onNavigate("home")}
+            className={`font-bold text-xl ${
               darkMode ? "text-white" : "text-gray-900"
             } hover:opacity-80 transition-opacity`}
           >
-            DITOR
+            DITOR<sup className="text-sm text-gray-400">v2</sup>
           </button>
+
+          {/* Center: Navigation Pills - Desktop */}
+          <div
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-full ${
+              darkMode ? "bg-slate-800/50" : "bg-gray-50"
+            }`}
+          >
+            <button
+              onClick={() => onNavigate("home")}
+              className={getNavButtonClass("home")}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => onNavigate("mcqs")}
+              className={getNavButtonClass("mcqs")}
+            >
+              MCQs
+            </button>
+            <button
+              onClick={() => onNavigate("about")}
+              className={getNavButtonClass("about")}
+            >
+              About Us
+            </button>
+          </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle - Desktop */}
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleDarkMode}
-              className="rounded-lg"
+              className={`rounded-full w-10 h-10 p-0 hidden md:flex items-center justify-center ${
+                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+              }`}
             >
               {darkMode ? (
                 <Sun className="w-4 h-4" />
@@ -72,12 +113,29 @@ export default function Navbar({
               )}
             </Button>
 
-            {/* Subjects Menu - Only visible on desktop when subjects exist */}
-            {hasSubjects && (
+            {/* Dark Mode Toggle - Mobile */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleDarkMode}
+              className={`md:hidden rounded-full w-10 h-10 p-0 flex items-center justify-center ${
+                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+              }`}
+            >
+              {darkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </Button>
+
+            {/* Download/Subjects Button */}
+            {hasSubjects ? (
               <div className="hidden md:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="rounded-lg">
+                    <Button className="rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white">
+                      <Download className="w-4 h-4 mr-2" />
                       Subjects
                     </Button>
                   </DropdownMenuTrigger>
@@ -88,6 +146,14 @@ export default function Navbar({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+            ) : (
+              <Button
+                onClick={handleCreateClick}
+                className="hidden md:flex rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Get Started
+              </Button>
             )}
 
             {/* Mobile Menu */}
@@ -95,13 +161,74 @@ export default function Navbar({
               variant="ghost"
               size="sm"
               onClick={onOpenMobileSidebar}
-              className="md:hidden rounded-lg"
+              className={`md:hidden rounded-full w-10 h-10 p-0 ${
+                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+              }`}
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-5 h-5" />
             </Button>
           </div>
         </div>
+
+        {/* Mobile Navigation - Bottom Pills */}
+        <div
+          className={`md:hidden border-t ${
+            darkMode ? "border-slate-800" : "border-gray-200"
+          }`}
+        >
+          <div
+            className={`flex items-center justify-center gap-2 px-4 py-3 ${
+              darkMode ? "bg-slate-900" : "bg-white"
+            }`}
+          >
+            <button
+              onClick={() => onNavigate("home")}
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+                currentPage === "home"
+                  ? darkMode
+                    ? "bg-slate-800 text-white"
+                    : "bg-gray-100 text-gray-900"
+                  : darkMode
+                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => onNavigate("mcqs")}
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+                currentPage === "mcqs"
+                  ? darkMode
+                    ? "bg-slate-800 text-white"
+                    : "bg-gray-100 text-gray-900"
+                  : darkMode
+                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              MCQs
+            </button>
+            <button
+              onClick={() => onNavigate("about")}
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+                currentPage === "about"
+                  ? darkMode
+                    ? "bg-slate-800 text-white"
+                    : "bg-gray-100 text-gray-900"
+                  : darkMode
+                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              About
+            </button>
+          </div>
+        </div>
       </nav>
+
+      {/* Mobile-only spacer for bottom navigation */}
+      <div className="h-16 md:hidden"></div>
 
       {showCreateModal && (
         <CreateSubjectModal onClose={handleCloseModal} darkMode={darkMode} />

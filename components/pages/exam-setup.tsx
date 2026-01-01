@@ -56,13 +56,7 @@ export default function ExamSetup({
     >
       <div className="w-full max-w-md">
         <Card className={darkMode ? "bg-slate-800 border-slate-700" : ""}>
-          <CardHeader
-            className={`text-center ${
-              darkMode
-                ? "bg-slate-900"
-                : "bg-gradient-to-r from-blue-50 to-indigo-50"
-            }`}
-          >
+          <CardHeader className={"text-center"}>
             <CardTitle className={`text-3xl ${darkMode ? "text-white" : ""}`}>
               Exam Setup
             </CardTitle>

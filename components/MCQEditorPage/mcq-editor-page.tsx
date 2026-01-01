@@ -26,6 +26,26 @@ import { validateMCQs } from "@/lib/mcq-validation";
 import { Upload, AlertCircle, CheckCircle } from "lucide-react";
 import type { MCQ } from "@/lib/types";
 
+// Generate unique ID for MCQs using crypto.randomUUID
+const generateUniqueId = () => {
+  return crypto.randomUUID();
+};
+
+// Ensure all MCQs have unique IDs
+const ensureUniqueIds = (mcqs: MCQ[]): MCQ[] => {
+  const seenIds = new Set<string>();
+  return mcqs.map((mcq) => {
+    // If no ID or duplicate ID, generate new one
+    if (!mcq.id || seenIds.has(mcq.id)) {
+      const newId = generateUniqueId();
+      seenIds.add(newId);
+      return { ...mcq, id: newId };
+    }
+    seenIds.add(mcq.id);
+    return mcq;
+  });
+};
+
 interface MCQEditorPageProps {
   onMcqsLoaded: () => void;
   darkMode: boolean;
@@ -63,9 +83,10 @@ export function MCQEditorPage({
   useEffect(() => {
     if (activeSubjectId) {
       const subjectMcqs = getMcqsForSubject(activeSubjectId);
-      setMcqs(subjectMcqs);
-      setFilteredMcqs(subjectMcqs);
-      setLastValidMcqs(subjectMcqs);
+      const mcqsWithIds = ensureUniqueIds(subjectMcqs);
+      setMcqs(mcqsWithIds);
+      setFilteredMcqs(mcqsWithIds);
+      setLastValidMcqs(mcqsWithIds);
     }
   }, [activeSubjectId, getMcqsForSubject, subjects]);
 
@@ -93,7 +114,8 @@ export function MCQEditorPage({
 
     const result = await parseJSONFile(file);
     if (result.isValid && result.mcqs) {
-      setPendingImportMcqs(result.mcqs);
+      const mcqsWithIds = ensureUniqueIds(result.mcqs);
+      setPendingImportMcqs(mcqsWithIds);
       setShowImportBehavior(true);
     } else {
       const errorDetails = result.errors
@@ -128,7 +150,8 @@ export function MCQEditorPage({
   };
 
   const handleAddManualQuestion = (mcq: MCQ) => {
-    const updated = [...mcqs, mcq];
+    const mcqWithId = { ...mcq, id: mcq.id || generateUniqueId() };
+    const updated = [...mcqs, mcqWithId];
     setMcqs(updated);
     setFilteredMcqs(updated);
     setSaveMessage("Question added successfully");
@@ -181,6 +204,7 @@ export function MCQEditorPage({
   const handleLoadExample = () => {
     const example = [
       {
+        id: generateUniqueId(),
         q: "What is 2 + 2?",
         opts: ["3", "4", "5", "6"],
         answer: 1,

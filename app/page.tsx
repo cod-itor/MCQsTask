@@ -3,20 +3,29 @@
 import { useState, useEffect } from "react";
 import { SubjectProvider, useSubjects } from "@/lib/subject-context";
 import Navbar from "@/components/navbar";
-import Home from "@/components/pages/home";
-import MCQInput from "@/components/pages/mcq-input";
+import HomeLanding from "@/components/pages/home-landing";
+import MCQsPage from "@/components/pages/mcqs-page";
 import PracticeTest from "@/components/pages/practice-test";
 import ExamSetup from "@/components/pages/exam-setup";
 import ExamTest from "@/components/pages/exam-test";
 import Results from "@/components/pages/results";
+import AboutUs from "@/components/pages/about-us";
 import SubjectSidebar from "@/components/subject-sidebar";
 import MobileSidebarDrawer from "@/components/mobile-sidebar-drawer";
+import MCQInput from "@/components/pages/mcq-input";
 import type { ExamState } from "@/lib/types";
 
 function PageContent() {
   const { activeSubjectId, getMcqsForSubject } = useSubjects();
   const [page, setPage] = useState<
-    "home" | "input" | "practice" | "exam-setup" | "exam" | "results"
+    | "home"
+    | "input"
+    | "practice"
+    | "exam-setup"
+    | "exam"
+    | "results"
+    | "mcqs"
+    | "about"
   >("home");
   const [examState, setExamState] = useState<ExamState | null>(null);
   const [darkMode, setDarkMode] = useState(false);
@@ -83,9 +92,23 @@ function PageContent() {
     }, 100);
   };
 
-  const showSidebar = ["practice", "exam-setup", "exam", "results"].includes(
-    page
-  );
+  const handleNavigate = (destination: "home" | "mcqs" | "about") => {
+    if (destination === "home") {
+      setPage("home");
+    } else if (destination === "mcqs") {
+      setPage("mcqs");
+    } else if (destination === "about") {
+      setPage("about");
+    }
+  };
+
+  const showSidebar = [
+    "practice",
+    "exam-setup",
+    "exam",
+    "results",
+    "mcqs",
+  ].includes(page);
 
   return (
     <>
@@ -93,6 +116,16 @@ function PageContent() {
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
         onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+        onNavigate={handleNavigate}
+        currentPage={
+          page === "home"
+            ? "home"
+            : page === "about"
+            ? "about"
+            : page === "mcqs"
+            ? "mcqs"
+            : "home"
+        }
       />
 
       <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
@@ -101,7 +134,10 @@ function PageContent() {
             darkMode ? "bg-gray-950" : "bg-gray-50"
           }`}
         >
-          <div className="flex h-screen pt-16">
+          <div
+            className="flex"
+            style={{ height: "calc(100vh - 80px)", marginTop: "80px" }}
+          >
             {/* Desktop Sidebar */}
             <div
               className={`hidden md:block w-64 border-r ${
@@ -124,25 +160,29 @@ function PageContent() {
             {/* Main Content */}
             <div className="flex-1 overflow-auto">
               {page === "home" && (
-                <Home
+                // <HomeLanding darkMode={darkMode} onNavigate={handleNavigate} /> // this for the button that changes this will invlude in V2.2
+                <HomeLanding darkMode={darkMode} />
+              )}
+              {page === "mcqs" && (
+                <MCQsPage
                   onStartPractice={handleStartPractice}
                   onStartExam={handleStartExamSetup}
                   onInputMcqs={() => setPage("input")}
                   darkMode={darkMode}
-                  onToggleDarkMode={toggleDarkMode}
-                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
                   onCreateSubject={handleCreateSubject}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
                 />
               )}
+              {page === "about" && <AboutUs darkMode={darkMode} />}
               {page === "input" && (
                 <MCQInput
-                  onMcqsLoaded={() => setPage("home")}
+                  onMcqsLoaded={() => setPage("mcqs")}
                   darkMode={darkMode}
                 />
               )}
               {page === "practice" && (
                 <PracticeTest
-                  onBack={() => setPage("home")}
+                  onBack={() => setPage("mcqs")}
                   darkMode={darkMode}
                   onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
                 />
@@ -150,7 +190,7 @@ function PageContent() {
               {page === "exam-setup" && (
                 <ExamSetup
                   onStart={handleStartExam}
-                  onBack={() => setPage("home")}
+                  onBack={() => setPage("mcqs")}
                   darkMode={darkMode}
                   onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
                 />
@@ -169,7 +209,7 @@ function PageContent() {
                   state={examState}
                   onRestart={() => {
                     setExamState(null);
-                    setPage("home");
+                    setPage("mcqs");
                   }}
                   darkMode={darkMode}
                   onOpenMobileSidebar={() => setMobileDrawerOpen(true)}

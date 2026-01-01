@@ -5,12 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  convertInternalIndexToUser,
-  convertUserIndexToInternal,
-} from "@/lib/mcq-validation";
-import type { MCQ } from "@/lib/types";
+import { X, Plus, ChevronLeft, ChevronRight, Check } from "lucide-react";
+
+// Convert index to letter (0 -> A, 1 -> B, etc.)
+const indexToLetter = (index: number): string => {
+  return String.fromCharCode(65 + index);
+};
+
+// Convert letter to index (A -> 0, B -> 1, etc.)
+const letterToIndex = (letter: string): number => {
+  return letter.toUpperCase().charCodeAt(0) - 65;
+};
+
+interface MCQ {
+  id: string;
+  q: string;
+  opts: string[];
+  answer: number;
+  explanation?: string;
+}
 
 interface QuestionEditorProps {
   mode: "add" | "edit";
@@ -36,13 +49,10 @@ export function QuestionEditor({
   onPrevious,
 }: QuestionEditorProps) {
   const [question, setQuestion] = useState("");
-  const [options, setOptions] = useState<string[]>(["", "", ""]);
+  const [options, setOptions] = useState<string[]>(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState(0);
   const [explanation, setExplanation] = useState("");
   const [error, setError] = useState("");
-  const [editingAnswerIndex, setEditingAnswerIndex] = useState<number | null>(
-    null
-  );
 
   useEffect(() => {
     if (mode === "edit" && initialData) {
@@ -52,17 +62,18 @@ export function QuestionEditor({
       setExplanation(initialData.explanation || "");
     } else {
       setQuestion("");
-      setOptions(["", "", ""]);
+      setOptions(["", "", "", ""]);
       setCorrectAnswer(0);
       setExplanation("");
     }
     setError("");
-    setEditingAnswerIndex(null);
   }, [mode, initialData]);
 
   const handleAddOption = useCallback(() => {
-    setOptions((prev) => [...prev, ""]);
-  }, []);
+    if (options.length < 26) {
+      setOptions((prev) => [...prev, ""]);
+    }
+  }, [options.length]);
 
   const handleRemoveOption = useCallback((index: number) => {
     setOptions((prev) => {
@@ -82,20 +93,6 @@ export function QuestionEditor({
       return newOptions;
     });
   }, []);
-
-  const handleAnswerInput = useCallback(
-    (userInput: string) => {
-      const num = Number.parseInt(userInput);
-      if (!isNaN(num)) {
-        const internalIndex = convertUserIndexToInternal(num);
-        if (internalIndex >= 0 && internalIndex < options.length) {
-          setCorrectAnswer(internalIndex);
-          setEditingAnswerIndex(null);
-        }
-      }
-    },
-    [options.length]
-  );
 
   const handleSubmit = () => {
     setError("");
@@ -134,30 +131,57 @@ export function QuestionEditor({
 
   return (
     <Card
-      className={`${darkMode ? "bg-slate-800 border-slate-700" : "bg-white"}`}
+      className={`${
+        darkMode ? "bg-slate-800 border-slate-700" : "bg-white"
+      } max-w-4xl mx-auto`}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle
-          className={mode === "add" ? "text-green-600" : "text-blue-600"}
-        >
-          {headerTitle}
-        </CardTitle>
+      <CardHeader className="pb-6 space-y-0">
+        {/* Top Row: Title and Close Button */}
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <CardTitle
+            className={`text-xl font-semibold leading-tight ${
+              mode === "add" ? "text-green-600" : "text-blue-600"
+            } flex-1 min-w-0`}
+          >
+            {headerTitle}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            className={`h-9 w-9 p-0 flex-shrink-0 ${
+              darkMode
+                ? "text-slate-300 hover:bg-slate-700"
+                : "text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Bottom Row: Navigation - Only shown when needed */}
         {questionNumber &&
           totalQuestions &&
           (totalQuestions > 1 || mode === "edit") && (
-            <div className="flex gap-2">
+            <div className="flex items-center justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onPrevious}
                 disabled={!onPrevious || questionNumber === 1}
-                className={darkMode ? "bg-slate-700 border-slate-600" : ""}
+                className={`h-9 w-9 p-0 ${
+                  darkMode
+                    ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
+                    : ""
+                }`}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <span
-                className={`text-sm px-3 py-2 rounded ${
-                  darkMode ? "bg-slate-700" : "bg-gray-100"
+                className={`text-sm font-medium px-4 py-2 rounded-md whitespace-nowrap ${
+                  darkMode
+                    ? "bg-slate-700 text-slate-200"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {questionNumber} / {totalQuestions}
@@ -167,63 +191,107 @@ export function QuestionEditor({
                 size="sm"
                 onClick={onNext}
                 disabled={!onNext || questionNumber === totalQuestions}
-                className={darkMode ? "bg-slate-700 border-slate-600" : ""}
+                className={`h-9 w-9 p-0 ${
+                  darkMode
+                    ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
+                    : ""
+                }`}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCancel}
-          className={`${
-            darkMode ? "text-slate-300 hover:bg-slate-700" : "text-gray-500"
-          }`}
-        >
-          <X className="w-4 h-4" />
-        </Button>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-8">
         {/* Question */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Question</label>
+        <div className="space-y-3">
+          <label
+            className={`block text-sm font-semibold ${
+              darkMode ? "text-slate-200" : "text-gray-700"
+            }`}
+          >
+            Question
+          </label>
           <Textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Enter your question..."
-            className={`resize-none ${
-              darkMode ? "bg-slate-900 border-slate-600" : ""
+            placeholder="Enter your question here..."
+            className={`resize-none min-h-[100px] text-base ${
+              darkMode
+                ? "bg-slate-900 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                : "border-gray-300"
             }`}
-            rows={3}
+            rows={4}
           />
         </div>
 
         {/* Options */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Options (Display index 1-{options.length})
+        <div className="space-y-3">
+          <label
+            className={`block text-sm font-semibold ${
+              darkMode ? "text-slate-200" : "text-gray-700"
+            }`}
+          >
+            Answer Options
           </label>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {options.map((opt, index) => (
-              <div key={index} className="flex gap-2 items-start">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                  {convertInternalIndexToUser(index)}
+              <div key={index} className="flex gap-3 items-start group">
+                {/* Letter Badge */}
+                <button
+                  type="button"
+                  onClick={() => setCorrectAnswer(index)}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base flex-shrink-0 transition-all duration-200 ${
+                    correctAnswer === index
+                      ? darkMode
+                        ? "bg-green-600 text-white ring-2 ring-green-400 ring-offset-2 ring-offset-slate-800"
+                        : "bg-green-500 text-white ring-2 ring-green-400 ring-offset-2"
+                      : darkMode
+                      ? "bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300"
+                  }`}
+                  title={`Click to set as correct answer`}
+                >
+                  {correctAnswer === index ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    indexToLetter(index)
+                  )}
+                </button>
+
+                {/* Option Input */}
+                <div className="flex-1">
+                  <Input
+                    value={opt}
+                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    placeholder={`Option ${indexToLetter(index)}`}
+                    className={`text-base h-10 ${
+                      darkMode
+                        ? "bg-slate-900 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                        : "border-gray-300"
+                    } ${
+                      correctAnswer === index
+                        ? darkMode
+                          ? "border-green-600"
+                          : "border-green-500"
+                        : ""
+                    }`}
+                  />
                 </div>
-                <Input
-                  value={opt}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  placeholder={`Option ${convertInternalIndexToUser(index)}`}
-                  className={darkMode ? "bg-slate-900 border-slate-600" : ""}
-                />
+
+                {/* Remove Button */}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveOption(index)}
                   disabled={options.length <= 2}
-                  className={`text-red-500 flex-shrink-0 ${
-                    darkMode ? "hover:bg-slate-700" : ""
+                  className={`h-10 w-10 p-0 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${
+                    options.length <= 2 ? "!opacity-50" : ""
+                  } ${
+                    darkMode
+                      ? "text-red-400 hover:bg-red-900/30 hover:text-red-300"
+                      : "text-red-500 hover:bg-red-50"
                   }`}
                 >
                   <X className="w-4 h-4" />
@@ -231,86 +299,92 @@ export function QuestionEditor({
               </div>
             ))}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAddOption}
-            className={`mt-2 w-full ${
-              darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600" : ""
-            }`}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Option
-          </Button>
+
+          {/* Add Option Button */}
+          {options.length < 26 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAddOption}
+              className={`w-full h-10 mt-2 ${
+                darkMode
+                  ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-slate-200"
+                  : "border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Option (Next: {indexToLetter(options.length)})
+            </Button>
+          )}
         </div>
 
-        {/* Correct Answer */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Correct Answer
-          </label>
-          <div className="flex gap-2 items-center">
-            <p className="text-sm text-muted-foreground">
-              Currently set to option:{" "}
-              <strong>{convertInternalIndexToUser(correctAnswer)}</strong>
-            </p>
-            {editingAnswerIndex === null ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setEditingAnswerIndex(0)}
-                className={darkMode ? "bg-slate-700 border-slate-600" : ""}
+        {/* Correct Answer Display */}
+        <div
+          className={`p-4 rounded-lg ${
+            darkMode
+              ? "bg-green-900/20 border border-green-800"
+              : "bg-green-50 border border-green-200"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base ${
+                darkMode ? "bg-green-600 text-white" : "bg-green-500 text-white"
+              }`}
+            >
+              {indexToLetter(correctAnswer)}
+            </div>
+            <div>
+              <p
+                className={`text-sm font-semibold ${
+                  darkMode ? "text-green-400" : "text-green-700"
+                }`}
               >
-                Change
-              </Button>
-            ) : (
-              <div className="flex gap-2 flex-1">
-                <Input
-                  type="number"
-                  min={1}
-                  max={options.length}
-                  placeholder="Enter option number (1-based)"
-                  className={`w-24 ${
-                    darkMode ? "bg-slate-900 border-slate-600" : ""
-                  }`}
-                  autoFocus
-                  onBlur={() => setEditingAnswerIndex(null)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleAnswerInput(e.currentTarget.value);
-                    } else if (e.key === "Escape") {
-                      setEditingAnswerIndex(null);
-                    }
-                  }}
-                  onChange={(e) => handleAnswerInput(e.currentTarget.value)}
-                />
-              </div>
-            )}
+                Correct Answer
+              </p>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-slate-300" : "text-gray-600"
+                }`}
+              >
+                Click on any option letter to set it as the correct answer
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Explanation */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Explanation (Optional)
+        <div className="space-y-3">
+          <label
+            className={`block text-sm font-semibold ${
+              darkMode ? "text-slate-200" : "text-gray-700"
+            }`}
+          >
+            Explanation{" "}
+            <span className="text-sm font-normal text-gray-500">
+              (Optional)
+            </span>
           </label>
           <Textarea
             value={explanation}
             onChange={(e) => setExplanation(e.target.value)}
-            placeholder="Add explanation for the correct answer..."
-            className={`resize-none ${
-              darkMode ? "bg-slate-900 border-slate-600" : ""
+            placeholder="Provide an explanation for why this is the correct answer..."
+            className={`resize-none min-h-[80px] text-base ${
+              darkMode
+                ? "bg-slate-900 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                : "border-gray-300"
             }`}
-            rows={2}
+            rows={3}
           />
         </div>
 
+        {/* Error Message */}
         {error && (
           <div
-            className={`p-3 rounded-lg text-sm border ${
+            className={`p-4 rounded-lg text-sm font-medium ${
               darkMode
-                ? "bg-red-900 border-red-700 text-red-100"
-                : "bg-red-50 border-red-200 text-red-700"
+                ? "bg-red-900/30 border border-red-800 text-red-300"
+                : "bg-red-50 border border-red-200 text-red-700"
             }`}
           >
             {error}
@@ -318,22 +392,24 @@ export function QuestionEditor({
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-4 sticky bottom-0 to-transparent md:from-transparent -mx-6 px-6 pb-4 md:pb-0 md:mx-0 md:px-0">
+        <div className="flex gap-3 pt-4 border-t border-slate-700">
           <Button
             onClick={handleSubmit}
-            className={`flex-1 ${
+            className={`flex-1 h-11 text-base font-semibold ${
               mode === "add"
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-blue-600 hover:bg-blue-700"
-            } text-white`}
+            } text-white shadow-lg`}
           >
             {buttonLabel}
           </Button>
           <Button
             variant="outline"
             onClick={onCancel}
-            className={`flex-1 ${
-              darkMode ? "bg-slate-700 border-slate-600" : ""
+            className={`flex-1 h-11 text-base font-semibold ${
+              darkMode
+                ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-slate-200"
+                : "border-gray-300 hover:bg-gray-50"
             }`}
           >
             Cancel

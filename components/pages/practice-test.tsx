@@ -201,7 +201,7 @@ export default function PracticeTest({
                   : ""
               }`}
             >
-              ✏️ Edit MCQs
+              Edit Question
             </Button>
             <Button variant="outline" onClick={onBack}>
               Back
@@ -253,7 +253,7 @@ export default function PracticeTest({
                       onClick={handleToggleShuffle}
                       className="text-xs"
                     >
-                      {shuffle ? "🔀 Shuffled" : "📋 Ordered"}
+                      {shuffle ? "Shuffled" : "Ordered"}
                     </Button>
                     <Button
                       size="sm"
@@ -261,7 +261,7 @@ export default function PracticeTest({
                       onClick={handleToggleMix}
                       className="text-xs"
                     >
-                      {mixOptions ? "🎲 Mixed" : "🔤 Original"}
+                      {mixOptions ? "Mixed" : "Original"}
                     </Button>
                   </div>
                 </div>
@@ -345,7 +345,6 @@ export default function PracticeTest({
                     );
                   })}
                 </div>
-
                 {selectedAnswer !== undefined && !showAnswer && (
                   <Button
                     onClick={() => setShowAnswer(true)}
