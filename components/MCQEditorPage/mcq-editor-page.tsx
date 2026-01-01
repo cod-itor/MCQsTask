@@ -23,7 +23,7 @@ import { AddManualQuestion } from "./add-manual-question";
 import { EditorActionsMenu } from "./editor-actions-menu";
 import { parseJSONFile, exportMCQsToJSON } from "@/lib/mcq-file-handler";
 import { validateMCQs } from "@/lib/mcq-validation";
-import { Upload, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, FileText, Plus } from "lucide-react";
 import type { MCQ } from "@/lib/types";
 
 // Generate unique ID for MCQs using crypto.randomUUID
@@ -35,7 +35,6 @@ const generateUniqueId = () => {
 const ensureUniqueIds = (mcqs: MCQ[]): MCQ[] => {
   const seenIds = new Set<string>();
   return mcqs.map((mcq) => {
-    // If no ID or duplicate ID, generate new one
     if (!mcq.id || seenIds.has(mcq.id)) {
       const newId = generateUniqueId();
       seenIds.add(newId);
@@ -74,7 +73,7 @@ export function MCQEditorPage({
   const [pendingImportMcqs, setPendingImportMcqs] = useState<MCQ[]>([]);
   const [toastTimeout, setToastTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState(false);
+  const [showAddManual, setShowAddManual] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const hasUnsavedChanges =
@@ -155,6 +154,7 @@ export function MCQEditorPage({
     setMcqs(updated);
     setFilteredMcqs(updated);
     setSaveMessage("Question added successfully");
+    setShowAddManual(false);
   };
 
   const handleClearAll = () => {
@@ -236,115 +236,111 @@ export function MCQEditorPage({
 
   return (
     <div
-      className={`min-h-screen p-4 py-12 transition-colors duration-300 ${
+      className={`min-h-screen transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"
       }`}
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            {onBack && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBack}
-                className={`${darkMode ? "bg-slate-800 border-slate-600" : ""}`}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            )}
-            <h1
-              className={`text-3xl font-bold ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              MCQ Editor
-            </h1>
-          </div>
-          {activeSubjectId ? (
-            <div
-              className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
-                darkMode
-                  ? "bg-blue-900 border border-blue-700 text-blue-100"
-                  : "bg-blue-50 border border-blue-200 text-blue-900"
-              }`}
-            >
-              <CheckCircle className="w-5 h-5" />
-              <p className="font-semibold">Subject: {currentSubject?.name}</p>
-            </div>
-          ) : (
-            <div
-              className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
-                darkMode
-                  ? "bg-yellow-900 border border-yellow-700 text-yellow-100"
-                  : "bg-yellow-50 border border-yellow-200 text-yellow-900"
-              }`}
-            >
-              <AlertCircle className="w-5 h-5" />
-              <p className="font-semibold">
-                Please select a subject from the sidebar first
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* File Upload Section */}
-        <Card
-          className={`mb-6 ${darkMode ? "bg-slate-800 border-slate-700" : ""}`}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5" />
-              Import MCQs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4 flex-col md:flex-row">
-              <div className="flex-1">
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="json-upload"
-                />
-                <label htmlFor="json-upload">
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full md:w-auto cursor-pointer bg-transparent"
-                  >
-                    <span>Upload JSON File</span>
-                  </Button>
-                </label>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Upload a .json file with MCQs in the standard format
-                </p>
-              </div>
-
-              {isEmptyState && (
+      {/* Sticky Header */}
+      <div
+        className={`sticky top-0 z-20 border-b backdrop-blur-sm ${
+          darkMode
+            ? "bg-slate-900/90 border-slate-700"
+            : "bg-white/90 border-gray-200"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              {onBack && (
                 <Button
-                  variant="outline"
-                  onClick={handleLoadExample}
-                  className="w-full md:w-auto bg-transparent"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="gap-2"
                 >
-                  Load Example
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
                 </Button>
               )}
+              <div>
+                <h1
+                  className={`text-2xl font-bold ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  MCQ Editor
+                </h1>
+                {currentSubject && (
+                  <p
+                    className={`text-sm ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    {currentSubject.name} • {mcqs.length} question
+                    {mcqs.length !== 1 ? "s" : ""}
+                    {hasUnsavedChanges && " • Unsaved changes"}
+                  </p>
+                )}
+              </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {!isEmptyState && (
+                <>
+                  <Button
+                    onClick={handleSave}
+                    disabled={!canSave}
+                    className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Save Changes
+                  </Button>
+                  <EditorActionsMenu
+                    onExport={() =>
+                      exportMCQsToJSON(
+                        mcqs,
+                        `${currentSubject?.name || "mcqs"}.json`
+                      )
+                    }
+                    onRollback={handleRollback}
+                    onClearAll={handleClearAll}
+                    canRollback={canRollback}
+                    hasMcqs={mcqs.length > 0}
+                    darkMode={darkMode}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Subject Warning */}
+        {!activeSubjectId && (
+          <div
+            className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+              darkMode
+                ? "bg-yellow-900/30 border border-yellow-700 text-yellow-100"
+                : "bg-yellow-50 border border-yellow-200 text-yellow-900"
+            }`}
+          >
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="font-medium">
+              Please select a subject from the sidebar to start editing
+            </p>
+          </div>
+        )}
 
         {/* Messages */}
         {saveMessage && (
           <div
-            className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${
+            className={`mb-4 p-4 rounded-lg flex items-center gap-3 animate-in slide-in-from-top ${
               darkMode
-                ? "bg-green-900 border border-green-700 text-green-100"
+                ? "bg-green-900/30 border border-green-700 text-green-100"
                 : "bg-green-50 border border-green-200 text-green-700"
             }`}
           >
@@ -355,165 +351,248 @@ export function MCQEditorPage({
 
         {errorMessage && (
           <div
-            className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${
+            className={`mb-4 p-4 rounded-lg flex items-start gap-3 animate-in slide-in-from-top ${
               darkMode
-                ? "bg-red-900 border border-red-700 text-red-100"
+                ? "bg-red-900/30 border border-red-700 text-red-100"
                 : "bg-red-50 border border-red-200 text-red-700"
             }`}
           >
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">Validation Error</p>
-              <p className="text-sm whitespace-pre-line">{errorMessage}</p>
+              <p className="text-sm whitespace-pre-line mt-1">{errorMessage}</p>
             </div>
           </div>
         )}
 
-        {/* Add Manual Question */}
-        {activeSubjectId && (
-          <AddManualQuestion
-            onAdd={handleAddManualQuestion}
-            darkMode={darkMode}
-          />
+        {/* Empty State - Getting Started */}
+        {isEmptyState && activeSubjectId && (
+          <Card
+            className={`border-2 border-dashed ${
+              darkMode
+                ? "bg-slate-800/50 border-slate-600"
+                : "bg-white border-gray-300"
+            }`}
+          >
+            <CardContent className="py-12">
+              <div className="text-center max-w-md mx-auto">
+                <FileText
+                  className={`w-16 h-16 mx-auto mb-4 ${
+                    darkMode ? "text-gray-600" : "text-gray-400"
+                  }`}
+                />
+                <h2
+                  className={`text-2xl font-bold mb-2 ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  No Questions Yet
+                </h2>
+                <p
+                  className={`mb-6 ${
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  Get started by adding questions to your collection
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <div>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="json-upload-empty"
+                    />
+                    <label htmlFor="json-upload-empty">
+                      <Button
+                        asChild
+                        className="gap-2 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                      >
+                        <span>
+                          <Upload className="w-4 h-4" />
+                          Import JSON File
+                        </span>
+                      </Button>
+                    </label>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddManual(true)}
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Manually
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={handleLoadExample}
+                    className="gap-2"
+                  >
+                    Load Example
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Search Section */}
-        {mcqs.length > 0 && (
-          <div className="mb-6">
-            <SearchMcqs
-              mcqs={mcqs}
-              onFilterChange={setFilteredMcqs}
+        {/* Main Editor Content */}
+        {!isEmptyState && (
+          <div className="space-y-6">
+            {/* Toolbar - Search and Quick Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+              <div className="flex-1 w-full">
+                <SearchMcqs
+                  mcqs={mcqs}
+                  onFilterChange={setFilteredMcqs}
+                  darkMode={darkMode}
+                />
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => setShowAddManual(true)}
+                  className="gap-2 flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Question
+                </Button>
+                <div>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="json-upload"
+                  />
+                  <label htmlFor="json-upload">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="gap-2 cursor-pointer"
+                    >
+                      <span>
+                        <Upload className="w-4 h-4" />
+                        Import
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Editor Tabs */}
+            <Tabs
+              value={activeTab}
+              onValueChange={(val) => setActiveTab(val as "guided" | "json")}
+            >
+              <TabsList
+                className={`grid w-full grid-cols-2 ${
+                  darkMode ? "bg-slate-800" : ""
+                }`}
+              >
+                <TabsTrigger value="guided">Visual Editor</TabsTrigger>
+                <TabsTrigger value="json">JSON Editor</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="guided" className="space-y-4 mt-6">
+                <MCQStructuredEditor
+                  mcqs={mcqs}
+                  onChange={setMcqs}
+                  darkMode={darkMode}
+                  displayedMcqs={filteredMcqs}
+                />
+              </TabsContent>
+
+              <TabsContent value="json" className="mt-6">
+                <MCQJSONEditor
+                  mcqs={mcqs}
+                  onChange={setMcqs}
+                  darkMode={darkMode}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
+      <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <AlertDialogContent
+          className={darkMode ? "bg-slate-800 border-slate-700" : ""}
+        >
+          <AlertDialogTitle>Save MCQs?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You are about to save {mcqs.length} MCQ(s) to "
+            {currentSubject?.name}
+            ". This will replace the existing MCQs for this subject. All active
+            exams and practice sessions will be reset.
+          </AlertDialogDescription>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel
+              className={darkMode ? "bg-slate-700 border-slate-600" : ""}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmSave}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Save
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <ImportBehaviorModal
+        open={showImportBehavior}
+        onOpenChange={setShowImportBehavior}
+        newMcqs={pendingImportMcqs}
+        existingMcqCount={mcqs.length}
+        onConfirm={handleImportBehavior}
+        darkMode={darkMode}
+      />
+
+      <AlertDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+        <AlertDialogContent
+          className={darkMode ? "bg-slate-800 border-slate-700" : ""}
+        >
+          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved changes in your MCQs. Are you sure you want to
+            leave?
+          </AlertDialogDescription>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel
+              className={darkMode ? "bg-slate-700 border-slate-600" : ""}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmNavigation}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Leave Anyway
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add Manual Question Dialog */}
+      {showAddManual && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 overflow-y-auto">
+          <div className="min-h-full py-40 w-full max-w-2xl">
+            <AddManualQuestion
+              onAdd={handleAddManualQuestion}
+              onClose={() => setShowAddManual(false)}
               darkMode={darkMode}
             />
           </div>
-        )}
-
-        {/* Editor Tabs */}
-        {mcqs.length > 0 && (
-          <Tabs
-            value={activeTab}
-            onValueChange={(val) => setActiveTab(val as "guided" | "json")}
-            className="mb-6"
-          >
-            <TabsList
-              className={`grid w-full grid-cols-2 ${
-                darkMode ? "bg-slate-800" : ""
-              }`}
-            >
-              <TabsTrigger value="guided" className="relative">
-                Editor (Recommended)
-              </TabsTrigger>
-              <TabsTrigger value="json">Raw JSON</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="guided" className="space-y-4">
-              <MCQStructuredEditor
-                mcqs={mcqs}
-                onChange={setMcqs}
-                darkMode={darkMode}
-                displayedMcqs={filteredMcqs}
-              />
-            </TabsContent>
-
-            <TabsContent value="json">
-              <MCQJSONEditor
-                mcqs={mcqs}
-                onChange={setMcqs}
-                darkMode={darkMode}
-              />
-            </TabsContent>
-          </Tabs>
-        )}
-
-        <div className="md:static md:bottom-auto md:bg-transparent md:from-transparent md:pt-0 md:pb-0 md:mx-0 md:px-0 fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-800  dark:from-slate-900 to-transparent pt-4 pb-4 px-4 flex gap-3 flex-col sm:flex-row flex-wrap z-10">
-          {!isEmptyState && (
-            <Button
-              onClick={handleSave}
-              disabled={!canSave}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white min-w-fit sm:flex-none"
-            >
-              Save MCQs to "{currentSubject?.name || "Subject"}"
-            </Button>
-          )}
-
-          <EditorActionsMenu
-            onExport={() =>
-              exportMCQsToJSON(mcqs, `${currentSubject?.name || "mcqs"}.json`)
-            }
-            onRollback={handleRollback}
-            onClearAll={handleClearAll}
-            canRollback={canRollback}
-            hasMcqs={mcqs.length > 0}
-            darkMode={darkMode}
-          />
         </div>
-
-        {/* Save Confirmation Dialog */}
-        <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-          <AlertDialogContent
-            className={darkMode ? "bg-slate-800 border-slate-700" : ""}
-          >
-            <AlertDialogTitle>Save MCQs?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to save {mcqs.length} MCQ(s) to "
-              {currentSubject?.name}". This will replace the existing MCQs for
-              this subject. All active exams and practice sessions will be
-              reset.
-            </AlertDialogDescription>
-            <div className="flex gap-3">
-              <AlertDialogCancel
-                className={darkMode ? "bg-slate-700 border-slate-600" : ""}
-              >
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmSave}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Save
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <ImportBehaviorModal
-          open={showImportBehavior}
-          onOpenChange={setShowImportBehavior}
-          newMcqs={pendingImportMcqs}
-          existingMcqCount={mcqs.length}
-          onConfirm={handleImportBehavior}
-          darkMode={darkMode}
-        />
-
-        {/* Unsaved Changes Confirmation Dialog */}
-        <AlertDialog
-          open={showUnsavedDialog}
-          onOpenChange={setShowUnsavedDialog}
-        >
-          <AlertDialogContent
-            className={darkMode ? "bg-slate-800 border-slate-700" : ""}
-          >
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have unsaved changes in your MCQs. Are you sure you want to
-              leave?
-            </AlertDialogDescription>
-            <div className="flex gap-3">
-              <AlertDialogCancel
-                className={darkMode ? "bg-slate-700 border-slate-600" : ""}
-              >
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmNavigation}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Leave Anyway
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      )}
     </div>
   );
 }

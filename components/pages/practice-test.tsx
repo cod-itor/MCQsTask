@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSubjects } from "@/lib/subject-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,6 +56,9 @@ export default function PracticeTest({
     number | null
   >(null);
 
+  // Use ref to track if we should skip the next update
+  const skipNextUpdate = useRef(false);
+
   // Shuffle array helper
   const shuffleArray = <T,>(arr: T[]): T[] => {
     const newArr = [...arr];
@@ -68,6 +71,12 @@ export default function PracticeTest({
 
   // Initialize or update questions based on shuffle/mix settings
   useEffect(() => {
+    // Check if we should skip this update
+    if (skipNextUpdate.current) {
+      skipNextUpdate.current = false;
+      return;
+    }
+
     let questions = [...mcqs];
 
     // Shuffle questions if enabled
@@ -154,8 +163,53 @@ export default function PracticeTest({
 
   const handleSaveQuestion = (updatedMcq: MCQ) => {
     if (activeSubjectId) {
-      const updated = [...mcqs];
-      updated[currentIndex] = updatedMcq;
+      // Set flag BEFORE updating to prevent useEffect from resetting
+      skipNextUpdate.current = true;
+
+      const updated = mcqs.map((q) =>
+        q.id === updatedMcq.id ? updatedMcq : q
+      );
+
+      // Update the displayed question in-place
+      setDisplayQuestions((prev) =>
+        prev.map((q) => {
+          if (q.id === updatedMcq.id) {
+            // Preserve the shuffled state if options were mixed
+            if (mixOptions) {
+              const optionsWithIndex = updatedMcq.opts.map((opt, idx) => ({
+                opt,
+                idx,
+              }));
+              const shuffledOptions = shuffleArray(optionsWithIndex);
+              const newAnswerIndex = shuffledOptions.findIndex(
+                (item) => item.idx === updatedMcq.answer
+              );
+
+              return {
+                id: updatedMcq.id,
+                q: updatedMcq.q,
+                opts: shuffledOptions.map((item) => item.opt),
+                answer: newAnswerIndex,
+                explanation: updatedMcq.explanation,
+                originalOpts: updatedMcq.opts,
+                originalAnswer: updatedMcq.answer,
+              };
+            }
+
+            return {
+              id: updatedMcq.id,
+              q: updatedMcq.q,
+              opts: updatedMcq.opts,
+              answer: updatedMcq.answer,
+              explanation: updatedMcq.explanation,
+              originalOpts: updatedMcq.opts,
+              originalAnswer: updatedMcq.answer,
+            };
+          }
+          return q;
+        })
+      );
+
       updateMcqsForSubject(activeSubjectId, updated);
       setEditingQuestionIndex(null);
     }

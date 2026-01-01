@@ -11,10 +11,15 @@ import type { MCQ } from "@/lib/types";
 
 interface AddManualQuestionProps {
   onAdd: (mcq: MCQ) => void;
+  onClose: () => void;
   darkMode: boolean;
 }
 
-export function AddManualQuestion({ onAdd, darkMode }: AddManualQuestionProps) {
+export function AddManualQuestion({
+  onAdd,
+  onClose,
+  darkMode,
+}: AddManualQuestionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", ""]);
@@ -78,18 +83,6 @@ export function AddManualQuestion({ onAdd, darkMode }: AddManualQuestionProps) {
     setIsOpen(false);
   };
 
-  if (!isOpen) {
-    return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="w-full bg-green-600 hover:bg-green-700 text-white mb-6"
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        Add Question Manually
-      </Button>
-    );
-  }
-
   return (
     <Card
       className={`mb-6 border-green-500 ${
@@ -102,7 +95,7 @@ export function AddManualQuestion({ onAdd, darkMode }: AddManualQuestionProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsOpen(false)}
+            onClick={onClose}
             className="text-gray-500"
           >
             <X className="w-4 h-4" />
@@ -220,7 +213,7 @@ export function AddManualQuestion({ onAdd, darkMode }: AddManualQuestionProps) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setIsOpen(false)}
+            onClick={onClose}
             className={darkMode ? "bg-slate-700 border-slate-600" : ""}
           >
             Cancel
