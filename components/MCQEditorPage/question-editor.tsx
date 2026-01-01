@@ -35,6 +35,150 @@ interface QuestionEditorProps {
   totalQuestions?: number;
   onNext?: () => void;
   onPrevious?: () => void;
+  onJumpTo?: (questionNumber: number) => void;
+}
+
+interface QuestionNavigatorProps {
+  questionNumber: number;
+  totalQuestions: number;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  onJumpTo: (questionNumber: number) => void;
+  darkMode: boolean;
+}
+
+function QuestionNavigator({
+  questionNumber,
+  totalQuestions,
+  onPrevious,
+  onNext,
+  onJumpTo,
+  darkMode,
+}: QuestionNavigatorProps) {
+  const [inputValue, setInputValue] = useState(questionNumber.toString());
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setInputValue(questionNumber.toString());
+    setError("");
+  }, [questionNumber]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow only numbers
+    if (value === "" || /^\d+$/.test(value)) {
+      setInputValue(value);
+      setError("");
+    }
+  };
+
+  const handleInputBlur = () => {
+    if (inputValue === "") {
+      setInputValue(questionNumber.toString());
+      return;
+    }
+
+    const num = parseInt(inputValue, 10);
+
+    console.log("=== Input Blur Debug ===");
+    console.log("Input value:", inputValue);
+    console.log("Parsed number:", num);
+    console.log("Current question number:", questionNumber);
+    console.log("Total questions:", totalQuestions);
+
+    if (isNaN(num) || num < 1) {
+      setError("Minimum is 1");
+      setInputValue(questionNumber.toString());
+      setTimeout(() => setError(""), 2000);
+      return;
+    }
+
+    if (num > totalQuestions) {
+      setError(`Maximum is ${totalQuestions}`);
+      setInputValue(questionNumber.toString());
+      setTimeout(() => setError(""), 2000);
+      return;
+    }
+
+    if (num !== questionNumber) {
+      console.log("Calling onJumpTo with:", num);
+      onJumpTo(num);
+    } else {
+      console.log("Number matches current question, no jump needed");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrevious}
+          disabled={!onPrevious || questionNumber === 1}
+          className={`h-9 w-9 p-0 ${
+            darkMode
+              ? "bg-slate-700 border-slate-600 hover:bg-slate-600 disabled:opacity-50"
+              : "disabled:opacity-50"
+          }`}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+
+        <div className="flex items-center gap-1">
+          <Input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            onKeyDown={handleKeyDown}
+            className={`h-9 w-16 text-center text-sm font-medium ${
+              darkMode
+                ? "bg-slate-700 border-slate-600 text-slate-200"
+                : "bg-gray-100 text-gray-700 border-gray-300"
+            }`}
+          />
+          <span
+            className={`text-sm font-medium ${
+              darkMode ? "text-slate-400" : "text-gray-500"
+            }`}
+          >
+            / {totalQuestions}
+          </span>
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={!onNext || questionNumber === totalQuestions}
+          className={`h-9 w-9 p-0 ${
+            darkMode
+              ? "bg-slate-700 border-slate-600 hover:bg-slate-600 disabled:opacity-50"
+              : "disabled:opacity-50"
+          }`}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {error && (
+        <div
+          className={`text-xs font-medium px-3 py-1 rounded ${
+            darkMode ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-600"
+          }`}
+        >
+          {error}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function QuestionEditor({
@@ -47,6 +191,7 @@ export function QuestionEditor({
   totalQuestions,
   onNext,
   onPrevious,
+  onJumpTo,
 }: QuestionEditorProps) {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(["", "", "", ""]);
@@ -55,6 +200,12 @@ export function QuestionEditor({
   const [error, setError] = useState("");
 
   useEffect(() => {
+    console.log("=== QuestionEditor useEffect ===");
+    console.log("Mode:", mode);
+    console.log("Question Number:", questionNumber);
+    console.log("Initial Data ID:", initialData?.id);
+    console.log("Initial Data Question:", initialData?.q?.substring(0, 50));
+
     if (mode === "edit" && initialData) {
       setQuestion(initialData.q);
       setOptions([...initialData.opts]);
@@ -67,7 +218,7 @@ export function QuestionEditor({
       setExplanation("");
     }
     setError("");
-  }, [mode, initialData]);
+  }, [mode, initialData, questionNumber]);
 
   const handleAddOption = useCallback(() => {
     if (options.length < 26) {
@@ -163,43 +314,14 @@ export function QuestionEditor({
         {questionNumber &&
           totalQuestions &&
           (totalQuestions > 1 || mode === "edit") && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onPrevious}
-                disabled={!onPrevious || questionNumber === 1}
-                className={`h-9 w-9 p-0 ${
-                  darkMode
-                    ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
-                    : ""
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span
-                className={`text-sm font-medium px-4 py-2 rounded-md whitespace-nowrap ${
-                  darkMode
-                    ? "bg-slate-700 text-slate-200"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {questionNumber} / {totalQuestions}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onNext}
-                disabled={!onNext || questionNumber === totalQuestions}
-                className={`h-9 w-9 p-0 ${
-                  darkMode
-                    ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
-                    : ""
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+            <QuestionNavigator
+              questionNumber={questionNumber}
+              totalQuestions={totalQuestions}
+              onPrevious={onPrevious}
+              onNext={onNext}
+              onJumpTo={onJumpTo || (() => {})}
+              darkMode={darkMode}
+            />
           )}
       </CardHeader>
 

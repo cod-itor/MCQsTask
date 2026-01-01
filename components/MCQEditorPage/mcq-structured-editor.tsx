@@ -61,12 +61,70 @@ export function MCQStructuredEditor({
     [mcqs, mcqsToDisplay, onChange, expandedIndex]
   );
 
+  // Navigation handlers
+  const handleNext = useCallback(() => {
+    if (
+      editingMcqIndex !== null &&
+      editingMcqIndex < mcqsToDisplay.length - 1
+    ) {
+      const newIndex = editingMcqIndex + 1;
+      setEditingMcqIndex(newIndex);
+      setExpandedIndex(newIndex);
+    }
+  }, [editingMcqIndex, mcqsToDisplay.length]);
+
+  const handlePrevious = useCallback(() => {
+    if (editingMcqIndex !== null && editingMcqIndex > 0) {
+      const newIndex = editingMcqIndex - 1;
+      setEditingMcqIndex(newIndex);
+      setExpandedIndex(newIndex);
+    }
+  }, [editingMcqIndex]);
+
+  const handleJumpTo = useCallback(
+    (questionNumber: number) => {
+      // questionNumber is 1-based (what user sees), convert to 0-based index
+      const newIndex = questionNumber - 1;
+
+      console.log("=== Jump To Debug ===");
+      console.log("Question number entered:", questionNumber);
+      console.log("Converted to index:", newIndex);
+      console.log("Total displayed questions:", mcqsToDisplay.length);
+      console.log("Current editing index BEFORE:", editingMcqIndex);
+
+      if (newIndex >= 0 && newIndex < mcqsToDisplay.length) {
+        console.log("Valid index, setting to:", newIndex);
+        const newMcq = mcqsToDisplay[newIndex];
+        console.log("New MCQ ID:", newMcq?.id);
+        console.log("New MCQ Question:", newMcq?.q?.substring(0, 50));
+
+        // Force update by setting to null first
+        setEditingMcqIndex(null);
+        setExpandedIndex(null);
+
+        // Use setTimeout to ensure state updates in sequence
+        setTimeout(() => {
+          setEditingMcqIndex(newIndex);
+          setExpandedIndex(newIndex);
+          console.log("State updated to index:", newIndex);
+        }, 0);
+      } else {
+        console.log("Invalid index - out of range");
+      }
+    },
+    [mcqsToDisplay]
+  );
+
   if (editingMcqIndex !== null && expandedIndex === editingMcqIndex) {
     const mcqToEdit = mcqsToDisplay[editingMcqIndex];
+    console.log("Rendering editor for index:", editingMcqIndex);
+    console.log("Question number shown:", editingMcqIndex + 1);
+    console.log("MCQ ID:", mcqToEdit?.id);
+
     return (
       <div className="space-y-4">
         <QuestionEditor
-          key={mcqToEdit.id}
+          key={`${mcqToEdit.id}-${editingMcqIndex}`}
           mode="edit"
           initialData={mcqToEdit}
           onSave={handleEditorSave}
@@ -74,6 +132,9 @@ export function MCQStructuredEditor({
           darkMode={darkMode}
           questionNumber={editingMcqIndex + 1}
           totalQuestions={mcqsToDisplay.length}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onJumpTo={handleJumpTo}
         />
       </div>
     );

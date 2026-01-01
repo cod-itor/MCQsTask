@@ -66,7 +66,7 @@ export default function Navbar({
               darkMode ? "text-white" : "text-gray-900"
             } hover:opacity-80 transition-opacity`}
           >
-            DITOR<sup className="text-sm text-gray-400">v2</sup>
+            DITOR<sup className="text-sm text-gray-400">v2.1</sup>
           </button>
 
           {/* Center: Navigation Pills - Desktop */}

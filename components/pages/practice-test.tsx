@@ -161,6 +161,13 @@ export default function PracticeTest({
     }
   };
 
+  const handleJumpTo = (questionNumber: number) => {
+    const newIndex = questionNumber - 1;
+    if (newIndex >= 0 && newIndex < displayQuestions.length) {
+      setEditingQuestionIndex(newIndex);
+    }
+  };
+
   const current = displayQuestions[currentIndex];
   if (!current) return null;
 
@@ -216,6 +223,7 @@ export default function PracticeTest({
 
         {editingQuestionIndex !== null ? (
           <QuestionEditor
+            key={`edit-${editingQuestionIndex}`}
             mode="edit"
             initialData={displayQuestions[editingQuestionIndex]}
             onSave={handleSaveQuestion}
@@ -233,6 +241,7 @@ export default function PracticeTest({
                 setEditingQuestionIndex(editingQuestionIndex - 1);
               }
             }}
+            onJumpTo={handleJumpTo}
           />
         ) : (
           <>
@@ -282,57 +291,46 @@ export default function PracticeTest({
                   </h2>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {current.opts.map((option, index) => {
                     const selected = selectedAnswer === index;
-                    const isCorrectOption = index === current.answer;
-
-                    let bgColor = darkMode
-                      ? "bg-slate-700 hover:bg-slate-600 border-slate-600"
-                      : "bg-white hover:bg-gray-50 border-gray-300";
-                    if (showAnswer) {
-                      if (isCorrectOption)
-                        bgColor = darkMode
-                          ? "bg-green-900 border-green-700"
-                          : "bg-green-50 border-green-500";
-                      else if (selected && !isCorrect)
-                        bgColor = darkMode
-                          ? "bg-red-900 border-red-700"
-                          : "bg-red-50 border-red-500";
-                    }
+                    const label = String.fromCharCode(65 + index); // A B C D
 
                     return (
                       <button
                         key={index}
+                        disabled={showAnswer}
                         onClick={() =>
                           !showAnswer &&
                           setAnswers({ ...answers, [currentIndex]: index })
                         }
-                        className={`w-full p-4 text-left border-2 rounded-lg transition-colors ${bgColor} ${
-                          selected
-                            ? `border-2 ${
-                                darkMode
-                                  ? "border-blue-500 bg-slate-600"
-                                  : "border-blue-500 bg-blue-50"
-                              }`
-                            : ""
-                        }`}
-                        disabled={showAnswer}
+                        className={`
+                      w-full flex items-center justify-between
+                      px-5 py-4 rounded-xl border
+                      transition-all
+                      ${
+                        darkMode
+                          ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
+                          : "bg-white border-gray-300 hover:bg-gray-50"
+                      }
+                      ${selected ? "ring-2 ring-blue-500" : ""}
+                    `}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                              selected
-                                ? "bg-blue-500 border-blue-500"
-                                : darkMode
-                                ? "border-slate-500"
-                                : "border-gray-300"
-                            }`}
+                            className={`
+                          w-9 h-9 flex items-center justify-center
+                          rounded-md font-semibold text-sm
+                          ${
+                            darkMode
+                              ? "bg-slate-600 text-slate-100"
+                              : "bg-gray-200 text-gray-800"
+                          }
+                        `}
                           >
-                            {selected && (
-                              <span className="text-white text-sm">✓</span>
-                            )}
+                            {label}
                           </div>
+
                           <span
                             className={
                               darkMode ? "text-slate-100" : "text-gray-900"
@@ -340,6 +338,24 @@ export default function PracticeTest({
                           >
                             {option}
                           </span>
+                        </div>
+
+                        <div
+                          className={`
+                        w-5 h-5 rounded-full border-2
+                        flex items-center justify-center
+                        ${
+                          selected
+                            ? "border-blue-500"
+                            : darkMode
+                            ? "border-slate-400"
+                            : "border-gray-400"
+                        }
+                      `}
+                        >
+                          {selected && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                          )}
                         </div>
                       </button>
                     );
