@@ -1,73 +1,69 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { useSubjects } from "@/lib/subject-context";
-import { Moon, Sun, Menu, Download } from "lucide-react";
-import { useState } from "react";
-import CreateSubjectModal from "./create-subject-modal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+"use client"
+import { Button } from "@/components/ui/button"
+import { useSubjects } from "@/lib/subject-context"
+import { Moon, Sun, Menu, Download } from "lucide-react"
+import { useState } from "react"
+import Link from "next/link"
+import CreateSubjectModal from "./create-subject-modal"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface NavbarProps {
-  darkMode: boolean;
-  onToggleDarkMode: () => void;
-  onOpenMobileSidebar?: () => void;
-  onNavigate: (page: "home" | "mcqs" | "about") => void;
-  currentPage?: "home" | "mcqs" | "about";
+  darkMode: boolean
+  onToggleDarkMode: () => void
+  onOpenMobileSidebar?: () => void
+  onCreateSubject?: () => void
+  currentPage?: "home" | "mcqs" | "about"
 }
 
 export default function Navbar({
   darkMode,
   onToggleDarkMode,
   onOpenMobileSidebar,
-  onNavigate,
+  onCreateSubject,
   currentPage = "home",
 }: NavbarProps) {
-  const { subjects } = useSubjects();
-  const hasSubjects = subjects.length > 0;
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { subjects } = useSubjects()
+  const hasSubjects = subjects.length > 0
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const handleCreateClick = () => {
-    setShowCreateModal(true);
-  };
+    if (onCreateSubject) {
+      onCreateSubject()
+    } else {
+      setShowCreateModal(true)
+    }
+  }
 
   const handleCloseModal = () => {
-    setShowCreateModal(false);
-  };
+    setShowCreateModal(false)
+  }
 
   const getNavButtonClass = (page: "home" | "mcqs" | "about") => {
-    const isActive = currentPage === page;
+    const isActive = currentPage === page
     return `px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
       isActive
         ? darkMode
           ? "bg-slate-800 text-white"
           : "bg-gray-100 text-gray-900"
         : darkMode
-        ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-    }`;
-  };
+          ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+    }`
+  }
 
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 ${
-          darkMode ? "bg-slate-900" : "bg-white"
-        } shadow-sm`}
-      >
+      <nav className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? "bg-slate-900" : "bg-white"} shadow-sm`}>
         <div className="h-20 px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto">
           {/* Left: App Name */}
-          <button
-            onClick={() => onNavigate("home")}
+          <Link
+            href="/home"
             className={`font-bold text-xl ${
               darkMode ? "text-white" : "text-gray-900"
             } hover:opacity-80 transition-opacity`}
           >
             DITOR<sup className="text-sm text-gray-400">v2.1</sup>
-          </button>
+          </Link>
 
           {/* Center: Navigation Pills - Desktop */}
           <div
@@ -75,24 +71,15 @@ export default function Navbar({
               darkMode ? "bg-slate-800/50" : "bg-gray-50"
             }`}
           >
-            <button
-              onClick={() => onNavigate("home")}
-              className={getNavButtonClass("home")}
-            >
+            <Link href="/home" className={getNavButtonClass("home")}>
               Home
-            </button>
-            <button
-              onClick={() => onNavigate("mcqs")}
-              className={getNavButtonClass("mcqs")}
-            >
+            </Link>
+            <Link href="/mcqs" className={getNavButtonClass("mcqs")}>
               MCQs
-            </button>
-            <button
-              onClick={() => onNavigate("about")}
-              className={getNavButtonClass("about")}
-            >
+            </Link>
+            <Link href="/about" className={getNavButtonClass("about")}>
               About Us
-            </button>
+            </Link>
           </div>
 
           {/* Right: Actions */}
@@ -106,11 +93,7 @@ export default function Navbar({
                 darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
               }`}
             >
-              {darkMode ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
 
             {/* Dark Mode Toggle - Mobile */}
@@ -122,11 +105,7 @@ export default function Navbar({
                 darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
               }`}
             >
-              {darkMode ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
 
             {/* Download/Subjects Button */}
@@ -140,9 +119,7 @@ export default function Navbar({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={handleCreateClick}>
-                      + New Subject
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCreateClick}>+ New Subject</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -171,58 +148,50 @@ export default function Navbar({
         </div>
 
         {/* Mobile Navigation - Bottom Pills */}
-        <div
-          className={`md:hidden border-t ${
-            darkMode ? "border-slate-800" : "border-gray-200"
-          }`}
-        >
-          <div
-            className={`flex items-center justify-center gap-2 px-4 py-3 ${
-              darkMode ? "bg-slate-900" : "bg-white"
-            }`}
-          >
-            <button
-              onClick={() => onNavigate("home")}
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+        <div className={`md:hidden border-t ${darkMode ? "border-slate-800" : "border-gray-200"}`}>
+          <div className={`flex items-center justify-center gap-2 px-4 py-3 ${darkMode ? "bg-slate-900" : "bg-white"}`}>
+            <Link
+              href="/home"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
                 currentPage === "home"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               Home
-            </button>
-            <button
-              onClick={() => onNavigate("mcqs")}
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+            </Link>
+            <Link
+              href="/mcqs"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
                 currentPage === "mcqs"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               MCQs
-            </button>
-            <button
-              onClick={() => onNavigate("about")}
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all ${
+            </Link>
+            <Link
+              href="/about"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
                 currentPage === "about"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               About
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -230,9 +199,7 @@ export default function Navbar({
       {/* Mobile-only spacer for bottom navigation */}
       <div className="h-16 md:hidden"></div>
 
-      {showCreateModal && (
-        <CreateSubjectModal onClose={handleCloseModal} darkMode={darkMode} />
-      )}
+      {showCreateModal && <CreateSubjectModal onClose={handleCloseModal} darkMode={darkMode} />}
     </>
-  );
+  )
 }

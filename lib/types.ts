@@ -30,16 +30,16 @@ export interface ExamState {
   startTime: number
   questionStartTimes: Record<number, number>
 }
-
-export interface ExamResult {
-  sessionId: string
-  score: number
-  totalQuestions: number
-  timeSpent: number
-  date: number
-  answers: Record<number, number>
-  questionTimes: Record<number, number>
+export interface ExamState {
   questions: MCQ[]
+  currentQuestion: number
+  answers: { [key: number]: number }
+  timeRemaining: number
+  isActive: boolean
+  sessionId: string
+  startTime: number
+  questionStartTimes: { [key: number]: number }
+  shuffledOptions?: { [key: number]: { shuffled: string[]; mapping: number[] } }
 }
 
 export interface PracticeSession {

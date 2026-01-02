@@ -10,65 +10,39 @@ interface ExamTestProps {
   state: ExamState;
   setState: (state: ExamState) => void;
   onComplete: () => void;
-  darkMode: boolean;
   onOpenMobileSidebar?: () => void;
 }
-
-// Shuffle function using Fisher-Yates algorithm
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
 
 export default function ExamTest({
   state,
   setState,
   onComplete,
-  darkMode,
   onOpenMobileSidebar,
 }: ExamTestProps) {
   const { activeSubjectId, getMcqsForSubject, subjects } = useSubjects();
   const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [shuffledOptions, setShuffledOptions] = useState<{
-    [key: number]: { shuffled: string[]; mapping: number[] };
-  }>({});
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Get shuffled options from state (already created in exam setup)
+  const shuffledOptions = state.shuffledOptions || {};
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode") === "true";
+    setDarkMode(savedDarkMode);
+  }, []);
 
   // Hide navbar during exam
   useEffect(() => {
-    // Add class to body and html to hide navbar
     document.body.classList.add("exam-mode");
     document.documentElement.classList.add("exam-mode");
-
-    // Scroll to top to remove any offset
     window.scrollTo(0, 0);
 
     return () => {
-      // Remove class when exam ends
       document.body.classList.remove("exam-mode");
       document.documentElement.classList.remove("exam-mode");
     };
   }, []);
-
-  // Initialize shuffled options for all questions
-  useEffect(() => {
-    const initShuffled: {
-      [key: number]: { shuffled: string[]; mapping: number[] };
-    } = {};
-    state.questions.forEach((question, qIndex) => {
-      const indices = question.opts.map((_, i) => i);
-      const shuffledIndices = shuffleArray(indices);
-      initShuffled[qIndex] = {
-        shuffled: shuffledIndices.map((i) => question.opts[i]),
-        mapping: shuffledIndices,
-      };
-    });
-    setShuffledOptions(initShuffled);
-  }, [state.questions]);
 
   useEffect(() => {
     if (state.isActive) {
@@ -107,6 +81,7 @@ export default function ExamTest({
 
     if (state.timeRemaining <= 0) {
       localStorage.removeItem("examState");
+      sessionStorage.setItem("examState", JSON.stringify(state));
       onComplete();
     }
 
@@ -170,6 +145,7 @@ export default function ExamTest({
   };
 
   const handleSubmit = () => {
+    sessionStorage.setItem("examState", JSON.stringify(state));
     localStorage.removeItem("examState");
     onComplete();
   };
@@ -183,12 +159,6 @@ export default function ExamTest({
       localStorage.removeItem("examState");
       onComplete();
     }
-  };
-
-  const handleEditMcqs = () => {
-    alert(
-      "Cannot edit MCQs during an active exam. Please exit the exam first."
-    );
   };
 
   if (!current) {
@@ -384,7 +354,7 @@ export default function ExamTest({
                       shuffledOptions[state.currentQuestion].mapping[
                         displayIndex
                       ];
-                    const letterLabel = String.fromCharCode(65 + displayIndex); // A, B, C, D, etc.
+                    const letterLabel = String.fromCharCode(65 + displayIndex);
                     return (
                       <button
                         key={displayIndex}
@@ -499,7 +469,7 @@ export default function ExamTest({
               Keyboard: A-Z to select | ← → to navigate
             </p>
             <p
-              className={`text-md${
+              className={`text-md ${
                 darkMode ? "text-slate-500" : "text-gray-500"
               }`}
             >
