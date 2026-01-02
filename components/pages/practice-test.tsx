@@ -59,6 +59,33 @@ export default function PracticeTest({
   // Use ref to track if we should skip the next update
   const skipNextUpdate = useRef(false);
 
+  // Hide navbar on mobile only when component mounts
+  useEffect(() => {
+    const handleResize = () => {
+      // Only hide navbar on mobile (< 768px)
+      if (window.innerWidth < 768) {
+        document.body.classList.add("exam-mode");
+        document.documentElement.classList.add("exam-mode");
+      } else {
+        document.body.classList.remove("exam-mode");
+        document.documentElement.classList.remove("exam-mode");
+      }
+    };
+
+    // Initial check
+    handleResize();
+    window.scrollTo(0, 0);
+
+    // Listen for window resize
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      document.body.classList.remove("exam-mode");
+      document.documentElement.classList.remove("exam-mode");
+    };
+  }, []);
+
   // Shuffle array helper
   const shuffleArray = <T,>(arr: T[]): T[] => {
     const newArr = [...arr];
@@ -235,334 +262,339 @@ export default function PracticeTest({
 
   return (
     <div
-      className={`min-h-screen p-4 py-8 transition-colors duration-300 ${
+      className={`md:min-h-screen fixed md:static inset-0 md:inset-auto overflow-y-auto transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"
       }`}
     >
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
-          <h1
-            className={`text-2xl font-bold ${
-              darkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {retryMode
-              ? "Retry Incorrect Questions"
-              : currentSubject?.name || "Practice Test"}
-          </h1>
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              onClick={handleEditMcqs}
-              className={`${
-                darkMode
-                  ? "bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
-                  : ""
+      <div className="p-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+            <h1
+              className={`text-2xl font-bold ${
+                darkMode ? "text-white" : "text-gray-900"
               }`}
             >
-              Edit Question
-            </Button>
-            <Button variant="outline" onClick={onBack}>
-              Back
-            </Button>
-            {onOpenMobileSidebar && (
-              <Button variant="outline" onClick={onOpenMobileSidebar}>
-                Menu
+              {retryMode
+                ? "Retry Incorrect Questions"
+                : currentSubject?.name || "Practice Test"}
+            </h1>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={handleEditMcqs}
+                className={`${
+                  darkMode
+                    ? "bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600"
+                    : ""
+                }`}
+              >
+                Edit Question
               </Button>
-            )}
+              <Button variant="outline" onClick={onBack}>
+                Back
+              </Button>
+              {onOpenMobileSidebar && (
+                <Button variant="outline" onClick={onOpenMobileSidebar}>
+                  Menu
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
 
-        {editingQuestionIndex !== null ? (
-          <QuestionEditor
-            key={`edit-${editingQuestionIndex}`}
-            mode="edit"
-            initialData={displayQuestions[editingQuestionIndex]}
-            onSave={handleSaveQuestion}
-            onCancel={() => setEditingQuestionIndex(null)}
-            darkMode={darkMode}
-            questionNumber={editingQuestionIndex + 1}
-            totalQuestions={displayQuestions.length}
-            onNext={() => {
-              if (editingQuestionIndex < displayQuestions.length - 1) {
-                setEditingQuestionIndex(editingQuestionIndex + 1);
-              }
-            }}
-            onPrevious={() => {
-              if (editingQuestionIndex > 0) {
-                setEditingQuestionIndex(editingQuestionIndex - 1);
-              }
-            }}
-            onJumpTo={handleJumpTo}
-          />
-        ) : (
-          <>
-            <Card className={darkMode ? "bg-slate-800 border-slate-700" : ""}>
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`text-sm font-semibold ${
-                      darkMode ? "text-slate-300" : "text-gray-600"
-                    }`}
-                  >
-                    Question {currentIndex + 1} / {displayQuestions.length}
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant={shuffle ? "default" : "outline"}
-                      onClick={handleToggleShuffle}
-                      className="text-xs"
+          {editingQuestionIndex !== null ? (
+            <QuestionEditor
+              key={`edit-${editingQuestionIndex}`}
+              mode="edit"
+              initialData={displayQuestions[editingQuestionIndex]}
+              onSave={handleSaveQuestion}
+              onCancel={() => setEditingQuestionIndex(null)}
+              darkMode={darkMode}
+              questionNumber={editingQuestionIndex + 1}
+              totalQuestions={displayQuestions.length}
+              onNext={() => {
+                if (editingQuestionIndex < displayQuestions.length - 1) {
+                  setEditingQuestionIndex(editingQuestionIndex + 1);
+                }
+              }}
+              onPrevious={() => {
+                if (editingQuestionIndex > 0) {
+                  setEditingQuestionIndex(editingQuestionIndex - 1);
+                }
+              }}
+              onJumpTo={handleJumpTo}
+            />
+          ) : (
+            <>
+              <Card className={darkMode ? "bg-slate-800 border-slate-700" : ""}>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={`text-sm font-semibold ${
+                        darkMode ? "text-slate-300" : "text-gray-600"
+                      }`}
                     >
-                      {shuffle ? "Shuffled" : "Ordered"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={mixOptions ? "default" : "outline"}
-                      onClick={handleToggleMix}
-                      className="text-xs"
-                    >
-                      {mixOptions ? "Mixed" : "Original"}
-                    </Button>
-                  </div>
-                </div>
-
-                <div
-                  className={`p-4 rounded-lg border ${
-                    darkMode
-                      ? "bg-slate-900 border-slate-600 text-slate-100"
-                      : "bg-blue-50 border-blue-200"
-                  }`}
-                >
-                  <h2
-                    className={`text-lg font-semibold ${
-                      darkMode ? "text-slate-100" : "text-gray-900"
-                    }`}
-                  >
-                    {current.q}
-                  </h2>
-                </div>
-
-                <div className="space-y-4">
-                  {current.opts.map((option, index) => {
-                    const selected = selectedAnswer === index;
-                    const label = String.fromCharCode(65 + index); // A B C D
-
-                    return (
-                      <button
-                        key={index}
-                        disabled={showAnswer}
-                        onClick={() =>
-                          !showAnswer &&
-                          setAnswers({ ...answers, [currentIndex]: index })
-                        }
-                        className={`
-                      w-full flex items-center justify-between
-                      px-5 py-4 rounded-xl border
-                      transition-all
-                      ${
-                        darkMode
-                          ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
-                          : "bg-white border-gray-300 hover:bg-gray-50"
-                      }
-                      ${selected ? "ring-2 ring-blue-500" : ""}
-                    `}
+                      Question {currentIndex + 1} / {displayQuestions.length}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={shuffle ? "default" : "outline"}
+                        onClick={handleToggleShuffle}
+                        className="text-xs"
                       >
-                        <div className="flex items-center gap-4">
+                        {shuffle ? "Shuffled" : "Ordered"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={mixOptions ? "default" : "outline"}
+                        onClick={handleToggleMix}
+                        className="text-xs"
+                      >
+                        {mixOptions ? "Mixed" : "Original"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      darkMode
+                        ? "bg-slate-900 border-slate-600 text-slate-100"
+                        : "bg-blue-50 border-blue-200"
+                    }`}
+                  >
+                    <h2
+                      className={`text-lg font-semibold ${
+                        darkMode ? "text-slate-100" : "text-gray-900"
+                      }`}
+                    >
+                      {current.q}
+                    </h2>
+                  </div>
+
+                  <div className="space-y-4">
+                    {current.opts.map((option, index) => {
+                      const selected = selectedAnswer === index;
+                      const label = String.fromCharCode(65 + index); // A B C D
+
+                      return (
+                        <button
+                          key={index}
+                          disabled={showAnswer}
+                          onClick={() =>
+                            !showAnswer &&
+                            setAnswers({ ...answers, [currentIndex]: index })
+                          }
+                          className={`
+                        w-full flex items-center justify-between
+                        px-5 py-4 rounded-xl border
+                        transition-all
+                        ${
+                          darkMode
+                            ? "bg-slate-700 border-slate-600 hover:bg-slate-600"
+                            : "bg-white border-gray-300 hover:bg-gray-50"
+                        }
+                        ${selected ? "ring-2 ring-blue-500" : ""}
+                      `}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`
+                            w-9 h-9 flex items-center justify-center
+                            rounded-md font-semibold text-sm
+                            ${
+                              darkMode
+                                ? "bg-slate-600 text-slate-100"
+                                : "bg-gray-200 text-gray-800"
+                            }
+                          `}
+                            >
+                              {label}
+                            </div>
+
+                            <span
+                              className={
+                                darkMode ? "text-slate-100" : "text-gray-900"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </div>
+
                           <div
                             className={`
-                          w-9 h-9 flex items-center justify-center
-                          rounded-md font-semibold text-sm
+                          w-5 h-5 rounded-full border-2
+                          flex items-center justify-center
                           ${
-                            darkMode
-                              ? "bg-slate-600 text-slate-100"
-                              : "bg-gray-200 text-gray-800"
+                            selected
+                              ? "border-blue-500"
+                              : darkMode
+                              ? "border-slate-400"
+                              : "border-gray-400"
                           }
                         `}
                           >
-                            {label}
+                            {selected && (
+                              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                            )}
                           </div>
-
-                          <span
-                            className={
-                              darkMode ? "text-slate-100" : "text-gray-900"
-                            }
-                          >
-                            {option}
-                          </span>
-                        </div>
-
-                        <div
-                          className={`
-                        w-5 h-5 rounded-full border-2
-                        flex items-center justify-center
-                        ${
-                          selected
-                            ? "border-blue-500"
-                            : darkMode
-                            ? "border-slate-400"
-                            : "border-gray-400"
-                        }
-                      `}
-                        >
-                          {selected && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                {selectedAnswer !== undefined && !showAnswer && (
-                  <Button
-                    onClick={() => setShowAnswer(true)}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Show Answer
-                  </Button>
-                )}
-
-                {showAnswer && (
-                  <>
-                    <div
-                      className={`p-4 rounded-lg ${
-                        isCorrect
-                          ? darkMode
-                            ? "bg-green-900 border border-green-700 text-green-100"
-                            : "bg-green-50 border border-green-200"
-                          : darkMode
-                          ? "bg-red-900 border border-red-700 text-red-100"
-                          : "bg-red-50 border border-red-200"
-                      }`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {selectedAnswer !== undefined && !showAnswer && (
+                    <Button
+                      onClick={() => setShowAnswer(true)}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700"
                     >
-                      <p
-                        className={`font-semibold ${
+                      Show Answer
+                    </Button>
+                  )}
+
+                  {showAnswer && (
+                    <>
+                      <div
+                        className={`p-4 rounded-lg ${
                           isCorrect
                             ? darkMode
-                              ? "text-green-100"
-                              : "text-green-900"
+                              ? "bg-green-900 border border-green-700 text-green-100"
+                              : "bg-green-50 border border-green-200"
                             : darkMode
-                            ? "text-red-100"
-                            : "text-red-900"
+                            ? "bg-red-900 border border-red-700 text-red-100"
+                            : "bg-red-50 border border-red-200"
                         }`}
                       >
-                        {isCorrect ? "Correct!" : "Incorrect"}
-                      </p>
-                      <p
-                        className={`text-sm mt-1 ${
-                          darkMode ? "text-slate-200" : "text-gray-700"
-                        }`}
-                      >
-                        Correct answer:{" "}
-                        <span className="font-semibold">
-                          {current.opts[current.answer]}
-                        </span>
-                      </p>
-                      {current.explanation && (
                         <p
-                          className={`text-sm mt-2 italic ${
+                          className={`font-semibold ${
+                            isCorrect
+                              ? darkMode
+                                ? "text-green-100"
+                                : "text-green-900"
+                              : darkMode
+                              ? "text-red-100"
+                              : "text-red-900"
+                          }`}
+                        >
+                          {isCorrect ? "Correct!" : "Incorrect"}
+                        </p>
+                        <p
+                          className={`text-sm mt-1 ${
                             darkMode ? "text-slate-200" : "text-gray-700"
                           }`}
                         >
-                          <strong>Explanation:</strong> {current.explanation}
+                          Correct answer:{" "}
+                          <span className="font-semibold">
+                            {current.opts[current.answer]}
+                          </span>
                         </p>
-                      )}
-                    </div>
-                  </>
-                )}
+                        {current.explanation && (
+                          <p
+                            className={`text-sm mt-2 italic ${
+                              darkMode ? "text-slate-200" : "text-gray-700"
+                            }`}
+                          >
+                            <strong>Explanation:</strong> {current.explanation}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
 
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setCurrentIndex(Math.max(0, currentIndex - 1));
-                      setShowAnswer(false);
-                    }}
-                    disabled={currentIndex === 0}
-                    className="flex-1"
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setCurrentIndex(
-                        Math.min(displayQuestions.length - 1, currentIndex + 1)
-                      );
-                      setShowAnswer(false);
-                    }}
-                    disabled={currentIndex === displayQuestions.length - 1}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  >
-                    Next
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setCurrentIndex(0);
-                      setAnswers({});
-                      setShowAnswer(false);
-                    }}
-                  >
-                    Reset
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setCurrentIndex(Math.max(0, currentIndex - 1));
+                        setShowAnswer(false);
+                      }}
+                      disabled={currentIndex === 0}
+                      className="flex-1"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setCurrentIndex(
+                          Math.min(
+                            displayQuestions.length - 1,
+                            currentIndex + 1
+                          )
+                        );
+                        setShowAnswer(false);
+                      }}
+                      disabled={currentIndex === displayQuestions.length - 1}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    >
+                      Next
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setCurrentIndex(0);
+                        setAnswers({});
+                        setShowAnswer(false);
+                      }}
+                    >
+                      Reset
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <div
-              className={`text-center text-sm mb-4 mt-4 ${
-                darkMode ? "text-slate-400" : "text-gray-600"
-              }`}
-            >
-              Answered: {Object.keys(answers).length} /{" "}
-              {displayQuestions.length}
-              {incorrectCount > 0 && (
-                <span
-                  className={`block font-semibold mt-1 ${
-                    darkMode ? "text-orange-400" : "text-red-600"
-                  }`}
-                >
-                  {incorrectCount} incorrect so far
-                </span>
-              )}
-            </div>
-
-            {Object.keys(answers).length === displayQuestions.length && (
-              <div className="flex gap-3">
-                {!retryMode && incorrectCount > 0 && (
-                  <Button
-                    onClick={handleRetryIncorrect}
-                    className="flex-1 bg-orange-600 hover:bg-orange-700"
-                  >
-                    Retry Incorrect ({incorrectCount})
-                  </Button>
-                )}
-                {retryMode && (
-                  <Button
-                    onClick={handleExitRetry}
-                    className={`flex-1 ${
-                      darkMode
-                        ? "bg-slate-700 hover:bg-slate-600"
-                        : "bg-gray-600 hover:bg-gray-700"
+              <div
+                className={`text-center text-sm mb-4 mt-4 ${
+                  darkMode ? "text-slate-400" : "text-gray-600"
+                }`}
+              >
+                Answered: {Object.keys(answers).length} /{" "}
+                {displayQuestions.length}
+                {incorrectCount > 0 && (
+                  <span
+                    className={`block font-semibold mt-1 ${
+                      darkMode ? "text-orange-400" : "text-red-600"
                     }`}
                   >
-                    Exit Retry Mode
-                  </Button>
+                    {incorrectCount} incorrect so far
+                  </span>
                 )}
               </div>
-            )}
-          </>
-        )}
 
-        <EditMcqsWarningModal
-          isOpen={showEditWarning}
-          darkMode={darkMode}
-          onConfirm={handleEditMcqs}
-          onCancel={() => setShowEditWarning(false)}
-          isExamActive={false}
-        />
+              {Object.keys(answers).length === displayQuestions.length && (
+                <div className="flex gap-3">
+                  {!retryMode && incorrectCount > 0 && (
+                    <Button
+                      onClick={handleRetryIncorrect}
+                      className="flex-1 bg-orange-600 hover:bg-orange-700"
+                    >
+                      Retry Incorrect ({incorrectCount})
+                    </Button>
+                  )}
+                  {retryMode && (
+                    <Button
+                      onClick={handleExitRetry}
+                      className={`flex-1 ${
+                        darkMode
+                          ? "bg-slate-700 hover:bg-slate-600"
+                          : "bg-gray-600 hover:bg-gray-700"
+                      }`}
+                    >
+                      Exit Retry Mode
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          <EditMcqsWarningModal
+            isOpen={showEditWarning}
+            darkMode={darkMode}
+            onConfirm={handleEditMcqs}
+            onCancel={() => setShowEditWarning(false)}
+            isExamActive={false}
+          />
+        </div>
       </div>
     </div>
   );
