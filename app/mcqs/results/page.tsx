@@ -4,16 +4,14 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Results from "@/components/pages/results"
 import type { ExamState } from "@/lib/types"
+import { useDarkMode } from "@/lib/dark-mode-context"
 
 export default function ResultsPage() {
   const router = useRouter()
   const [examState, setExamState] = useState<ExamState | null>(null)
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode } = useDarkMode()
 
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode") === "true"
-    setDarkMode(savedDarkMode)
-
     const savedState = sessionStorage.getItem("examState")
     if (savedState) {
       setExamState(JSON.parse(savedState))

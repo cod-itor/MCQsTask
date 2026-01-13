@@ -1,17 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import MCQsPage from "@/components/pages/mcqs-page"
 import { useRouter } from "next/navigation"
+import { useDarkMode } from "@/lib/dark-mode-context"
 
 export default function MCQsHub() {
   const router = useRouter()
-  const [darkMode, setDarkMode] = useState(false)
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode") === "true"
-    setDarkMode(savedDarkMode)
-  }, [])
+  const { darkMode } = useDarkMode()
 
   const handleStartPractice = () => {
     router.push("/mcqs/practice")

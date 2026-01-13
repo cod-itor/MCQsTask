@@ -31,21 +31,27 @@ export default function SubjectSidebar({
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleCreateClick = () => {
-    console.log(" Create subject button clicked");
+    if (onCreateSubjectClick) {
+      onCreateSubjectClick();
+      return;
+    }
     setShowCreateModal(true);
   };
 
   const handleCloseModal = () => {
-    console.log(" Closing modal");
     setShowCreateModal(false);
   };
 
-  // Expose the create function to parent component
+  // ALWAYS expose the create function globally
   useEffect(() => {
-    if (onCreateSubjectClick) {
-      // Make the function accessible globally so parent can trigger it
-      (window as any).openCreateSubjectModal = handleCreateClick;
-    }
+    // Make the function accessible globally so any component can trigger it
+    (window as any).openCreateSubjectModal = () => {
+      if (onCreateSubjectClick) {
+        onCreateSubjectClick();
+        return;
+      }
+      setShowCreateModal(true);
+    };
 
     return () => {
       // Cleanup when component unmounts

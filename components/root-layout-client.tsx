@@ -2,13 +2,14 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Navbar from "@/components/navbar"
 import SubjectSidebar from "@/components/subject-sidebar"
 import MobileSidebarDrawer from "@/components/mobile-sidebar-drawer"
 import CreateSubjectModal from "@/components/create-subject-modal"
 import { useSubjects } from "@/lib/subject-context"
 import { usePathname } from "next/navigation"
+import { useDarkMode } from "@/lib/dark-mode-context"
 
 interface RootLayoutClientProps {
   children: React.ReactNode
@@ -17,38 +18,15 @@ interface RootLayoutClientProps {
 export default function RootLayoutClient({ children }: RootLayoutClientProps) {
   const pathname = usePathname()
   const { setActiveSubject } = useSubjects()
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode, toggleDarkMode } = useDarkMode()
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode") === "true"
-    setDarkMode(savedDarkMode)
-    if (savedDarkMode) {
-      document.documentElement.classList.add("dark")
-    }
-  }, [])
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-    localStorage.setItem("darkMode", String(newDarkMode))
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }
-
   const handleCreateSubject = () => {
     if (window.innerWidth < 768) {
-      setMobileDrawerOpen(true)
+      setMobileDrawerOpen(false)
     }
-    setTimeout(() => {
-      if ((window as any).openCreateSubjectModal) {
-        ;(window as any).openCreateSubjectModal()
-      }
-    }, 100)
+    setShowCreateModal(true)
   }
 
   const showSidebar = ["/mcqs", "/mcqs/practice", "/mcqs/exam", "/mcqs/input", "/mcqs/results"].some((route) =>
@@ -73,7 +51,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
 
       <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-950" : "bg-gray-50"}`}>
-          <div className="flex" style={{ height: "calc(100vh - 80px)", marginTop: "80px" }}>
+          <div className="flex min-h-[calc(100vh-80px)] pt-20">
             {/* Desktop Sidebar */}
             {showSidebar && (
               <div className="hidden md:block w-64 border-r">
@@ -86,6 +64,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
               isOpen={mobileDrawerOpen}
               onClose={() => setMobileDrawerOpen(false)}
               darkMode={darkMode}
+              onCreateSubject={handleCreateSubject}
             />
 
             {/* Main Content */}

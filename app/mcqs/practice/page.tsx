@@ -1,19 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PracticeTest from "@/components/pages/practice-test";
 import SubjectSidebar from "@/components/subject-sidebar";
 import { useRouter } from "next/navigation";
+import { useDarkMode } from "@/lib/dark-mode-context";
 
 export default function PracticePage() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode") === "true";
-    setDarkMode(savedDarkMode);
-  }, []);
 
   const handleBack = () => {
     router.back();

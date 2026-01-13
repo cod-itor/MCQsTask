@@ -11,6 +11,7 @@ interface ExamTestProps {
   setState: (state: ExamState) => void;
   onComplete: () => void;
   onOpenMobileSidebar?: () => void;
+  darkMode?: boolean;
 }
 
 export default function ExamTest({
@@ -18,6 +19,7 @@ export default function ExamTest({
   setState,
   onComplete,
   onOpenMobileSidebar,
+  darkMode: darkModeProp,
 }: ExamTestProps) {
   const { activeSubjectId, getMcqsForSubject, subjects } = useSubjects();
   const [showTimeWarning, setShowTimeWarning] = useState(false);
@@ -28,9 +30,14 @@ export default function ExamTest({
   const shuffledOptions = state.shuffledOptions || {};
 
   useEffect(() => {
+    if (typeof darkModeProp === "boolean") {
+      setDarkMode(darkModeProp);
+      return;
+    }
+
     const savedDarkMode = localStorage.getItem("darkMode") === "true";
     setDarkMode(savedDarkMode);
-  }, []);
+  }, [darkModeProp]);
 
   // Hide navbar during exam
   useEffect(() => {

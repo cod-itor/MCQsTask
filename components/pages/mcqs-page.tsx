@@ -31,6 +31,16 @@ export default function MCQsPage({
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const mcqCount = getMcqsForSubject(activeSubjectId).length;
 
+  const handleCreateSubject = () => {
+    // Call the global function that the sidebar exposes
+    if ((window as any).openCreateSubjectModal) {
+      (window as any).openCreateSubjectModal();
+    } else {
+      // Fallback to onOpenMobileSidebar if the modal function isn't available
+      onOpenMobileSidebar?.();
+    }
+  };
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -93,7 +103,7 @@ export default function MCQsPage({
                 Create your first subject to begin practicing
               </p>
               <Button
-                onClick={onCreateSubject || onOpenMobileSidebar}
+                onClick={handleCreateSubject}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
               >
                 Create Subject

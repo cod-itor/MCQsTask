@@ -6,13 +6,22 @@ import { Features } from "@/components/ui/feature"
 import { LearningFlow } from "@/components/ui/learning-flow"
 import { CTA } from "@/components/ui/cta"
 
-export default function HomeLanding() {
+type HomeLandingProps = {
+  darkMode?: boolean
+}
+
+export default function HomeLanding({ darkMode: darkModeProp }: HomeLandingProps) {
   const [darkMode, setDarkMode] = useState(false)
 
   useEffect(() => {
+    if (typeof darkModeProp === "boolean") {
+      setDarkMode(darkModeProp)
+      return
+    }
+
     const savedDarkMode = localStorage.getItem("darkMode") === "true"
     setDarkMode(savedDarkMode)
-  }, [])
+  }, [darkModeProp])
 
   return (
     <main className="w-full overflow-hidden">
