@@ -102,6 +102,7 @@ function PageContent() {
     "results",
     "mcqs",
   ].includes(page);
+  const gapFixPages = ["home", "mcqs", "about"].includes(page);
   return (
     <>
       <Navbar
@@ -127,7 +128,11 @@ function PageContent() {
             darkMode ? "bg-gray-950" : "bg-gray-50"
           }`}
         >
-          <div className="flex min-h-[calc(100vh-80px)] pt-20">
+          <div
+            className={`flex min-h-[calc(100vh-80px)] ${
+              gapFixPages ? "" : "pt-20"
+            }`}
+          >
             {/* Desktop Sidebar */}
             <div
               className={`hidden md:block w-64 border-r ${

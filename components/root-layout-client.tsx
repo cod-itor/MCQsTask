@@ -35,6 +35,11 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
     "/mcqs/input",
     "/mcqs/results",
   ].some((route) => pathname.startsWith(route));
+  const gapFixPage =
+    pathname === "/" ||
+    pathname === "/home" ||
+    pathname === "/about" ||
+    pathname === "/mcqs";
 
   const getCurrentPage = (): "home" | "mcqs" | "about" => {
     if (pathname.startsWith("/mcqs")) return "mcqs";
@@ -58,7 +63,11 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
             darkMode ? "bg-gray-950" : "bg-gray-50"
           }`}
         >
-          <div className="flex min-h-[calc(100vh-80px)] pt-20">
+          <div
+            className={`flex min-h-[calc(100vh-80px)] ${
+              gapFixPage ? "" : "pt-20"
+            }`}
+          >
             {/* Desktop Sidebar */}
             {showSidebar && (
               <div className="hidden md:block w-64 border-r">
