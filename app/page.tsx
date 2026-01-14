@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useSubjects } from "@/lib/subject-context";
 import Navbar from "@/components/navbar";
@@ -46,6 +47,7 @@ function PageContent() {
     const selectedMcqs = allMcqs
       .sort(() => Math.random() - 0.5)
       .slice(0, numQuestions);
+
     setExamState({
       questions: selectedMcqs,
       currentQuestion: 0,
@@ -88,8 +90,6 @@ function PageContent() {
     "mcqs",
   ].includes(page);
 
-  const isFullBleedPage = page === "home";
-
   return (
     <>
       <Navbar
@@ -108,17 +108,14 @@ function PageContent() {
             : "home"
         }
       />
+
       <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
         <div
           className={`min-h-screen transition-colors duration-300 ${
             darkMode ? "bg-gray-950" : "bg-gray-50"
           }`}
         >
-          <div
-            className={`flex min-h-[calc(100vh-var(--nav-offset))] ${
-              isFullBleedPage ? "" : "pt-[var(--nav-offset)]"
-            }`}
-          >
+          <div className="flex min-h-[calc(100vh-80px)] pt-20">
             {/* Desktop Sidebar */}
             <div
               className={`hidden md:block w-64 border-r ${
@@ -140,8 +137,11 @@ function PageContent() {
             />
 
             {/* Main Content */}
-            <div className="flex-1 overflow-x-hidden">
-              {page === "home" && <HomeLanding darkMode={darkMode} />}
+            <div className="flex-1 overflow-auto">
+              {page === "home" && (
+                // <HomeLanding darkMode={darkMode} onNavigate={handleNavigate} /> // this for the button that changes this will invlude in V2.2
+                <HomeLanding darkMode={darkMode} />
+              )}
               {page === "mcqs" && (
                 <MCQsPage
                   onStartPractice={handleStartPractice}

@@ -264,6 +264,9 @@ export default function Navbar({
         </div>
       </nav>
 
+      {/* Mobile-only spacer for bottom navigation */}
+      <div className="h-16 md:hidden"></div>
+
       {showCreateModal && (
         <CreateSubjectModal onClose={handleCloseModal} darkMode={darkMode} />
       )}
