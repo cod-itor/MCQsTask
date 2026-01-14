@@ -33,7 +33,7 @@ export default function MCQsPage({
 
   return (
     <div
-      className={`page-bleed min-h-screen transition-colors duration-300 ${
+      className={`-mt-32 min-h-screen pt-32 transition-colors duration-300 md:-mt-20 md:pt-20 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
           : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"

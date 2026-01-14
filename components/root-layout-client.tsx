@@ -20,6 +20,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+
   const handleCreateSubject = () => {
     if (window.innerWidth < 768) {
       setMobileDrawerOpen(false);
@@ -77,7 +78,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
             />
 
             {/* Main Content */}
-            <div className="flex-1 overflow-x-hidden">{children}</div>
+            <div className="flex-1 overflow-auto">{children}</div>
           </div>
         </div>
       </main>

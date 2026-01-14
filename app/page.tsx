@@ -44,9 +44,21 @@ function PageContent() {
 
   const handleStartExam = (duration: number, numQuestions: number) => {
     const allMcqs = getMcqsForSubject(activeSubjectId);
-    const selectedMcqs = allMcqs
-      .sort(() => Math.random() - 0.5)
-      .slice(0, numQuestions);
+    const shuffledMcqs = [...allMcqs].sort(() => Math.random() - 0.5);
+    const selectedMcqs = shuffledMcqs.slice(0, numQuestions);
+
+    const shuffledOptions: {
+      [key: number]: { shuffled: string[]; mapping: number[] };
+    } = {};
+
+    selectedMcqs.forEach((question, qIndex) => {
+      const indices = question.opts.map((_, i) => i);
+      const shuffledIndices = [...indices].sort(() => Math.random() - 0.5);
+      shuffledOptions[qIndex] = {
+        shuffled: shuffledIndices.map((i) => question.opts[i]),
+        mapping: shuffledIndices,
+      };
+    });
 
     setExamState({
       questions: selectedMcqs,
@@ -57,6 +69,7 @@ function PageContent() {
       sessionId: `exam-${Date.now()}`,
       startTime: Date.now(),
       questionStartTimes: {},
+      shuffledOptions,
     });
     setPage("exam");
   };
@@ -89,7 +102,6 @@ function PageContent() {
     "results",
     "mcqs",
   ].includes(page);
-
   return (
     <>
       <Navbar
