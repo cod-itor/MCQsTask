@@ -69,7 +69,7 @@ export default function Results({
 
   return (
     <div
-      className={`min-h-screen p-4 py-8 transition-colors duration-300 ${
+      className={`page-bleed min-h-screen px-4 pb-8 pt-[calc(var(--nav-offset)+2rem)] transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"

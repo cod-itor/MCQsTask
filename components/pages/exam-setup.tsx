@@ -48,7 +48,7 @@ export default function ExamSetup({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${
+      className={`page-bleed min-h-screen flex items-center justify-center px-4 pb-4 pt-[calc(var(--nav-offset)+1rem)] transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"

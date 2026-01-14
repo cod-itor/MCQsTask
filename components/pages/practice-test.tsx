@@ -262,7 +262,7 @@ export default function PracticeTest({
 
   return (
     <div
-      className={`md:min-h-screen fixed md:static inset-0 md:inset-auto overflow-y-auto transition-colors duration-300 ${
+      className={`md:-mt-[var(--nav-offset)] md:min-h-screen md:pt-[var(--nav-offset)] fixed md:static inset-0 md:inset-auto overflow-y-auto transition-colors duration-300 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 to-indigo-50"

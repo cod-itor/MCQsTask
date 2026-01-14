@@ -171,7 +171,7 @@ export default function ExamTest({
   if (!current) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center ${
+        className={`page-bleed min-h-screen flex items-center justify-center ${
           darkMode
             ? "bg-gradient-to-br from-slate-900 to-slate-800"
             : "bg-gradient-to-br from-blue-50 to-indigo-50"

@@ -25,7 +25,7 @@ export default function ResultsPage() {
 
   if (!examState) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="page-bleed flex items-center justify-center min-h-screen">
         <p>Loading results...</p>
       </div>
     )

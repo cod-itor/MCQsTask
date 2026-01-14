@@ -14,7 +14,7 @@ export default function AboutUs() {
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden ${
+      className={`relative page-bleed min-h-screen overflow-hidden ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white"
           : "bg-gradient-to-br from-blue-50 via-indigo-50 to-white text-gray-900"

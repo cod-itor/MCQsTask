@@ -88,6 +88,8 @@ function PageContent() {
     "mcqs",
   ].includes(page);
 
+  const isFullBleedPage = page === "home";
+
   return (
     <>
       <Navbar
@@ -112,7 +114,11 @@ function PageContent() {
             darkMode ? "bg-gray-950" : "bg-gray-50"
           }`}
         >
-          <div className="flex min-h-[calc(100vh-80px)] pt-20">
+          <div
+            className={`flex min-h-[calc(100vh-var(--nav-offset))] ${
+              isFullBleedPage ? "" : "pt-[var(--nav-offset)]"
+            }`}
+          >
             {/* Desktop Sidebar */}
             <div
               className={`hidden md:block w-64 border-r ${
@@ -134,7 +140,7 @@ function PageContent() {
             />
 
             {/* Main Content */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-x-hidden">
               {page === "home" && <HomeLanding darkMode={darkMode} />}
               {page === "mcqs" && (
                 <MCQsPage

@@ -5,6 +5,7 @@
 
 :root {
   /* Updated color tokens for DITOR theme - indigo, teal, and neutral palette */
+  --nav-offset: 80px;
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
@@ -38,6 +39,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.35 0.1 264);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-offset: 128px;
+  }
 }
 
 .dark {
@@ -137,13 +144,18 @@ html {
 }
 
 *[id] {
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--nav-offset);
 }
 
 /* Added semi-transparent white overlay on main content for better text readability */
 main {
   background-color: rgba(255, 255, 255, 0.97);
   background-attachment: scroll;
+}
+
+.page-bleed {
+  margin-top: calc(-1 * var(--nav-offset));
+  padding-top: var(--nav-offset);
 }
 
 /* Exam mode styles - hide navigation and headers */

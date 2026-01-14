@@ -32,6 +32,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
   const showSidebar = ["/mcqs", "/mcqs/practice", "/mcqs/exam", "/mcqs/input", "/mcqs/results"].some((route) =>
     pathname.startsWith(route),
   )
+  const isFullBleedPage = pathname === "/" || pathname === "/home"
 
   const getCurrentPage = (): "home" | "mcqs" | "about" => {
     if (pathname.startsWith("/mcqs")) return "mcqs"
@@ -51,7 +52,11 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
 
       <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-950" : "bg-gray-50"}`}>
-          <div className="flex min-h-[calc(100vh-80px)] pt-20">
+          <div
+            className={`flex min-h-[calc(100vh-var(--nav-offset))] ${
+              isFullBleedPage ? "" : "pt-[var(--nav-offset)]"
+            }`}
+          >
             {/* Desktop Sidebar */}
             {showSidebar && (
               <div className="hidden md:block w-64 border-r">
@@ -68,7 +73,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
             />
 
             {/* Main Content */}
-            <div className="flex-1 overflow-auto">{children}</div>
+            <div className="flex-1 overflow-x-hidden">{children}</div>
           </div>
         </div>
       </main>

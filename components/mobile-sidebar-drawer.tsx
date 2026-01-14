@@ -58,7 +58,7 @@ export default function MobileSidebarDrawer({
 
       {/* Drawer */}
       <div
-        className={`fixed left-0 top-20 h-[calc(100vh-80px)] w-64 z-50 transform transition-transform duration-300 md:hidden ${
+        className={`fixed left-0 top-[var(--nav-offset)] h-[calc(100vh-var(--nav-offset))] w-64 z-50 transform transition-transform duration-300 md:hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

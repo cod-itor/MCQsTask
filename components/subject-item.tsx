@@ -66,7 +66,7 @@ export default function SubjectItem({ subject, isActive, onClick, darkMode }: Su
 
         {/* Menu Button */}
         <div
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          className="opacity-100"
           onClick={(e) => {
             e.stopPropagation()
             setShowMenu(!showMenu)
