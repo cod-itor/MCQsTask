@@ -22,6 +22,7 @@ import { SearchMcqs } from "./search-mcqs";
 import { AddManualQuestion } from "./add-manual-question";
 import { EditorActionsMenu } from "./editor-actions-menu";
 import { parseJSONFile, exportMCQsToJSON } from "@/lib/mcq-file-handler";
+import { toast } from "sonner";
 import { validateMCQs } from "@/lib/mcq-validation";
 import { Upload, AlertCircle, CheckCircle, FileText, Plus } from "lucide-react";
 import type { MCQ } from "@/lib/types";
@@ -129,6 +130,21 @@ export function MCQEditorPage({
 
     setErrorMessage("");
     setSaveMessage("");
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if ("header" in parsed[0] || "content" in parsed[0]) {
+          toast.error("This file is for Reading Passages. Please import it in the Reading editor.");
+          // reset the input so they can upload again if needed
+          e.target.value = '';
+          return;
+        }
+      }
+    } catch (err) {
+      // Ignore JSON parse errors here; parseJSONFile will catch and report them
+    }
 
     const result = await parseJSONFile(file);
     if (result.isValid && result.mcqs) {

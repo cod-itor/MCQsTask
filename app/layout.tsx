@@ -6,6 +6,7 @@ import "./globals.css"
 import { SubjectProvider } from "@/lib/subject-context"
 import RootLayoutClient from "@/components/root-layout-client"
 import { DarkModeProvider } from "@/lib/dark-mode-context"
+import { Toaster } from "sonner"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -64,6 +65,7 @@ export default function RootLayout({
             <RootLayoutClient>{children}</RootLayoutClient>
           </DarkModeProvider>
         </SubjectProvider>
+        <Toaster position="top-center" richColors />
         <Analytics />
       </body>
     </html>

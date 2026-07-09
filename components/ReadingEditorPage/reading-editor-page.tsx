@@ -20,6 +20,7 @@ import { ReadingJSONEditor } from "./reading-json-editor";
 import { ImportBehaviorModal } from "@/components/MCQEditorPage/import-behavior-modal";
 import { EditorActionsMenu } from "@/components/MCQEditorPage/editor-actions-menu";
 import { parseReadingJSONFile, exportReadingToJSON } from "@/lib/reading-file-handler";
+import { toast } from "sonner";
 import { validateReadingPassages } from "@/lib/reading-validation";
 import { Upload, AlertCircle, CheckCircle, FileText, Plus } from "lucide-react";
 import type { ReadingPassage } from "@/lib/types";
@@ -118,6 +119,21 @@ export function ReadingEditorPage({
 
     setErrorMessage("");
     setSaveMessage("");
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if ("q" in parsed[0] || "question" in parsed[0] || "opts" in parsed[0] || "options" in parsed[0]) {
+          toast.error("This file is for MCQs. Please import it in the MCQ editor.");
+          // reset the input so they can upload again if needed
+          e.target.value = '';
+          return;
+        }
+      }
+    } catch (err) {
+      // Ignore JSON parse errors here; parseReadingJSONFile will catch and report them
+    }
 
     const result = await parseReadingJSONFile(file);
     if (result.isValid && result.passages) {
