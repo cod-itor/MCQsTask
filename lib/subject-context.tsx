@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
-import type { Subject, MCQ } from "./types";
+import type { Subject, MCQ, ReadingPassage } from "./types";
 
 interface SubjectContextType {
   subjects: Subject[];
@@ -17,6 +17,9 @@ interface SubjectContextType {
   getMcqsForSubject: (subjectId: string | null) => MCQ[];
   deleteMcqFromSubject: (subjectId: string, mcqId: string) => void;
   updateMcqsForSubject: (subjectId: string, updatedMcqs: MCQ[]) => void;
+  readingPassages: Record<string, ReadingPassage[]>;
+  getReadingPassagesForSubject: (subjectId: string | null) => ReadingPassage[];
+  addReadingPassagesToSubject: (subjectId: string, passages: ReadingPassage[]) => void;
 }
 
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
@@ -24,16 +27,19 @@ const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 const SUBJECT_STORAGE_KEY = "mcq_subjects";
 const MCQS_STORAGE_KEY = "mcq_data";
 const ACTIVE_SUBJECT_KEY = "active_subject";
+const READING_PASSAGES_STORAGE_KEY = "mcq_reading_passages";
 
 export function SubjectProvider({ children }: { children: React.ReactNode }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>(null);
   const [mcqs, setMcqs] = useState<Record<string, MCQ[]>>({});
+  const [readingPassages, setReadingPassages] = useState<Record<string, ReadingPassage[]>>({});
 
   // Load from localStorage on mount
   useEffect(() => {
     const savedSubjects = localStorage.getItem(SUBJECT_STORAGE_KEY);
     const savedMcqs = localStorage.getItem(MCQS_STORAGE_KEY);
+    const savedReadingPassages = localStorage.getItem(READING_PASSAGES_STORAGE_KEY);
     const savedActiveSubject = localStorage.getItem(ACTIVE_SUBJECT_KEY);
 
     if (savedSubjects) {
@@ -41,6 +47,9 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     }
     if (savedMcqs) {
       setMcqs(JSON.parse(savedMcqs));
+    }
+    if (savedReadingPassages) {
+      setReadingPassages(JSON.parse(savedReadingPassages));
     }
     if (savedActiveSubject) {
       setActiveSubjectId(savedActiveSubject);
@@ -56,6 +65,11 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem(MCQS_STORAGE_KEY, JSON.stringify(mcqs));
   }, [mcqs]);
+
+  // Save Reading Passages to localStorage
+  useEffect(() => {
+    localStorage.setItem(READING_PASSAGES_STORAGE_KEY, JSON.stringify(readingPassages));
+  }, [readingPassages]);
 
   // Save active subject to localStorage
   useEffect(() => {
@@ -74,6 +88,7 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     };
     setSubjects([...subjects, newSubject]);
     setMcqs({ ...mcqs, [newSubject.id]: [] });
+    setReadingPassages({ ...readingPassages, [newSubject.id]: [] });
   };
 
   const renameSubject = (id: string, newName: string) => {
@@ -87,6 +102,9 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     const newMcqs = { ...mcqs };
     delete newMcqs[id];
     setMcqs(newMcqs);
+    const newRP = { ...readingPassages };
+    delete newRP[id];
+    setReadingPassages(newRP);
     if (activeSubjectId === id) {
       setActiveSubjectId(null);
     }
@@ -148,6 +166,19 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const getReadingPassagesForSubject = (subjectId: string | null) => {
+    if (!subjectId) return [];
+    return readingPassages[subjectId] || [];
+  };
+
+  const addReadingPassagesToSubject = (subjectId: string, passages: ReadingPassage[]) => {
+    const existing = readingPassages[subjectId] || [];
+    setReadingPassages({
+      ...readingPassages,
+      [subjectId]: [...existing, ...passages],
+    });
+  };
+
   return (
     <SubjectContext.Provider
       value={{
@@ -163,6 +194,9 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
         getMcqsForSubject,
         deleteMcqFromSubject,
         updateMcqsForSubject,
+        readingPassages,
+        getReadingPassagesForSubject,
+        addReadingPassagesToSubject,
       }}
     >
       {children}

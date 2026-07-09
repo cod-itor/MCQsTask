@@ -17,7 +17,23 @@ export interface Subject {
 export interface SubjectData {
   subjects: Subject[]
   mcqs: Record<string, MCQ[]> // subjectId -> MCQs
+  readingPassages: Record<string, ReadingPassage[]> // subjectId -> ReadingPassages
   activeSubjectId: string | null
+}
+
+export interface ReadingQuestion {
+  id: string
+  text: string
+  answer: string
+  options?: string[]
+}
+
+export interface ReadingPassage {
+  id: string
+  header: string
+  content: string
+  globalOptions?: string[]
+  questions: ReadingQuestion[]
 }
 
 export interface ExamState {

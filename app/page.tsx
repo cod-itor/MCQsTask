@@ -13,6 +13,8 @@ import AboutUs from "@/components/pages/about-us";
 import SubjectSidebar from "@/components/subject-sidebar";
 import MobileSidebarDrawer from "@/components/mobile-sidebar-drawer";
 import MCQInput from "@/components/pages/mcq-input";
+import ReadingInput from "@/components/pages/reading-input";
+import ReadingPractice from "@/components/pages/reading-practice";
 import CreateSubjectModal from "@/components/create-subject-modal";
 import type { ExamState } from "@/lib/types";
 import { useDarkMode } from "@/lib/dark-mode-context";
@@ -29,6 +31,8 @@ function PageContent() {
     | "results"
     | "mcqs"
     | "about"
+    | "reading-input"
+    | "reading-practice"
   >("home");
   const [examState, setExamState] = useState<ExamState | null>(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -101,6 +105,7 @@ function PageContent() {
     "exam",
     "results",
     "mcqs",
+    "reading-practice",
   ].includes(page);
   const gapFixPages = ["home", "mcqs", "about"].includes(page);
   return (
@@ -164,6 +169,8 @@ function PageContent() {
                   onStartPractice={handleStartPractice}
                   onStartExam={handleStartExamSetup}
                   onInputMcqs={() => setPage("input")}
+                  onStartReadingPractice={() => setPage("reading-practice")}
+                  onInputReading={() => setPage("reading-input")}
                   darkMode={darkMode}
                   onCreateSubject={handleCreateSubject}
                   onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
@@ -174,6 +181,19 @@ function PageContent() {
                 <MCQInput
                   onMcqsLoaded={() => setPage("mcqs")}
                   darkMode={darkMode}
+                />
+              )}
+              {page === "reading-input" && (
+                <ReadingInput
+                  onReadingLoaded={() => setPage("mcqs")}
+                  darkMode={darkMode}
+                />
+              )}
+              {page === "reading-practice" && (
+                <ReadingPractice
+                  onBack={() => setPage("mcqs")}
+                  darkMode={darkMode}
+                  onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
                 />
               )}
               {page === "practice" && (

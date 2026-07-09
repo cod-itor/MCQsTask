@@ -14,6 +14,8 @@ interface MCQsPageProps {
   onStartPractice: () => void;
   onStartExam: () => void;
   onInputMcqs: () => void;
+  onStartReadingPractice: () => void;
+  onInputReading: () => void;
   darkMode: boolean;
   onCreateSubject?: () => void;
   onOpenMobileSidebar?: () => void;
@@ -23,13 +25,16 @@ export default function MCQsPage({
   onStartPractice,
   onStartExam,
   onInputMcqs,
+  onStartReadingPractice,
+  onInputReading,
   darkMode,
   onCreateSubject,
   onOpenMobileSidebar,
 }: MCQsPageProps) {
-  const { subjects, activeSubjectId, getMcqsForSubject } = useSubjects();
+  const { subjects, activeSubjectId, getMcqsForSubject, getReadingPassagesForSubject } = useSubjects();
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const mcqCount = getMcqsForSubject(activeSubjectId).length;
+  const readingCount = getReadingPassagesForSubject(activeSubjectId).length;
 
   return (
     <div
@@ -157,6 +162,15 @@ export default function MCQsPage({
                   }`}
                 >
                   {mcqCount} MCQs
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    darkMode
+                      ? "bg-emerald-500/20 text-emerald-300"
+                      : "bg-emerald-200 text-emerald-800"
+                  }`}
+                >
+                  {readingCount} Reading Passages
                 </span>
               </div>
             </div>
@@ -306,8 +320,81 @@ export default function MCQsPage({
               </div>
             )}
 
-            {/* Load MCQs Section */}
-            <div className="text-center">
+            {/* Reading Test Mode Card */}
+            {readingCount > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto mb-8">
+                <Card
+                  className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] ${
+                    darkMode
+                      ? "bg-gradient-to-br from-slate-800 to-slate-900 border-emerald-500/30 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/20"
+                      : "bg-gradient-to-br from-white to-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl shadow-lg"
+                  } rounded-2xl`}
+                  onClick={onStartReadingPractice}
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                  <CardHeader className="relative pb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div
+                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
+                          darkMode ? "bg-emerald-500/20" : "bg-emerald-100"
+                        }`}
+                      >
+                        📖
+                      </div>
+                      <div
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          darkMode
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        IELTS STYLE
+                      </div>
+                    </div>
+                    <CardTitle
+                      className={`text-2xl md:text-3xl font-bold ${
+                        darkMode ? "text-emerald-400" : "text-emerald-600"
+                      }`}
+                    >
+                      Reading Practice
+                    </CardTitle>
+                    <CardDescription
+                      className={`text-base ${
+                        darkMode ? "text-slate-400" : "text-gray-600"
+                      }`}
+                    >
+                      Master reading comprehension
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative space-y-4">
+                    <div className="space-y-3">
+                      {[
+                        { icon: "📝", text: "Fill-in-the-blank format" },
+                        { icon: "🔍", text: "Split-screen reading" },
+                        { icon: "⚡", text: "Instant scoring" },
+                      ].map((feature, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <span className="text-xl">{feature.icon}</span>
+                          <span
+                            className={`${
+                              darkMode ? "text-slate-300" : "text-gray-700"
+                            } font-medium`}
+                          >
+                            {feature.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all">
+                      Start Reading Practice →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Load Data Section */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 text-center">
               <Button
                 variant="outline"
                 onClick={onInputMcqs}
@@ -320,6 +407,19 @@ export default function MCQsPage({
                 {mcqCount === 0
                   ? "📥 Load Your First MCQs"
                   : "📥 Load More MCQs"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onInputReading}
+                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
+                  darkMode
+                    ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
+                    : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
+                }`}
+              >
+                {readingCount === 0
+                  ? "📥 Load Reading Passages"
+                  : "📥 Load More Passages"}
               </Button>
             </div>
 

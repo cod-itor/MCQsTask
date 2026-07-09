@@ -20,6 +20,14 @@ export default function MCQsHub() {
     router.push("/mcqs/input")
   }
 
+  const handleStartReadingPractice = () => {
+    router.push("/mcqs/reading-practice")
+  }
+
+  const handleInputReading = () => {
+    router.push("/mcqs/reading-input")
+  }
+
   const handleOpenMobileSidebar = () => {
     // Mobile sidebar is handled by parent layout
   }
@@ -35,6 +43,8 @@ export default function MCQsHub() {
       onStartPractice={handleStartPractice}
       onStartExam={handleStartExam}
       onInputMcqs={handleInputMcqs}
+      onStartReadingPractice={handleStartReadingPractice}
+      onInputReading={handleInputReading}
       darkMode={darkMode}
       onCreateSubject={handleCreateSubject}
       onOpenMobileSidebar={handleOpenMobileSidebar}
