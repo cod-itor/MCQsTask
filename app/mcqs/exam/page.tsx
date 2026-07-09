@@ -10,7 +10,7 @@ import { useDarkMode } from "@/lib/dark-mode-context";
 
 export default function ExamPage() {
   const router = useRouter();
-  const { getMcqsForSubject, activeSubjectId } = useSubjects();
+  const { getMcqSet, activeSubjectId, activeMcqSetId } = useSubjects();
   const [examState, setExamState] = useState<ExamState | null>(null);
   const [showSetup, setShowSetup] = useState(true);
   const { darkMode } = useDarkMode();
@@ -26,7 +26,8 @@ export default function ExamPage() {
   };
 
   const handleStartExam = (duration: number, numQuestions: number) => {
-    const allMcqs = getMcqsForSubject(activeSubjectId);
+    const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
+    const allMcqs = currentSet ? currentSet.mcqs : [];
 
     // Shuffle and select questions
     const shuffledMcqs = shuffleArray(allMcqs);

@@ -98,10 +98,6 @@ export function ReadingPassageEditor({
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.text.includes("[blank]")) {
-        setError(`Question ${i + 1} must contain "[blank]"`);
-        return;
-      }
       if (!q.answer.trim()) {
         setError(`Question ${i + 1} must have a correct answer`);
         return;
@@ -193,11 +189,11 @@ export function ReadingPassageEditor({
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold">Question Text (must include [blank])</label>
+                    <label className="text-xs font-semibold">Question Text (Use [blank] for fill-in-the-blank, omit for standard MCQ)</label>
                     <Input
                       value={q.text}
                       onChange={(e) => updateQuestion(index, "text", e.target.value)}
-                      placeholder="e.g. The answer is [blank]."
+                      placeholder="e.g. The answer is [blank]. Or a standard question."
                       className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
                     />
                   </div>

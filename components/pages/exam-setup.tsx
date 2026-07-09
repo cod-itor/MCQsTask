@@ -26,9 +26,10 @@ export default function ExamSetup({
   darkMode,
   onOpenMobileSidebar,
 }: ExamSetupProps) {
-  const { activeSubjectId, getMcqsForSubject, subjects } = useSubjects();
+  const { activeSubjectId, activeMcqSetId, getMcqSet, subjects } = useSubjects();
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
-  const totalQuestions = getMcqsForSubject(activeSubjectId).length;
+  const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
+  const totalQuestions = currentSet ? currentSet.mcqs.length : 0;
 
   const [duration, setDuration] = useState(30);
   const [numQuestions, setNumQuestions] = useState(
@@ -61,7 +62,7 @@ export default function ExamSetup({
               Exam Setup
             </CardTitle>
             <CardDescription className={darkMode ? "text-slate-400" : ""}>
-              {currentSubject?.name || "Configure your exam"}
+              {currentSubject?.name ? `${currentSubject.name} > ${currentSet?.name || 'Set'}` : "Configure your exam"}
             </CardDescription>
           </CardHeader>
 

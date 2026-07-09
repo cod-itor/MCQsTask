@@ -60,7 +60,7 @@ export function ReadingEditorPage({
   darkMode,
   onBack,
 }: ReadingEditorPageProps) {
-  const { subjects, activeSubjectId, updateReadingPassagesForSubject, getReadingPassagesForSubject } = useSubjects();
+  const { subjects, activeSubjectId, activeReadingSetId, getReadingSet, updateReadingSet, createReadingSet, setActiveReadingSet, readingSets } = useSubjects();
   const [passages, setPassages] = useState<ReadingPassage[]>([]);
   const [lastValidPassages, setLastValidPassages] = useState<ReadingPassage[]>([]);
   const [saveMessage, setSaveMessage] = useState("");
@@ -73,6 +73,7 @@ export function ReadingEditorPage({
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
+  const currentSet = getReadingSet(activeSubjectId, activeReadingSetId);
   const hasUnsavedChanges = JSON.stringify(passages) !== JSON.stringify(lastValidPassages);
 
   useEffect(() => {
@@ -87,13 +88,18 @@ export function ReadingEditorPage({
   }, []);
 
   useEffect(() => {
-    if (activeSubjectId) {
-      const subjectPassages = getReadingPassagesForSubject(activeSubjectId);
-      const passagesWithIds = ensureUniqueIds(subjectPassages);
-      setPassages(passagesWithIds);
-      setLastValidPassages(passagesWithIds);
+    if (activeSubjectId && activeReadingSetId) {
+      const subjectSet = getReadingSet(activeSubjectId, activeReadingSetId);
+      if (subjectSet) {
+        const passagesWithIds = ensureUniqueIds(subjectSet.passages);
+        setPassages(passagesWithIds);
+        setLastValidPassages(passagesWithIds);
+      }
+    } else {
+      setPassages([]);
+      setLastValidPassages([]);
     }
-  }, [activeSubjectId, getReadingPassagesForSubject, subjects]);
+  }, [activeSubjectId, activeReadingSetId, readingSets]);
 
   useEffect(() => {
     if (saveMessage || errorMessage) {
@@ -126,8 +132,17 @@ export function ReadingEditorPage({
     }
   };
 
-  const handleImportBehavior = (behavior: "override" | "add") => {
-    if (behavior === "override") {
+  const handleImportBehavior = (behavior: "override" | "add" | "new", newSetName?: string) => {
+    if (behavior === "new" && activeSubjectId) {
+      const defaultName = newSetName?.trim() || `New Set`;
+      const newId = createReadingSet(activeSubjectId, defaultName);
+      
+      updateReadingSet(activeSubjectId, newId, pendingImportPassages);
+      setActiveReadingSet(newId);
+      
+      setPassages(pendingImportPassages);
+      setSaveMessage(`Successfully created "${defaultName}" with ${pendingImportPassages.length} Passages`);
+    } else if (behavior === "override") {
       setPassages(pendingImportPassages);
       setSaveMessage(`Successfully loaded ${pendingImportPassages.length} Passages (Overridden existing)`);
     } else {
@@ -164,9 +179,10 @@ export function ReadingEditorPage({
   };
 
   const confirmSave = () => {
-    updateReadingPassagesForSubject(activeSubjectId!, passages);
+    if (!activeSubjectId || !activeReadingSetId) return;
+    updateReadingSet(activeSubjectId, activeReadingSetId, passages);
     setLastValidPassages(passages);
-    setSaveMessage(`Saved ${passages.length} Passages to "${currentSubject?.name}"`);
+    setSaveMessage(`Saved ${passages.length} Passages to "${currentSet?.name || 'Set'}"`);
     setErrorMessage("");
     setShowSaveDialog(false);
 
@@ -272,13 +288,13 @@ export function ReadingEditorPage({
                   >
                     Reading Passages Editor
                   </h1>
-                  {currentSubject && (
+                  {currentSubject && currentSet && (
                     <p
                       className={`text-sm ${
                         darkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {currentSubject.name} • {passages.length} passage
+                      {currentSubject.name} &gt; {currentSet.name} • {passages.length} passage
                       {passages.length !== 1 ? "s" : ""}
                       {hasUnsavedChanges && " • Unsaved changes"}
                     </p>
@@ -320,7 +336,7 @@ export function ReadingEditorPage({
 
         <div className="max-w-7xl mx-auto">
           {/* Subject Warning */}
-          {!activeSubjectId && (
+          {(!activeSubjectId || !activeReadingSetId) && (
             <div
               className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
                 darkMode
@@ -330,7 +346,7 @@ export function ReadingEditorPage({
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="font-medium">
-                Please select a subject from the sidebar to start editing
+                Please select a file from the dashboard to start editing
               </p>
             </div>
           )}
@@ -368,7 +384,7 @@ export function ReadingEditorPage({
           )}
 
           {/* Empty State */}
-          {isEmptyState && activeSubjectId && (
+          {isEmptyState && activeSubjectId && activeReadingSetId && (
             <Card
               className={`border-2 border-dashed ${
                 darkMode
@@ -519,8 +535,8 @@ export function ReadingEditorPage({
             <AlertDialogTitle>Save Passages?</AlertDialogTitle>
             <AlertDialogDescription>
               You are about to save {passages.length} Passage(s) to "
-              {currentSubject?.name}
-              ". This will replace the existing passages for this subject.
+              {currentSubject?.name} &gt; {currentSet?.name}
+              ". This will replace the existing passages for this file.
             </AlertDialogDescription>
             <div className="flex gap-3 justify-end">
               <AlertDialogCancel

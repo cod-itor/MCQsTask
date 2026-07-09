@@ -36,10 +36,11 @@ export default function PracticeTest({
   darkMode,
   onOpenMobileSidebar,
 }: PracticeTestProps) {
-  const { activeSubjectId, getMcqsForSubject, subjects, updateMcqsForSubject } =
+  const { activeSubjectId, activeMcqSetId, getMcqSet, subjects, updateMcqSet } =
     useSubjects();
-  const mcqs = getMcqsForSubject(activeSubjectId);
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
+  const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
+  const mcqs = currentSet ? currentSet.mcqs : [];
 
   const [displayQuestions, setDisplayQuestions] = useState<ShuffledQuestion[]>(
     []
@@ -237,7 +238,7 @@ export default function PracticeTest({
         })
       );
 
-      updateMcqsForSubject(activeSubjectId, updated);
+      updateMcqSet(activeSubjectId, activeMcqSetId!, updated);
       setEditingQuestionIndex(null);
     }
   };
@@ -278,7 +279,7 @@ export default function PracticeTest({
             >
               {retryMode
                 ? "Retry Incorrect Questions"
-                : currentSubject?.name || "Practice Test"}
+                : `${currentSubject?.name || "Practice Test"} > ${currentSet?.name || "Set"}`}
             </h1>
             <div className="flex gap-2 flex-wrap">
               <Button

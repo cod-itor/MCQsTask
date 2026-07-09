@@ -2,25 +2,38 @@
 
 import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
-import type { Subject, MCQ, ReadingPassage } from "./types";
+import type { Subject, MCQ, ReadingPassage, MCQSet, ReadingSet } from "./types";
 
 interface SubjectContextType {
   subjects: Subject[];
   activeSubjectId: string | null;
-  mcqs: Record<string, MCQ[]>;
+  activeMcqSetId: string | null;
+  activeReadingSetId: string | null;
+  mcqSets: Record<string, MCQSet[]>;
+  readingSets: Record<string, ReadingSet[]>;
+  
   setActiveSubject: (id: string | null) => void;
-  createSubject: (name: string) => void;
+  setActiveMcqSet: (id: string | null) => void;
+  setActiveReadingSet: (id: string | null) => void;
+  
+  createSubject: (name: string) => string;
   renameSubject: (id: string, newName: string) => void;
   deleteSubject: (id: string) => void;
   toggleFavorite: (id: string) => void;
-  addMcqsToSubject: (subjectId: string, mcqs: MCQ[]) => void;
+  
+  createMcqSet: (subjectId: string, name: string) => string;
+  updateMcqSet: (subjectId: string, setId: string, mcqs: MCQ[]) => void;
+  deleteMcqSet: (subjectId: string, setId: string) => void;
+  getMcqSet: (subjectId: string | null, setId: string | null) => MCQSet | null;
+  
+  createReadingSet: (subjectId: string, name: string) => string;
+  updateReadingSet: (subjectId: string, setId: string, passages: ReadingPassage[]) => void;
+  deleteReadingSet: (subjectId: string, setId: string) => void;
+  getReadingSet: (subjectId: string | null, setId: string | null) => ReadingSet | null;
+
+  // Legacy for compatibility if needed elsewhere
   getMcqsForSubject: (subjectId: string | null) => MCQ[];
-  deleteMcqFromSubject: (subjectId: string, mcqId: string) => void;
-  updateMcqsForSubject: (subjectId: string, updatedMcqs: MCQ[]) => void;
-  readingPassages: Record<string, ReadingPassage[]>;
   getReadingPassagesForSubject: (subjectId: string | null) => ReadingPassage[];
-  addReadingPassagesToSubject: (subjectId: string, passages: ReadingPassage[]) => void;
-  updateReadingPassagesForSubject: (subjectId: string, updatedPassages: ReadingPassage[]) => void;
 }
 
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
@@ -29,55 +42,112 @@ const SUBJECT_STORAGE_KEY = "mcq_subjects";
 const MCQS_STORAGE_KEY = "mcq_data";
 const ACTIVE_SUBJECT_KEY = "active_subject";
 const READING_PASSAGES_STORAGE_KEY = "mcq_reading_passages";
+const ACTIVE_MCQ_SET_KEY = "active_mcq_set";
+const ACTIVE_READING_SET_KEY = "active_reading_set";
 
 export function SubjectProvider({ children }: { children: React.ReactNode }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>(null);
-  const [mcqs, setMcqs] = useState<Record<string, MCQ[]>>({});
-  const [readingPassages, setReadingPassages] = useState<Record<string, ReadingPassage[]>>({});
+  const [activeMcqSetId, setActiveMcqSetId] = useState<string | null>(null);
+  const [activeReadingSetId, setActiveReadingSetId] = useState<string | null>(null);
+  
+  const [mcqSets, setMcqSets] = useState<Record<string, MCQSet[]>>({});
+  const [readingSets, setReadingSets] = useState<Record<string, ReadingSet[]>>({});
 
-  // Load from localStorage on mount
   useEffect(() => {
     const savedSubjects = localStorage.getItem(SUBJECT_STORAGE_KEY);
     const savedMcqs = localStorage.getItem(MCQS_STORAGE_KEY);
     const savedReadingPassages = localStorage.getItem(READING_PASSAGES_STORAGE_KEY);
     const savedActiveSubject = localStorage.getItem(ACTIVE_SUBJECT_KEY);
+    const savedActiveMcqSet = localStorage.getItem(ACTIVE_MCQ_SET_KEY);
+    const savedActiveReadingSet = localStorage.getItem(ACTIVE_READING_SET_KEY);
 
     if (savedSubjects) {
       setSubjects(JSON.parse(savedSubjects));
     }
+    
     if (savedMcqs) {
-      setMcqs(JSON.parse(savedMcqs));
+      const parsed = JSON.parse(savedMcqs);
+      const newMcqSets: Record<string, MCQSet[]> = {};
+      let migrated = false;
+      for (const [subjectId, data] of Object.entries(parsed)) {
+        if (Array.isArray(data) && data.length > 0 && !('mcqs' in data[0])) {
+          newMcqSets[subjectId] = [{
+            id: `mcqset-${Date.now()}-${Math.random()}`,
+            subjectId,
+            name: "Default MCQ Set",
+            createdAt: Date.now(),
+            mcqs: data as unknown as MCQ[]
+          }];
+          migrated = true;
+        } else {
+          newMcqSets[subjectId] = data as MCQSet[];
+        }
+      }
+      setMcqSets(migrated ? newMcqSets : parsed);
     }
+    
     if (savedReadingPassages) {
-      setReadingPassages(JSON.parse(savedReadingPassages));
+      const parsed = JSON.parse(savedReadingPassages);
+      const newReadingSets: Record<string, ReadingSet[]> = {};
+      let migrated = false;
+      for (const [subjectId, data] of Object.entries(parsed)) {
+        if (Array.isArray(data) && data.length > 0 && !('passages' in data[0])) {
+          newReadingSets[subjectId] = [{
+            id: `readingset-${Date.now()}-${Math.random()}`,
+            subjectId,
+            name: "Default Reading Set",
+            createdAt: Date.now(),
+            passages: data as unknown as ReadingPassage[]
+          }];
+          migrated = true;
+        } else {
+          newReadingSets[subjectId] = data as ReadingSet[];
+        }
+      }
+      setReadingSets(migrated ? newReadingSets : parsed);
     }
-    if (savedActiveSubject) {
-      setActiveSubjectId(savedActiveSubject);
-    }
+    
+    if (savedActiveSubject) setActiveSubjectId(savedActiveSubject);
+    if (savedActiveMcqSet) setActiveMcqSetId(savedActiveMcqSet);
+    if (savedActiveReadingSet) setActiveReadingSetId(savedActiveReadingSet);
   }, []);
 
-  // Save subjects to localStorage
   useEffect(() => {
     localStorage.setItem(SUBJECT_STORAGE_KEY, JSON.stringify(subjects));
   }, [subjects]);
 
-  // Save MCQs to localStorage
   useEffect(() => {
-    localStorage.setItem(MCQS_STORAGE_KEY, JSON.stringify(mcqs));
-  }, [mcqs]);
+    localStorage.setItem(MCQS_STORAGE_KEY, JSON.stringify(mcqSets));
+  }, [mcqSets]);
 
-  // Save Reading Passages to localStorage
   useEffect(() => {
-    localStorage.setItem(READING_PASSAGES_STORAGE_KEY, JSON.stringify(readingPassages));
-  }, [readingPassages]);
+    localStorage.setItem(READING_PASSAGES_STORAGE_KEY, JSON.stringify(readingSets));
+  }, [readingSets]);
 
-  // Save active subject to localStorage
   useEffect(() => {
-    if (activeSubjectId) {
-      localStorage.setItem(ACTIVE_SUBJECT_KEY, activeSubjectId);
-    }
+    if (activeSubjectId) localStorage.setItem(ACTIVE_SUBJECT_KEY, activeSubjectId);
+    else localStorage.removeItem(ACTIVE_SUBJECT_KEY);
   }, [activeSubjectId]);
+
+  useEffect(() => {
+    if (activeMcqSetId) localStorage.setItem(ACTIVE_MCQ_SET_KEY, activeMcqSetId);
+    else localStorage.removeItem(ACTIVE_MCQ_SET_KEY);
+  }, [activeMcqSetId]);
+
+  useEffect(() => {
+    if (activeReadingSetId) localStorage.setItem(ACTIVE_READING_SET_KEY, activeReadingSetId);
+    else localStorage.removeItem(ACTIVE_READING_SET_KEY);
+  }, [activeReadingSetId]);
+
+  const updateSubjectMcqCount = (subjectId: string, currentMcqSets: Record<string, MCQSet[]>) => {
+    setSubjects(prev => prev.map(s => {
+      if (s.id !== subjectId) return s;
+      const sets = currentMcqSets[subjectId] || [];
+      const totalCount = sets.reduce((sum, set) => sum + set.mcqs.length, 0);
+      return { ...s, mcqCount: totalCount };
+    }));
+  };
 
   const createSubject = (name: string) => {
     const newSubject: Subject = {
@@ -88,103 +158,124 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
       mcqCount: 0,
     };
     setSubjects([...subjects, newSubject]);
-    setMcqs({ ...mcqs, [newSubject.id]: [] });
-    setReadingPassages({ ...readingPassages, [newSubject.id]: [] });
+    setMcqSets({ ...mcqSets, [newSubject.id]: [] });
+    setReadingSets({ ...readingSets, [newSubject.id]: [] });
+    return newSubject.id;
   };
 
   const renameSubject = (id: string, newName: string) => {
-    setSubjects(
-      subjects.map((s) => (s.id === id ? { ...s, name: newName } : s))
-    );
+    setSubjects(subjects.map((s) => (s.id === id ? { ...s, name: newName } : s)));
   };
 
   const deleteSubject = (id: string) => {
     setSubjects(subjects.filter((s) => s.id !== id));
-    const newMcqs = { ...mcqs };
+    
+    const newMcqs = { ...mcqSets };
     delete newMcqs[id];
-    setMcqs(newMcqs);
-    const newRP = { ...readingPassages };
+    setMcqSets(newMcqs);
+    
+    const newRP = { ...readingSets };
     delete newRP[id];
-    setReadingPassages(newRP);
-    if (activeSubjectId === id) {
-      setActiveSubjectId(null);
-    }
+    setReadingSets(newRP);
+    
+    if (activeSubjectId === id) setActiveSubjectId(null);
   };
 
   const toggleFavorite = (id: string) => {
-    setSubjects(
-      subjects.map((s) =>
-        s.id === id ? { ...s, isFavorite: !s.isFavorite } : s
-      )
-    );
+    setSubjects(subjects.map((s) => s.id === id ? { ...s, isFavorite: !s.isFavorite } : s));
   };
 
-  const addMcqsToSubject = (subjectId: string, newMcqs: MCQ[]) => {
-    const existingMcqs = mcqs[subjectId] || [];
-    setMcqs({
-      ...mcqs,
-      [subjectId]: [...existingMcqs, ...newMcqs],
-    });
+  const createMcqSet = (subjectId: string, name: string) => {
+    const newSetId = `mcqset-${Date.now()}`;
+    const newSet: MCQSet = {
+      id: newSetId,
+      subjectId,
+      name,
+      createdAt: Date.now(),
+      mcqs: []
+    };
+    
+    const updated = {
+      ...mcqSets,
+      [subjectId]: [...(mcqSets[subjectId] || []), newSet]
+    };
+    setMcqSets(updated);
+    return newSetId;
+  };
 
-    // Update MCQ count in subject
-    setSubjects(
-      subjects.map((s) =>
-        s.id === subjectId
-          ? { ...s, mcqCount: (mcqs[subjectId]?.length || 0) + newMcqs.length }
-          : s
+  const updateMcqSet = (subjectId: string, setId: string, mcqs: MCQ[]) => {
+    const updated = {
+      ...mcqSets,
+      [subjectId]: (mcqSets[subjectId] || []).map(set => 
+        set.id === setId ? { ...set, mcqs } : set
       )
-    );
+    };
+    setMcqSets(updated);
+    updateSubjectMcqCount(subjectId, updated);
+  };
+
+  const deleteMcqSet = (subjectId: string, setId: string) => {
+    const updated = {
+      ...mcqSets,
+      [subjectId]: (mcqSets[subjectId] || []).filter(set => set.id !== setId)
+    };
+    setMcqSets(updated);
+    updateSubjectMcqCount(subjectId, updated);
+    if (activeMcqSetId === setId) setActiveMcqSetId(null);
+  };
+
+  const getMcqSet = (subjectId: string | null, setId: string | null) => {
+    if (!subjectId || !setId) return null;
+    return (mcqSets[subjectId] || []).find(s => s.id === setId) || null;
+  };
+
+  const createReadingSet = (subjectId: string, name: string) => {
+    const newSetId = `readingset-${Date.now()}`;
+    const newSet: ReadingSet = {
+      id: newSetId,
+      subjectId,
+      name,
+      createdAt: Date.now(),
+      passages: []
+    };
+    
+    setReadingSets({
+      ...readingSets,
+      [subjectId]: [...(readingSets[subjectId] || []), newSet]
+    });
+    return newSetId;
+  };
+
+  const updateReadingSet = (subjectId: string, setId: string, passages: ReadingPassage[]) => {
+    setReadingSets({
+      ...readingSets,
+      [subjectId]: (readingSets[subjectId] || []).map(set => 
+        set.id === setId ? { ...set, passages } : set
+      )
+    });
+  };
+
+  const deleteReadingSet = (subjectId: string, setId: string) => {
+    setReadingSets({
+      ...readingSets,
+      [subjectId]: (readingSets[subjectId] || []).filter(set => set.id !== setId)
+    });
+    if (activeReadingSetId === setId) setActiveReadingSetId(null);
+  };
+
+  const getReadingSet = (subjectId: string | null, setId: string | null) => {
+    if (!subjectId || !setId) return null;
+    return (readingSets[subjectId] || []).find(s => s.id === setId) || null;
   };
 
   const getMcqsForSubject = (subjectId: string | null) => {
     if (!subjectId) return [];
-    return mcqs[subjectId] || [];
-  };
-
-  const deleteMcqFromSubject = (subjectId: string, mcqId: string) => {
-    setMcqs({
-      ...mcqs,
-      [subjectId]: mcqs[subjectId].filter((m) => m.id !== mcqId),
-    });
-    setSubjects(
-      subjects.map((s) =>
-        s.id === subjectId
-          ? { ...s, mcqCount: (mcqs[subjectId]?.length || 0) - 1 }
-          : s
-      )
-    );
-  };
-
-  const updateMcqsForSubject = (subjectId: string, updatedMcqs: MCQ[]) => {
-    setMcqs({
-      ...mcqs,
-      [subjectId]: updatedMcqs,
-    });
-    setSubjects(
-      subjects.map((s) =>
-        s.id === subjectId ? { ...s, mcqCount: updatedMcqs.length } : s
-      )
-    );
+    return (mcqSets[subjectId] || []).flatMap(set => set.mcqs);
   };
 
   const getReadingPassagesForSubject = (subjectId: string | null) => {
     if (!subjectId) return [];
-    return readingPassages[subjectId] || [];
-  };
-
-  const addReadingPassagesToSubject = (subjectId: string, passages: ReadingPassage[]) => {
-    const existing = readingPassages[subjectId] || [];
-    setReadingPassages({
-      ...readingPassages,
-      [subjectId]: [...existing, ...passages],
-    });
-  };
-
-  const updateReadingPassagesForSubject = (subjectId: string, updatedPassages: ReadingPassage[]) => {
-    setReadingPassages({
-      ...readingPassages,
-      [subjectId]: updatedPassages,
-    });
+    return (readingSets[subjectId] || []).flatMap(set => set.passages);
   };
 
   return (
@@ -192,20 +283,27 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
       value={{
         subjects,
         activeSubjectId,
-        mcqs,
+        activeMcqSetId,
+        activeReadingSetId,
+        mcqSets,
+        readingSets,
         setActiveSubject: setActiveSubjectId,
+        setActiveMcqSet: setActiveMcqSetId,
+        setActiveReadingSet: setActiveReadingSetId,
         createSubject,
         renameSubject,
         deleteSubject,
         toggleFavorite,
-        addMcqsToSubject,
+        createMcqSet,
+        updateMcqSet,
+        deleteMcqSet,
+        getMcqSet,
+        createReadingSet,
+        updateReadingSet,
+        deleteReadingSet,
+        getReadingSet,
         getMcqsForSubject,
-        deleteMcqFromSubject,
-        updateMcqsForSubject,
-        readingPassages,
-        getReadingPassagesForSubject,
-        addReadingPassagesToSubject,
-        updateReadingPassagesForSubject,
+        getReadingPassagesForSubject
       }}
     >
       {children}

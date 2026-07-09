@@ -1,0 +1,47 @@
+[
+  {
+    "id": "reading-demo-1",
+    "header": "The Evolution of the Global Traveler",
+    "content": "For many decades, international tourism was a luxury reserved for the wealthy. However, the rise of budget airlines, digital booking platforms, and a growing global middle class has transformed travel into a massive global industry. While this \"democratization of travel\" has allowed millions to explore new cultures, it has also created a phenomenon known as overtourism.\n\nIn famous cities like Venice and Amsterdam, the sheer volume of visitors has begun to strain local infrastructure and drive up the cost of living for residents. In response to these challenges, a new trend called [blank] has gained momentum. This approach encourages travelers to minimize their environmental footprint and support local economies directly.\n\nAnother significant shift is the rise of the \"Digital Nomad.\" Enabled by high-speed internet and remote work policies, these individuals do not just visit a destination for a week; they live there for months at a time. This has led to the creation of [blank] Visas in countries like Portugal, aimed at attracting long-term residents who contribute to the local economy without taking local jobs.",
+    "globalOptions": [
+      "Sustainable Tourism",
+      "Digital Nomad",
+      "Adventure Tourism",
+      "Backpacker"
+    ],
+    "questions": [
+      {
+        "id": "q1",
+        "text": "In response to these challenges, a new trend called [blank] has gained momentum.",
+        "answer": "Sustainable Tourism"
+      },
+      {
+        "id": "q2",
+        "text": "This has led to the creation of [blank] Visas in countries like Portugal.",
+        "answer": "Digital Nomad"
+      },
+      {
+        "id": "q3",
+        "text": "How has international tourism changed over the last few decades?",
+        "answer": "It has moved from a luxury for the wealthy to a global industry.",
+        "options": [
+          "It has become more expensive and exclusive.",
+          "It has moved from a luxury for the wealthy to a global industry.",
+          "It has stopped being popular due to digital technology.",
+          "It is now only available for people who work in offices."
+        ]
+      },
+      {
+        "id": "q4",
+        "text": "What is one negative effect of overtourism on local residents?",
+        "answer": "An increase in the cost of living.",
+        "options": [
+          "A lack of high-speed internet.",
+          "The closing of all local hotels.",
+          "A decrease in the number of restaurants.",
+          "An increase in the cost of living."
+        ]
+      }
+    ]
+  }
+]

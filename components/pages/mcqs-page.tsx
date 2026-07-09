@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useSubjects } from "@/lib/subject-context";
 import { Button } from "@/components/ui/button";
+import { SelectSetModal } from "@/components/select-set-modal";
 import {
   Card,
   CardContent,
@@ -35,6 +37,28 @@ export default function MCQsPage({
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const mcqCount = getMcqsForSubject(activeSubjectId).length;
   const readingCount = getReadingPassagesForSubject(activeSubjectId).length;
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalCategory, setModalCategory] = useState<"mcq" | "reading">("mcq");
+  const [modalAction, setModalAction] = useState<"practice" | "exam" | "edit">("practice");
+
+  const openModal = (category: "mcq" | "reading", action: "practice" | "exam" | "edit") => {
+    setModalCategory(category);
+    setModalAction(action);
+    setModalOpen(true);
+  };
+
+  const handleModalSelect = () => {
+    if (modalAction === "practice") {
+      if (modalCategory === "mcq") onStartPractice();
+      else onStartReadingPractice();
+    } else if (modalAction === "exam") {
+      onStartExam();
+    } else if (modalAction === "edit") {
+      if (modalCategory === "mcq") onInputMcqs();
+      else onInputReading();
+    }
+  };
 
   return (
     <div
@@ -185,7 +209,7 @@ export default function MCQsPage({
                       ? "bg-gradient-to-br from-slate-800 to-slate-900 border-blue-500/30 hover:border-blue-500/60 hover:shadow-2xl hover:shadow-blue-500/20"
                       : "bg-gradient-to-br from-white to-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-2xl shadow-lg"
                   } rounded-2xl`}
-                  onClick={onStartPractice}
+                  onClick={() => openModal("mcq", "practice")}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
                   <CardHeader className="relative pb-4">
@@ -255,7 +279,7 @@ export default function MCQsPage({
                       ? "bg-gradient-to-br from-slate-800 to-slate-900 border-indigo-500/30 hover:border-indigo-500/60 hover:shadow-2xl hover:shadow-indigo-500/20"
                       : "bg-gradient-to-br from-white to-indigo-50 border-indigo-200 hover:border-indigo-400 hover:shadow-2xl shadow-lg"
                   } rounded-2xl`}
-                  onClick={onStartExam}
+                  onClick={() => openModal("mcq", "exam")}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
                   <CardHeader className="relative pb-4">
@@ -329,7 +353,7 @@ export default function MCQsPage({
                       ? "bg-gradient-to-br from-slate-800 to-slate-900 border-emerald-500/30 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/20"
                       : "bg-gradient-to-br from-white to-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl shadow-lg"
                   } rounded-2xl`}
-                  onClick={onStartReadingPractice}
+                  onClick={() => openModal("reading", "practice")}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
                   <CardHeader className="relative pb-4">
@@ -397,7 +421,7 @@ export default function MCQsPage({
             <div className="flex flex-col sm:flex-row justify-center gap-4 text-center">
               <Button
                 variant="outline"
-                onClick={onInputMcqs}
+                onClick={() => openModal("mcq", "edit")}
                 className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
                   darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
@@ -410,7 +434,7 @@ export default function MCQsPage({
               </Button>
               <Button
                 variant="outline"
-                onClick={onInputReading}
+                onClick={() => openModal("reading", "edit")}
                 className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
                   darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
@@ -444,6 +468,14 @@ export default function MCQsPage({
                 </div>
               </div>
             )}
+
+            <SelectSetModal 
+              open={modalOpen}
+              onOpenChange={setModalOpen}
+              category={modalCategory}
+              onSelect={handleModalSelect}
+              darkMode={darkMode}
+            />
           </>
         )}
       </div>

@@ -60,7 +60,7 @@ export function MCQEditorPage({
   context = "full",
   currentQuestionIndex,
 }: MCQEditorPageProps) {
-  const { subjects, activeSubjectId, updateMcqsForSubject, getMcqsForSubject } =
+  const { subjects, activeSubjectId, activeMcqSetId, getMcqSet, updateMcqSet, createMcqSet, setActiveMcqSet, mcqSets } =
     useSubjects();
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [lastValidMcqs, setLastValidMcqs] = useState<MCQ[]>([]);
@@ -76,6 +76,7 @@ export function MCQEditorPage({
   const [showAddManual, setShowAddManual] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
+  const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
   const hasUnsavedChanges =
     JSON.stringify(mcqs) !== JSON.stringify(lastValidMcqs);
 
@@ -92,14 +93,20 @@ export function MCQEditorPage({
   }, []);
 
   useEffect(() => {
-    if (activeSubjectId) {
-      const subjectMcqs = getMcqsForSubject(activeSubjectId);
-      const mcqsWithIds = ensureUniqueIds(subjectMcqs);
-      setMcqs(mcqsWithIds);
-      setFilteredMcqs(mcqsWithIds);
-      setLastValidMcqs(mcqsWithIds);
+    if (activeSubjectId && activeMcqSetId) {
+      const subjectSet = getMcqSet(activeSubjectId, activeMcqSetId);
+      if (subjectSet) {
+        const mcqsWithIds = ensureUniqueIds(subjectSet.mcqs);
+        setMcqs(mcqsWithIds);
+        setFilteredMcqs(mcqsWithIds);
+        setLastValidMcqs(mcqsWithIds);
+      }
+    } else {
+      setMcqs([]);
+      setFilteredMcqs([]);
+      setLastValidMcqs([]);
     }
-  }, [activeSubjectId, getMcqsForSubject, subjects]);
+  }, [activeSubjectId, activeMcqSetId, mcqSets]);
 
   useEffect(() => {
     setFilteredMcqs(mcqs);
@@ -141,8 +148,20 @@ export function MCQEditorPage({
     }
   };
 
-  const handleImportBehavior = (behavior: "override" | "add") => {
-    if (behavior === "override") {
+  const handleImportBehavior = (behavior: "override" | "add" | "new", newSetName?: string) => {
+    if (behavior === "new" && activeSubjectId) {
+      const defaultName = newSetName?.trim() || `New Set`;
+      const newId = createMcqSet(activeSubjectId, defaultName);
+      
+      updateMcqSet(activeSubjectId, newId, pendingImportMcqs);
+      setActiveMcqSet(newId);
+      
+      setMcqs(pendingImportMcqs);
+      setFilteredMcqs(pendingImportMcqs);
+      setSaveMessage(
+        `Successfully created "${defaultName}" with ${pendingImportMcqs.length} MCQs`
+      );
+    } else if (behavior === "override") {
       setMcqs(pendingImportMcqs);
       setFilteredMcqs(pendingImportMcqs);
       setSaveMessage(
@@ -195,9 +214,10 @@ export function MCQEditorPage({
   };
 
   const confirmSave = () => {
-    updateMcqsForSubject(activeSubjectId!, mcqs);
+    if (!activeSubjectId || !activeMcqSetId) return;
+    updateMcqSet(activeSubjectId, activeMcqSetId, mcqs);
     setLastValidMcqs(mcqs);
-    setSaveMessage(`Saved ${mcqs.length} MCQs to "${currentSubject?.name}"`);
+    setSaveMessage(`Saved ${mcqs.length} MCQs to "${currentSet?.name || 'Set'}"`);
     setErrorMessage("");
     setShowSaveDialog(false);
 
@@ -285,13 +305,13 @@ export function MCQEditorPage({
                   >
                     MCQ Editor
                   </h1>
-                  {currentSubject && (
+                  {currentSubject && currentSet && (
                     <p
                       className={`text-sm ${
                         darkMode ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {currentSubject.name} • {mcqs.length} question
+                      {currentSubject.name} &gt; {currentSet.name} • {mcqs.length} question
                       {mcqs.length !== 1 ? "s" : ""}
                       {hasUnsavedChanges && " • Unsaved changes"}
                     </p>
@@ -333,7 +353,7 @@ export function MCQEditorPage({
 
         <div className="max-w-7xl mx-auto">
           {/* Subject Warning */}
-          {!activeSubjectId && (
+          {(!activeSubjectId || !activeMcqSetId) && (
             <div
               className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
                 darkMode
@@ -343,7 +363,7 @@ export function MCQEditorPage({
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="font-medium">
-                Please select a subject from the sidebar to start editing
+                Please select a file from the dashboard to start editing
               </p>
             </div>
           )}
@@ -381,7 +401,7 @@ export function MCQEditorPage({
           )}
 
           {/* Empty State - Getting Started */}
-          {isEmptyState && activeSubjectId && (
+          {isEmptyState && activeSubjectId && activeMcqSetId && (
             <Card
               className={`border-2 border-dashed ${
                 darkMode
@@ -542,8 +562,8 @@ export function MCQEditorPage({
             <AlertDialogTitle>Save MCQs?</AlertDialogTitle>
             <AlertDialogDescription>
               You are about to save {mcqs.length} MCQ(s) to "
-              {currentSubject?.name}
-              ". This will replace the existing MCQs for this subject. All
+              {currentSubject?.name} &gt; {currentSet?.name}
+              ". This will replace the existing MCQs for this file. All
               active exams and practice sessions will be reset.
             </AlertDialogDescription>
             <div className="flex gap-3 justify-end">

@@ -51,13 +51,6 @@ export function validateReadingPassages(data: any[]): ReadingValidationResult {
           field: "question",
           message: "Missing required fields (id, text, answer)",
         })
-      } else if (!q.text.includes("[blank]")) {
-        errors.push({
-          passageIndex: index,
-          questionIndex: qIndex,
-          field: "text",
-          message: 'Question text must contain "[blank]" marker',
-        })
       } else {
         questions.push({
           id: String(q.id),

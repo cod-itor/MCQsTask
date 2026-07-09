@@ -29,14 +29,16 @@ interface ReadingPracticeProps {
 }
 
 export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar }: ReadingPracticeProps) {
-  const { activeSubjectId, getReadingPassagesForSubject } = useSubjects()
-  const passages = getReadingPassagesForSubject(activeSubjectId)
+  const { activeSubjectId, activeReadingSetId, getReadingSet } = useSubjects()
+  const currentSet = getReadingSet(activeSubjectId, activeReadingSetId)
+  const passages = currentSet ? currentSet.passages : []
   const isMobile = useIsMobile()
 
   const [currentPassageIndex, setCurrentPassageIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const currentPassage = passages[currentPassageIndex]
 
@@ -45,6 +47,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
     setAnswers({})
     setIsSubmitted(false)
     setOpenPopoverId(null)
+    setSubmitError(null)
   }, [currentPassageIndex])
 
   if (!currentPassage) {
@@ -69,7 +72,18 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
   }
 
   const handleSubmit = () => {
-    setIsSubmitted(true)
+    const unansweredCount = currentPassage.questions.filter(q => {
+      const ans = answers[q.id];
+      return !ans || ans.trim() === "";
+    }).length;
+
+    if (unansweredCount > 0) {
+      setSubmitError(`Please answer all questions before submitting. You have ${unansweredCount} unanswered question(s).`);
+      return;
+    }
+
+    setSubmitError(null);
+    setIsSubmitted(true);
   }
 
   const handleNext = () => {
@@ -107,6 +121,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
     const userAnswer = answers[q.id] || ""
     const isCorrect = isSubmitted && userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase()
     const isIncorrect = isSubmitted && userAnswer.trim().toLowerCase() !== q.answer.trim().toLowerCase()
+    const hasBlank = q.text.includes("[blank]")
 
     // Determine which options to use for this question (local or global)
     // We filter out options that have been used by OTHER questions
@@ -133,6 +148,90 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
         inputClass += darkMode ? " border-red-500 bg-red-900/30" : " border-red-500 bg-red-50"
         textInputClass += darkMode ? " border-red-500 bg-red-900/30" : " border-red-500 bg-red-50"
       }
+    }
+
+    if (!hasBlank) {
+      return (
+        <div key={q.id} className="mb-8">
+          <div className="flex items-start mb-4">
+            <span className={`font-bold mr-3 mt-1 ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
+              {index + 1}.
+            </span>
+            <div className={`p-4 rounded-lg flex-1 border ${darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : "bg-blue-50 border-blue-200"}`}>
+              <h3 className={`text-base font-semibold ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
+                {q.text}
+              </h3>
+            </div>
+          </div>
+          
+          <div className="space-y-3 pl-8">
+            {optionsToUse.map((opt, optIndex) => {
+              const selected = userAnswer === opt;
+              const label = String.fromCharCode(65 + optIndex); // A, B, C, D
+              
+              let btnClass = `w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
+                darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600" : "bg-white border-gray-300 hover:bg-gray-50"
+              } ${selected ? "ring-2 ring-blue-500" : ""}`
+
+              if (isSubmitted && selected && isCorrect) {
+                btnClass = `w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
+                  darkMode ? "bg-green-900/40 border-green-700" : "bg-green-50 border-green-400"
+                } ring-2 ring-green-500`
+              } else if (isSubmitted && selected && isIncorrect) {
+                btnClass = `w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
+                  darkMode ? "bg-red-900/40 border-red-700" : "bg-red-50 border-red-400"
+                } ring-2 ring-red-500`
+              } else if (isSubmitted && isIncorrect && opt.trim().toLowerCase() === q.answer.trim().toLowerCase()) {
+                btnClass = `w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
+                  darkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-green-300"
+                }`
+              }
+
+              return (
+                <button
+                  key={optIndex}
+                  disabled={isSubmitted}
+                  onClick={() => !isSubmitted && handleAnswerChange(q.id, opt)}
+                  className={btnClass}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-md font-semibold text-sm flex-shrink-0 ${
+                      darkMode ? "bg-slate-600 text-slate-100" : "bg-gray-200 text-gray-800"
+                    }`}>
+                      {label}
+                    </div>
+                    <span className={darkMode ? "text-slate-100" : "text-gray-900"}>{opt}</span>
+                  </div>
+                  
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    selected ? (isSubmitted && isIncorrect ? "border-red-500" : "border-blue-500") : (darkMode ? "border-slate-400" : "border-gray-400")
+                  }`}>
+                    {selected && (
+                      <div className={`w-2.5 h-2.5 rounded-full ${isSubmitted && isIncorrect ? "bg-red-500" : "bg-blue-500"}`} />
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {isSubmitted && isIncorrect && (
+            <div className={`mt-4 ml-8 text-sm px-4 py-3 rounded-lg flex items-start gap-2 ${darkMode ? "bg-red-900/20 text-red-300 border border-red-900/50" : "bg-red-50 text-red-700 border border-red-100"}`}>
+              <XCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold mb-1">Incorrect</p>
+                <p>The correct answer is: <span className="font-bold">{q.answer}</span></p>
+              </div>
+            </div>
+          )}
+          {isSubmitted && isCorrect && (
+            <div className={`mt-4 ml-8 text-sm px-4 py-3 rounded-lg flex items-start gap-2 ${darkMode ? "bg-green-900/20 text-green-300 border border-green-900/50" : "bg-green-50 text-green-700 border border-green-100"}`}>
+              <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+              <p className="font-semibold mt-0.5">Correct!</p>
+            </div>
+          )}
+        </div>
+      )
     }
 
     return (
@@ -286,7 +385,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
   );
 
   const questionsListContent = (
-    <div className={`p-4 md:p-8 ${!isMobile ? 'flex-1 overflow-y-auto' : ''}`}>
+    <div className={`p-4 md:p-8 ${!isMobile ? 'flex-1' : ''}`}>
       <Card className={`border-0 shadow-none bg-transparent ${darkMode ? "text-slate-200" : ""}`}>
         <CardContent className="p-0">
           <div className="space-y-4">
@@ -303,14 +402,23 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
 
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
               {!isSubmitted ? (
-                <Button onClick={handleSubmit} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-5 md:py-6 text-base md:text-lg rounded-xl shadow-md transition-transform active:scale-[0.98]">
-                  Submit Answers
-                </Button>
+                <div className="flex flex-col w-full gap-3">
+                  {submitError && (
+                    <div className={`p-4 rounded-xl text-center text-sm font-semibold flex items-center justify-center gap-2 ${darkMode ? "bg-red-900/40 text-red-300 border border-red-800" : "bg-red-50 text-red-700 border border-red-200"}`}>
+                      <XCircle className="w-5 h-5 shrink-0" />
+                      <span>{submitError}</span>
+                    </div>
+                  )}
+                  <Button onClick={handleSubmit} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 md:py-6 text-base md:text-lg rounded-xl shadow-md transition-transform active:scale-[0.98]">
+                    Submit Answers
+                  </Button>
+                </div>
               ) : (
                 <Button
                   onClick={() => {
                     setAnswers({})
                     setIsSubmitted(false)
+                    setSubmitError(null)
                   }}
                   variant="outline"
                   className={`flex-1 py-5 md:py-6 text-base md:text-lg rounded-xl border-2 ${darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600" : "hover:bg-gray-50 border-gray-200"}`}
@@ -346,7 +454,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
   );
 
   return (
-    <div className={`flex flex-col ${!isMobile ? "h-full absolute inset-0 md:static" : "min-h-full"} ${darkMode ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`flex flex-col ${!isMobile ? "min-h-screen" : "min-h-full"} ${darkMode ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-900"}`}>
       {/* Header */}
       <header
         className={`flex-shrink-0 flex items-center justify-between p-3 md:p-4 border-b ${darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
@@ -382,7 +490,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
       </header>
 
       {/* Main Content */}
-      <div className={`flex flex-col flex-1 ${!isMobile ? "overflow-hidden relative" : ""}`}>
+      <div className={`flex flex-col flex-1`}>
         {isMobile ? (
           <div className="flex flex-col flex-1 w-full pb-10">
             {globalOptionsPanel}
@@ -394,10 +502,12 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
             </div>
           </div>
         ) : (
-          <div className="flex flex-row flex-1 w-full h-full overflow-hidden">
-            <div className="flex-1 w-1/2 overflow-hidden">{passageContent}</div>
-            <div className="flex-1 w-1/2 overflow-hidden">
-               <div className={`w-full h-full relative flex flex-col overflow-hidden ${darkMode ? "bg-slate-800" : "bg-[#f8fcf8]"}`}>
+          <div className="flex flex-row flex-1 w-full items-start">
+            <div className="flex-1 w-1/2 sticky top-[73px] h-[calc(100vh-73px)] overflow-hidden">
+              {passageContent}
+            </div>
+            <div className="flex-1 w-1/2 min-h-[calc(100vh-73px)]">
+               <div className={`w-full h-full relative flex flex-col ${darkMode ? "bg-slate-800" : "bg-[#f8fcf8]"}`}>
                  {globalOptionsPanel}
                  {questionsListContent}
                </div>
