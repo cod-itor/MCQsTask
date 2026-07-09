@@ -24,11 +24,11 @@ export default function HomeLanding({ darkMode: darkModeProp }: HomeLandingProps
   }, [darkModeProp])
 
   return (
-    <main className="w-full overflow-hidden pt-32 md:pt-20">
+    <div className="w-full overflow-hidden pt-32 md:pt-20">
       <Hero darkMode={darkMode} />
       <Features darkMode={darkMode} />
       <LearningFlow darkMode={darkMode} />
       <CTA darkMode={darkMode} />
-    </main>
+    </div>
   )
 }

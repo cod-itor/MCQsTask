@@ -30,6 +30,10 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
     setShowCreateModal(true);
   };
 
+  if (typeof window !== "undefined") {
+    (window as any).openMobileSidebar = () => setMobileDrawerOpen(true);
+  }
+
   const showSidebar = pathname === "/mcqs";
   const gapFixPage =
     pathname === "/" ||
@@ -111,7 +115,7 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
             />
 
             {/* Main Content */}
-            <div className="flex-1 overflow-auto">{children}</div>
+            <div className="flex-1">{children}</div>
           </div>
         </div>
       </main>

@@ -29,12 +29,14 @@ export default function MCQsHub() {
   }
 
   const handleOpenMobileSidebar = () => {
-    // Mobile sidebar is handled by parent layout
+    if (typeof window !== "undefined" && (window as any).openMobileSidebar) {
+      (window as any).openMobileSidebar()
+    }
   }
 
   const handleCreateSubject = () => {
-    if (window.innerWidth < 768) {
-      // Mobile drawer will be triggered from navbar
+    if (typeof window !== "undefined" && (window as any).openCreateSubjectModal) {
+      (window as any).openCreateSubjectModal()
     }
   }
 

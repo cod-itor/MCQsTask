@@ -146,6 +146,10 @@ main {
   background-attachment: scroll;
 }
 
+.dark main {
+  background-color: rgba(10, 15, 30, 0.97);
+}
+
 /* Exam mode styles - hide navigation and headers */
 body.exam-mode nav,
 body.exam-mode header,

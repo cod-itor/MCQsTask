@@ -343,7 +343,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
   }
 
   const globalOptionsPanel = unusedGlobalOptions.length > 0 ? (
-    <div className={`flex-shrink-0 p-4 md:p-6 ${!isMobile ? 'border-b z-10 shadow-sm sticky top-0' : 'mb-2'} ${darkMode ? "bg-slate-800/95 border-slate-700" : "bg-[#f8fcf8]/95 border-emerald-100"} backdrop-blur-sm`}>
+    <div className={`flex-shrink-0 p-4 md:p-6 ${!isMobile ? 'border-b z-10 shadow-sm sticky top-[80px]' : 'mb-2'} ${darkMode ? "bg-slate-800/95 border-slate-700" : "bg-[#f8fcf8]/95 border-emerald-100"} backdrop-blur-sm`}>
       <div className={`border-2 rounded-xl p-4 md:p-5 ${darkMode ? "border-emerald-700/50 bg-emerald-950/20" : "border-emerald-600/30 bg-white"}`}>
         <h4 className={`text-xs md:text-sm font-bold uppercase tracking-wider mb-3 md:mb-4 ${darkMode ? "text-emerald-500" : "text-emerald-700"}`}>
           Available Options <span className="text-[10px] md:text-xs font-normal opacity-70 ml-2 hidden sm:inline">(Drag & drop or use dropdowns)</span>
@@ -458,7 +458,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
       {/* Header */}
       <header
         className={`flex-shrink-0 flex items-center justify-between p-3 md:p-4 border-b ${darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"
-          } shadow-sm z-20 sticky top-0`}
+          }`}
       >
         <div className="flex items-center gap-2 md:gap-4">
           <Button
@@ -503,10 +503,10 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
           </div>
         ) : (
           <div className="flex flex-row flex-1 w-full items-start">
-            <div className="flex-1 w-1/2 sticky top-[73px] h-[calc(100vh-73px)] overflow-hidden">
+            <div className="flex-1 w-1/2 sticky top-[80px] h-[calc(100vh-80px)] overflow-hidden">
               {passageContent}
             </div>
-            <div className="flex-1 w-1/2 min-h-[calc(100vh-73px)]">
+            <div className="flex-1 w-1/2 min-h-[calc(100vh-80px)]">
                <div className={`w-full h-full relative flex flex-col ${darkMode ? "bg-slate-800" : "bg-[#f8fcf8]"}`}>
                  {globalOptionsPanel}
                  {questionsListContent}
