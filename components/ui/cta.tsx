@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface CTAProps {
   darkMode?: boolean;
@@ -76,23 +77,31 @@ export function CTA({ darkMode = false }: CTAProps) {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <Button
-              size="lg"
-              className="rounded-full px-8 py-6 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-            >
-              Start Free Today
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className={`rounded-full px-8 py-6 text-base font-semibold transition-all ${
-                darkMode
-                  ? "border-2 border-slate-600 hover:bg-slate-800 text-white hover:border-slate-500"
-                  : "border-2 border-gray-300 hover:bg-white text-gray-900 hover:border-gray-400 shadow-sm"
-              }`}
-            >
-              Learn More
-            </Button>
+            asChild
+            size="lg"
+            className={`rounded-full px-8 py-6 text-lg font-medium shadow-lg hover:shadow-xl transition-all ${
+              darkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : ""
+            }`}
+          >
+            <Link href="/mcqs">
+              Start Free Trial
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className={`rounded-full px-8 py-6 text-lg font-medium border-2 ${
+              darkMode
+                ? "border-slate-700 hover:bg-slate-800 text-white"
+                : "bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur"
+            }`}
+          >
+            <Link href="/about">
+              View Documentation
+            </Link>
+          </Button>
           </motion.div>
         </motion.div>
       </motion.div>

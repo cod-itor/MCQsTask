@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 interface HeroProps {
   darkMode?: boolean;
@@ -113,22 +114,28 @@ export function Hero({ darkMode = false }: HeroProps) {
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Button
+            asChild
             size="lg"
-            className="rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            className="rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full sm:w-auto"
           >
-            Start Practicing
-            <ArrowRight className="w-4 h-4" />
+            <Link href="/mcqs">
+              Start Practicing
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </Button>
           <Button
+            asChild
             size="lg"
             variant="outline"
-            className={`rounded-full px-6 py-2.5 font-medium ${
+            className={`rounded-full px-6 py-2.5 font-medium w-full sm:w-auto ${
               darkMode
                 ? "border-slate-700 hover:bg-slate-800 text-white"
                 : "border-gray-300 hover:bg-gray-50 text-gray-900"
             }`}
           >
-            Create MCQs
+            <Link href="/mcqs">
+              Create MCQs
+            </Link>
           </Button>
         </motion.div>
 

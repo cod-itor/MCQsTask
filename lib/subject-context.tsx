@@ -20,6 +20,7 @@ interface SubjectContextType {
   readingPassages: Record<string, ReadingPassage[]>;
   getReadingPassagesForSubject: (subjectId: string | null) => ReadingPassage[];
   addReadingPassagesToSubject: (subjectId: string, passages: ReadingPassage[]) => void;
+  updateReadingPassagesForSubject: (subjectId: string, updatedPassages: ReadingPassage[]) => void;
 }
 
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
@@ -179,6 +180,13 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateReadingPassagesForSubject = (subjectId: string, updatedPassages: ReadingPassage[]) => {
+    setReadingPassages({
+      ...readingPassages,
+      [subjectId]: updatedPassages,
+    });
+  };
+
   return (
     <SubjectContext.Provider
       value={{
@@ -197,6 +205,7 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
         readingPassages,
         getReadingPassagesForSubject,
         addReadingPassagesToSubject,
+        updateReadingPassagesForSubject,
       }}
     >
       {children}

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useDarkMode } from "@/lib/dark-mode-context";
+import Link from "next/link";
 
 export default function AboutUs() {
   const { darkMode } = useDarkMode();
@@ -51,10 +52,13 @@ export default function AboutUs() {
             confidence and perform your best.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button className="rounded-full bg-blue-600 px-6 py-5 text-sm font-semibold hover:bg-blue-700">
-              Start Practicing
+            <Button asChild className="rounded-full bg-blue-600 px-6 py-5 text-sm font-semibold hover:bg-blue-700">
+              <Link href="/mcqs">
+                Start Practicing
+              </Link>
             </Button>
             <Button
+              asChild
               variant="outline"
               className={`rounded-full bg-transparent px-6 py-5 text-sm font-semibold ${
                 darkMode
@@ -62,7 +66,9 @@ export default function AboutUs() {
                   : "border-blue-200 text-blue-700 hover:bg-blue-50"
               }`}
             >
-              Learn More
+              <Link href="/home">
+                Learn More
+              </Link>
             </Button>
           </div>
         </section>

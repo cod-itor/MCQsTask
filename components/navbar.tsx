@@ -18,7 +18,6 @@ interface NavbarProps {
   onOpenMobileSidebar?: () => void;
   onCreateSubject?: () => void;
   currentPage?: "home" | "mcqs" | "about";
-  onNavigate?: (destination: "home" | "mcqs" | "about") => void;
 }
 
 export default function Navbar({
@@ -27,7 +26,6 @@ export default function Navbar({
   onOpenMobileSidebar,
   onCreateSubject,
   currentPage = "home",
-  onNavigate,
 }: NavbarProps) {
   const { subjects } = useSubjects();
   const hasSubjects = subjects.length > 0;
@@ -67,14 +65,16 @@ export default function Navbar({
       >
         <div className="h-20 px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto">
           {/* Left: App Name */}
-          <Link
-            href="/home"
-            className={`font-bold text-xl ${
-              darkMode ? "text-white" : "text-gray-900"
-            } hover:opacity-80 transition-opacity`}
-          >
-            DITOR<sup className="text-sm text-gray-400">v2.2</sup>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/home"
+              className={`font-bold text-xl ${
+                darkMode ? "text-white" : "text-gray-900"
+              } hover:opacity-80 transition-opacity`}
+            >
+              DITOR<sup className="text-sm text-gray-400">v2.2</sup>
+            </Link>
+          </div>
 
           {/* Center: Navigation Pills - Desktop */}
           <div
@@ -85,33 +85,18 @@ export default function Navbar({
             <Link
               href="/home"
               className={getNavButtonClass("home")}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("home");
-              }}
             >
               Home
             </Link>
             <Link
               href="/mcqs"
               className={getNavButtonClass("mcqs")}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("mcqs");
-              }}
             >
               MCQs
             </Link>
             <Link
               href="/about"
               className={getNavButtonClass("about")}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("about");
-              }}
             >
               About Us
             </Link>
@@ -214,11 +199,6 @@ export default function Navbar({
                   ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("home");
-              }}
             >
               Home
             </Link>
@@ -233,11 +213,6 @@ export default function Navbar({
                   ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("mcqs");
-              }}
             >
               MCQs
             </Link>
@@ -252,11 +227,6 @@ export default function Navbar({
                   ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
-              onClick={(event) => {
-                if (!onNavigate) return;
-                event.preventDefault();
-                onNavigate("about");
-              }}
             >
               About
             </Link>
