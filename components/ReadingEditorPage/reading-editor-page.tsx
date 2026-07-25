@@ -19,6 +19,7 @@ import { ReadingStructuredEditor } from "./reading-structured-editor";
 import { ReadingJSONEditor } from "./reading-json-editor";
 import { ImportBehaviorModal } from "@/components/MCQEditorPage/import-behavior-modal";
 import { EditorActionsMenu } from "@/components/MCQEditorPage/editor-actions-menu";
+import { HowToImportModal } from "@/components/how-to-import-modal";
 import { parseReadingJSONFile, exportReadingToJSON } from "@/lib/reading-file-handler";
 import { toast } from "sonner";
 import { validateReadingPassages } from "@/lib/reading-validation";
@@ -348,6 +349,7 @@ export function ReadingEditorPage({
                       hasMcqs={passages.length > 0}
                       darkMode={darkMode}
                     />
+                    <HowToImportModal category="reading" darkMode={darkMode} />
                   </>
                 )}
               </div>
@@ -473,6 +475,8 @@ export function ReadingEditorPage({
                     >
                       Load Example
                     </Button>
+
+                    <HowToImportModal category="reading" darkMode={darkMode} />
                   </div>
                 </div>
               </CardContent>

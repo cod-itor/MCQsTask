@@ -123,7 +123,9 @@ export function SelectSetModal({
                     <div className="text-xs opacity-70">
                       {category === "mcq" 
                         ? `${(set as any).mcqs?.length || 0} Questions` 
-                        : `${(set as any).passages?.length || 0} Passages`
+                        : category === "listening"
+                          ? `${(set as any).questions?.length || 0} Words`
+                          : `${(set as any).passages?.length || 0} Passages`
                       }
                     </div>
                   </div>

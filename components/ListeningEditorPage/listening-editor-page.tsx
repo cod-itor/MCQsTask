@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ImportBehaviorModal } from "@/components/MCQEditorPage/import-behavior-modal";
+import { HowToImportModal } from "@/components/how-to-import-modal";
 import { parseListeningJSONFile, exportListeningToJSON } from "@/lib/listening-file-handler";
 import { toast } from "sonner";
 import { validateListeningQuestions } from "@/lib/listening-validation";
@@ -300,6 +301,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
                     <Upload className="w-4 h-4 mr-2" /> Import JSON
                   </Button>
                 </div>
+                <HowToImportModal category="listening" darkMode={darkMode} />
               </div>
               
               <div className="flex items-center gap-2">
@@ -338,10 +340,11 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
                 <div className="text-4xl mb-3">🎧</div>
                 <h3 className={`text-lg font-medium mb-1 ${darkMode ? "text-slate-300" : "text-gray-700"}`}>No words yet</h3>
                 <p className={`text-sm mb-4 ${darkMode ? "text-slate-500" : "text-gray-500"}`}>Add words manually or import a JSON file.</p>
-                <div className="relative inline-block">
+                <div className="relative inline-block mr-2">
                   <input type="file" accept=".json" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">Import JSON</Button>
                 </div>
+                <HowToImportModal category="listening" darkMode={darkMode} />
               </div>
             ) : (
               <div className="space-y-3">

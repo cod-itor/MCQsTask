@@ -18,6 +18,7 @@ import {
 import { MCQStructuredEditor } from "./mcq-structured-editor";
 import { MCQJSONEditor } from "./mcq-json-editor";
 import { ImportBehaviorModal } from "./import-behavior-modal";
+import { HowToImportModal } from "@/components/how-to-import-modal";
 import { SearchMcqs } from "./search-mcqs";
 import { AddManualQuestion } from "./add-manual-question";
 import { EditorActionsMenu } from "./editor-actions-menu";
@@ -365,6 +366,7 @@ export function MCQEditorPage({
                       hasMcqs={mcqs.length > 0}
                       darkMode={darkMode}
                     />
+                    <HowToImportModal category="mcq" darkMode={darkMode} />
                   </>
                 )}
               </div>
@@ -490,6 +492,8 @@ export function MCQEditorPage({
                     >
                       Load Example
                     </Button>
+                    
+                    <HowToImportModal category="mcq" darkMode={darkMode} />
                   </div>
                 </div>
               </CardContent>
