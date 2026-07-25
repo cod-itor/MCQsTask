@@ -7,94 +7,98 @@ import prisma from '@/lib/prisma'
 import { loginSchema, registerSchema } from '@/lib/validations/auth'
 
 export async function login(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
 
-  const validation = loginSchema.safeParse({ email, password })
-  if (!validation.success) {
-    return { error: 'Invalid email or password.' }
-  }
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email: validation.data.email,
-    password: validation.data.password,
-  })
-
-  if (error) {
-    if (error.message.includes('Email not confirmed')) {
-      return { error: 'Your account has not been verified yet. Please check your email for the confirmation link.' }
+    const validation = loginSchema.safeParse({ email, password })
+    if (!validation.success) {
+      return { error: 'Invalid email or password.' }
     }
-    return { error: 'Invalid email or password.' }
-  }
 
-  revalidatePath('/', 'layout')
-  redirect('/home?logged_in=true')
+    const { error } = await supabase.auth.signInWithPassword({
+      email: validation.data.email,
+      password: validation.data.password,
+    })
+
+    if (error) {
+      if (error.message.includes('Email not confirmed')) {
+        return { error: 'Your account has not been verified yet. Please check your email for the confirmation link.' }
+      }
+      return { error: error.message || 'Invalid email or password.' }
+    }
+
+    revalidatePath('/', 'layout')
+    redirect('/home?logged_in=true')
+  } catch (e: any) {
+    return { error: e?.message || JSON.stringify(e) || 'An unexpected error occurred.' }
+  }
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
+    
+    const username = formData.get('username') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const confirmPassword = formData.get('password') as string 
+    
+    const validation = registerSchema.safeParse({
+      username,
+      email,
+      password,
+      confirmPassword: password 
+    })
 
-  const username = formData.get('username') as string
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  // confirmPassword isn't strictly needed for server action if we don't have it in formData
-  // but let's pass it if it's there
-  const confirmPassword = formData.get('password') as string // just pass the same for the server schema if we didn't send it. Wait, actually I should get it from formData.
-  // Wait, registerSchema requires confirmPassword. Let's extract it.
-  
-  const validation = registerSchema.safeParse({
-    username,
-    email,
-    password,
-    confirmPassword: password // We can just pass password here since the client validates the match, or we could require the client to send it. Let's just bypass the match check here for simplicity or send it from the client. Actually, sending it is better, but since it's a server action, `data.password` is what matters to supabase.
-  })
+    if (!validation.success) {
+      return { error: validation.error.errors[0]?.message || 'Invalid registration data.' }
+    }
 
-  if (!validation.success) {
-    return { error: validation.error.errors[0]?.message || 'Invalid registration data.' }
-  }
+    const validData = validation.data
 
-  const validData = validation.data
+    const existingUser = await prisma.user.findUnique({
+      where: { username: validData.username }
+    })
 
-  // Check if username already exists in Prisma DB
-  const existingUser = await prisma.user.findUnique({
-    where: { username: validData.username }
-  })
+    if (existingUser) {
+      return { error: 'Username is already taken' }
+    }
 
-  if (existingUser) {
-    return { error: 'Username is already taken' }
-  }
+    const { data, error } = await supabase.auth.signUp({
+      email: validData.email,
+      password: validData.password,
+      options: {
+        data: {
+          username: validData.username,
+        }
+      }
+    })
 
-  const { data, error } = await supabase.auth.signUp({
-    email: validData.email,
-    password: validData.password,
-    options: {
-      data: {
-        username: validData.username,
+    if (error) {
+      return { error: error.message || JSON.stringify(error) || 'Supabase signup failed.' }
+    }
+
+    if (data.user) {
+      try {
+        await prisma.user.upsert({
+          where: { id: data.user.id },
+          update: { email: data.user.email!, username: validData.username },
+          create: { id: data.user.id, email: data.user.email!, username: validData.username }
+        })
+      } catch (e: any) {
+        console.error("Prisma upsert error:", e)
+        // We don't return an error here to prevent blocking the user if they successfully signed up in Supabase
       }
     }
-  })
 
-  if (error) {
-    return { error: error.message }
+    return { success: true, message: "Successfully created account! Please check your email to verify." }
+  } catch (e: any) {
+    console.error("Action exception:", e)
+    return { error: e?.message || JSON.stringify(e) || 'An unexpected server error occurred.' }
   }
-
-  // Ensure user is created in Prisma so username is reserved
-  if (data.user) {
-    try {
-      await prisma.user.upsert({
-        where: { id: data.user.id },
-        update: { email: data.user.email!, username: validData.username },
-        create: { id: data.user.id, email: data.user.email!, username: validData.username }
-      })
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  // Instead of redirecting directly, we return success so the client can show a toast
-  return { success: true, message: "Successfully created account! Please check your email to verify." }
 }
 
 export async function logout() {
