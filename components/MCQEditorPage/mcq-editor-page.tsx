@@ -67,13 +67,10 @@ export function MCQEditorPage({
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [lastValidMcqs, setLastValidMcqs] = useState<MCQ[]>([]);
   const [filteredMcqs, setFilteredMcqs] = useState<MCQ[]>([]);
-  const [saveMessage, setSaveMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"guided" | "json">("guided");
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportMcqs, setPendingImportMcqs] = useState<MCQ[]>([]);
-  const [toastTimeout, setToastTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [showAddManual, setShowAddManual] = useState(false);
 
@@ -114,23 +111,11 @@ export function MCQEditorPage({
     setFilteredMcqs(mcqs);
   }, [mcqs]);
 
-  useEffect(() => {
-    if (saveMessage || errorMessage) {
-      if (toastTimeout) clearTimeout(toastTimeout);
-      const timeout = setTimeout(() => {
-        setSaveMessage("");
-        setErrorMessage("");
-      }, 5000);
-      setToastTimeout(timeout);
-    }
-  }, [saveMessage, errorMessage]);
+  // Messages are now handled entirely by sonner toasts
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setErrorMessage("");
-    setSaveMessage("");
 
     try {
       const text = await file.text();
@@ -166,7 +151,7 @@ export function MCQEditorPage({
             }`
         )
         .join("\n");
-      setErrorMessage(`Failed to load file:\n${errorDetails}`);
+      toast.error(`Failed to load file:\n${errorDetails}`);
     }
   };
 
@@ -180,20 +165,20 @@ export function MCQEditorPage({
       
       setMcqs(pendingImportMcqs);
       setFilteredMcqs(pendingImportMcqs);
-      setSaveMessage(
+      toast.success(
         `Successfully created "${defaultName}" with ${pendingImportMcqs.length} MCQs`
       );
     } else if (behavior === "override") {
       setMcqs(pendingImportMcqs);
       setFilteredMcqs(pendingImportMcqs);
-      setSaveMessage(
+      toast.success(
         `Successfully loaded ${pendingImportMcqs.length} MCQs (Overridden existing)`
       );
     } else {
       const combined = [...mcqs, ...pendingImportMcqs];
       setMcqs(combined);
       setFilteredMcqs(combined);
-      setSaveMessage(
+      toast.success(
         `Successfully added ${pendingImportMcqs.length} MCQs (${combined.length} total)`
       );
     }
@@ -206,7 +191,7 @@ export function MCQEditorPage({
     const updated = [...mcqs, mcqWithId];
     setMcqs(updated);
     setFilteredMcqs(updated);
-    setSaveMessage("Question added successfully");
+    toast.success("Question added successfully");
     setShowAddManual(false);
   };
 
@@ -214,12 +199,12 @@ export function MCQEditorPage({
     setMcqs([]);
     setFilteredMcqs([]);
     setLastValidMcqs([]);
-    setSaveMessage(`Deleted all ${mcqs.length} questions`);
+    toast.success(`Deleted all ${mcqs.length} questions`);
   };
 
   const handleSave = () => {
     if (!activeSubjectId) {
-      setErrorMessage("Please select a subject first");
+      toast.error("Please select a subject first");
       return;
     }
 
@@ -228,7 +213,7 @@ export function MCQEditorPage({
       const errorDetails = validation.errors
         .map((e) => `MCQ ${e.mcqIndex + 1}: ${e.message}`)
         .join("\n");
-      setErrorMessage(`Validation failed:\n${errorDetails}`);
+      toast.error(`Validation failed:\n${errorDetails}`);
       return;
     }
 
@@ -239,8 +224,7 @@ export function MCQEditorPage({
     if (!activeSubjectId || !activeMcqSetId) return;
     updateMcqSet(activeSubjectId, activeMcqSetId, mcqs);
     setLastValidMcqs(mcqs);
-    setSaveMessage(`Saved ${mcqs.length} MCQs to "${currentSet?.name || 'Set'}"`);
-    setErrorMessage("");
+    toast.success(`Saved ${mcqs.length} MCQs to "${currentSet?.name || 'Set'}"`);
     setShowSaveDialog(false);
 
     setTimeout(() => {
@@ -251,8 +235,7 @@ export function MCQEditorPage({
   const handleRollback = () => {
     setMcqs(lastValidMcqs);
     setFilteredMcqs(lastValidMcqs);
-    setSaveMessage("Reverted to last saved state");
-    setErrorMessage("");
+    toast.success("Reverted to last saved state");
   };
 
   const handleLoadExample = () => {
@@ -267,7 +250,7 @@ export function MCQEditorPage({
     ];
     setMcqs(example as MCQ[]);
     setFilteredMcqs(example as MCQ[]);
-    setSaveMessage("Example MCQs loaded");
+    toast.success("Example MCQs loaded");
   };
 
   const isEmptyState = mcqs.length === 0;
@@ -388,38 +371,6 @@ export function MCQEditorPage({
               <p className="font-medium">
                 Please select a file from the dashboard to start editing
               </p>
-            </div>
-          )}
-
-          {/* Messages */}
-          {saveMessage && (
-            <div
-              className={`mb-4 p-4 rounded-lg flex items-center gap-3 animate-in slide-in-from-top ${
-                darkMode
-                  ? "bg-green-900/30 border border-green-700 text-green-100"
-                  : "bg-green-50 border border-green-200 text-green-700"
-              }`}
-            >
-              <CheckCircle className="w-5 h-5 flex-shrink-0" />
-              <p>{saveMessage}</p>
-            </div>
-          )}
-
-          {errorMessage && (
-            <div
-              className={`mb-4 p-4 rounded-lg flex items-start gap-3 animate-in slide-in-from-top ${
-                darkMode
-                  ? "bg-red-900/30 border border-red-700 text-red-100"
-                  : "bg-red-50 border border-red-200 text-red-700"
-              }`}
-            >
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Validation Error</p>
-                <p className="text-sm whitespace-pre-line mt-1">
-                  {errorMessage}
-                </p>
-              </div>
             </div>
           )}
 

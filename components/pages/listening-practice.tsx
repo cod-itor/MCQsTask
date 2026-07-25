@@ -58,6 +58,21 @@ export default function ListeningPractice({
     
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Auto-detect Korean language
+    const hasKorean = /[\u3131-\uD79D]/ugi.test(text);
+    utterance.lang = hasKorean ? "ko-KR" : "en-US";
+    
+    // Explicitly set the voice to match the language if possible
+    const voices = window.speechSynthesis.getVoices();
+    if (hasKorean) {
+      const koreanVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koreanVoice) utterance.voice = koreanVoice;
+    } else {
+      const englishVoice = voices.find(v => v.lang.startsWith('en'));
+      if (englishVoice) utterance.voice = englishVoice;
+    }
+    
     utterance.rate = playbackSpeed;
     if (onEnd) {
       utterance.onend = onEnd;

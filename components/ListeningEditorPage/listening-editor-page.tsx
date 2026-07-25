@@ -47,8 +47,6 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
   const [questions, setQuestions] = useState<ListeningQuestion[]>([]);
   const [lastValidQuestions, setLastValidQuestions] = useState<ListeningQuestion[]>([]);
   
-  const [saveMessage, setSaveMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportQuestions, setPendingImportQuestions] = useState<ListeningQuestion[]>([]);
@@ -83,22 +81,11 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
     }
   }, [activeSubjectId, activeListeningSetId]);
 
-  useEffect(() => {
-    if (saveMessage || errorMessage) {
-      const timeout = setTimeout(() => {
-        setSaveMessage("");
-        setErrorMessage("");
-      }, 5000);
-      return () => clearTimeout(timeout);
-    }
-  }, [saveMessage, errorMessage]);
+  // Messages are now handled entirely by sonner toasts
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setErrorMessage("");
-    setSaveMessage("");
 
     try {
       const text = await file.text();
@@ -126,7 +113,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
       const errorDetails = result.errors
         .map((e) => `${e.questionIndex >= 0 ? `Word ${e.questionIndex + 1}` : "File"}: ${e.message}`)
         .join("\n");
-      setErrorMessage(`Failed to load file:\n${errorDetails}`);
+      toast.error(`Failed to load file:\n${errorDetails}`);
     }
   };
 
@@ -139,14 +126,14 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
       setActiveListeningSet(newId);
       
       setQuestions(pendingImportQuestions);
-      setSaveMessage(`Successfully created "${defaultName}" with ${pendingImportQuestions.length} Words`);
+      toast.success(`Successfully created "${defaultName}" with ${pendingImportQuestions.length} Words`);
     } else if (behavior === "override") {
       setQuestions(pendingImportQuestions);
-      setSaveMessage(`Successfully loaded ${pendingImportQuestions.length} Words (Overridden existing)`);
+      toast.success(`Successfully loaded ${pendingImportQuestions.length} Words (Overridden existing)`);
     } else {
       const combined = [...questions, ...pendingImportQuestions];
       setQuestions(combined);
-      setSaveMessage(`Successfully added ${pendingImportQuestions.length} Words (${combined.length} total)`);
+      toast.success(`Successfully added ${pendingImportQuestions.length} Words (${combined.length} total)`);
     }
     setShowImportBehavior(false);
     setPendingImportQuestions([]);
@@ -155,12 +142,12 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
   const handleClearAll = () => {
     setQuestions([]);
     setLastValidQuestions([]);
-    setSaveMessage(`Deleted all words`);
+    toast.success(`Deleted all words`);
   };
 
   const handleSave = () => {
     if (!activeSubjectId) {
-      setErrorMessage("Please select a subject first");
+      toast.error("Please select a subject first");
       return;
     }
 
@@ -169,7 +156,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
       const errorDetails = validation.errors
         .map((e) => `Word ${e.questionIndex + 1}: ${e.message}`)
         .join("\n");
-      setErrorMessage(`Validation failed:\n${errorDetails}`);
+      toast.error(`Validation failed:\n${errorDetails}`);
       return;
     }
 
@@ -180,8 +167,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
     if (!activeSubjectId || !activeListeningSetId) return;
     updateListeningSet(activeSubjectId, activeListeningSetId, questions);
     setLastValidQuestions(questions);
-    setSaveMessage(`Saved ${questions.length} Words to "${currentSet?.name || 'Set'}"`);
-    setErrorMessage("");
+    toast.success(`Saved ${questions.length} Words to "${currentSet?.name || 'Set'}"`);
     setShowSaveDialog(false);
 
     setTimeout(() => {
@@ -191,8 +177,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
 
   const handleRollback = () => {
     setQuestions(lastValidQuestions);
-    setSaveMessage("Reverted to last saved state");
-    setErrorMessage("");
+    toast.success("Reverted to last saved state");
   };
 
   const handleAddManual = () => {
@@ -201,7 +186,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
       q: "New word",
     };
     setQuestions([newQ, ...questions]);
-    setSaveMessage("New word added");
+    toast.success("New word added");
   };
 
   const handleUpdateWord = (id: string, newWord: string) => {
@@ -226,16 +211,23 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
   };
 
   return (
-    <div className={`min-h-screen pb-12 transition-colors duration-300 ${darkMode ? "bg-slate-900" : "bg-gray-50"}`}>
+    <div
+      className={`fixed inset-0 overflow-y-auto pb-12 transition-colors duration-300 z-50 ${
+        darkMode
+          ? "bg-slate-900"
+          : "bg-gray-50"
+      }`}
+    >
       {/* Sticky Header */}
       <div className={`sticky top-0 z-40 border-b ${darkMode ? "bg-slate-900/90 border-slate-700/50" : "bg-white/90 border-gray-200"} backdrop-blur-md shadow-sm`}>
-        <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={handleBack} className={darkMode ? "hover:bg-slate-800 text-slate-300" : "hover:bg-gray-100 text-gray-600"}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="sm" onClick={handleBack} className={`gap-2 ${darkMode ? "hover:bg-slate-800 text-slate-300" : "hover:bg-gray-100 text-gray-600"}`}>
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Button>
             <div>
-              <h1 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
                 Listening Editor
               </h1>
               <div className="flex items-center gap-2 mt-1">
@@ -267,21 +259,6 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
       </div>
 
       <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
-        {/* Status Messages */}
-        {errorMessage && (
-          <div className={`p-4 rounded-xl border flex items-start gap-3 ${darkMode ? "bg-red-900/20 border-red-500/30 text-red-400" : "bg-red-50 border-red-200 text-red-700"}`}>
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-            <pre className="whitespace-pre-wrap text-sm font-sans">{errorMessage}</pre>
-          </div>
-        )}
-        
-        {saveMessage && (
-          <div className={`p-4 rounded-xl border flex items-center gap-3 ${darkMode ? "bg-green-900/20 border-green-500/30 text-green-400" : "bg-green-50 border-green-200 text-green-700"}`}>
-            <CheckCircle className="w-5 h-5 flex-shrink-0" />
-            <p className="text-sm font-medium">{saveMessage}</p>
-          </div>
-        )}
-
         {/* Action Bar */}
         <Card className={`${darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"} shadow-sm`}>
           <CardContent className="p-4">

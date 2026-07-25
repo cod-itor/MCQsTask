@@ -65,13 +65,10 @@ export function ReadingEditorPage({
   const { subjects, activeSubjectId, activeReadingSetId, getReadingSet, updateReadingSet, createReadingSet, setActiveReadingSet, readingSets } = useSubjects();
   const [passages, setPassages] = useState<ReadingPassage[]>([]);
   const [lastValidPassages, setLastValidPassages] = useState<ReadingPassage[]>([]);
-  const [saveMessage, setSaveMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"guided" | "json">("guided");
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportPassages, setPendingImportPassages] = useState<ReadingPassage[]>([]);
-  const [toastTimeout, setToastTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
@@ -103,23 +100,11 @@ export function ReadingEditorPage({
     }
   }, [activeSubjectId, activeReadingSetId, readingSets]);
 
-  useEffect(() => {
-    if (saveMessage || errorMessage) {
-      if (toastTimeout) clearTimeout(toastTimeout);
-      const timeout = setTimeout(() => {
-        setSaveMessage("");
-        setErrorMessage("");
-      }, 5000);
-      setToastTimeout(timeout);
-    }
-  }, [saveMessage, errorMessage]);
+  // Messages are now handled entirely by sonner toasts
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setErrorMessage("");
-    setSaveMessage("");
 
     try {
       const text = await file.text();
@@ -150,7 +135,7 @@ export function ReadingEditorPage({
       const errorDetails = result.errors
         .map((e) => `${e.passageIndex >= 0 ? `Passage ${e.passageIndex + 1}` : "File"}: ${e.message}`)
         .join("\n");
-      setErrorMessage(`Failed to load file:\n${errorDetails}`);
+      toast.error(`Failed to load file:\n${errorDetails}`);
     }
   };
 
@@ -163,14 +148,14 @@ export function ReadingEditorPage({
       setActiveReadingSet(newId);
       
       setPassages(pendingImportPassages);
-      setSaveMessage(`Successfully created "${defaultName}" with ${pendingImportPassages.length} Passages`);
+      toast.success(`Successfully created "${defaultName}" with ${pendingImportPassages.length} Passages`);
     } else if (behavior === "override") {
       setPassages(pendingImportPassages);
-      setSaveMessage(`Successfully loaded ${pendingImportPassages.length} Passages (Overridden existing)`);
+      toast.success(`Successfully loaded ${pendingImportPassages.length} Passages (Overridden existing)`);
     } else {
       const combined = [...passages, ...pendingImportPassages];
       setPassages(combined);
-      setSaveMessage(`Successfully added ${pendingImportPassages.length} Passages (${combined.length} total)`);
+      toast.success(`Successfully added ${pendingImportPassages.length} Passages (${combined.length} total)`);
     }
     setShowImportBehavior(false);
     setPendingImportPassages([]);
@@ -179,12 +164,12 @@ export function ReadingEditorPage({
   const handleClearAll = () => {
     setPassages([]);
     setLastValidPassages([]);
-    setSaveMessage(`Deleted all passages`);
+    toast.success(`Deleted all passages`);
   };
 
   const handleSave = () => {
     if (!activeSubjectId) {
-      setErrorMessage("Please select a subject first");
+      toast.error("Please select a subject first");
       return;
     }
 
@@ -193,7 +178,7 @@ export function ReadingEditorPage({
       const errorDetails = validation.errors
         .map((e) => `Passage ${e.passageIndex + 1}: ${e.message}`)
         .join("\n");
-      setErrorMessage(`Validation failed:\n${errorDetails}`);
+      toast.error(`Validation failed:\n${errorDetails}`);
       return;
     }
 
@@ -204,8 +189,7 @@ export function ReadingEditorPage({
     if (!activeSubjectId || !activeReadingSetId) return;
     updateReadingSet(activeSubjectId, activeReadingSetId, passages);
     setLastValidPassages(passages);
-    setSaveMessage(`Saved ${passages.length} Passages to "${currentSet?.name || 'Set'}"`);
-    setErrorMessage("");
+    toast.success(`Saved ${passages.length} Passages to "${currentSet?.name || 'Set'}"`);
     setShowSaveDialog(false);
 
     setTimeout(() => {
@@ -215,8 +199,7 @@ export function ReadingEditorPage({
 
   const handleRollback = () => {
     setPassages(lastValidPassages);
-    setSaveMessage("Reverted to last saved state");
-    setErrorMessage("");
+    toast.success("Reverted to last saved state");
   };
 
   const handleLoadExample = () => {
@@ -233,7 +216,7 @@ export function ReadingEditorPage({
       globalOptions: ["sample", "real"]
     }];
     setPassages(example as ReadingPassage[]);
-    setSaveMessage("Example passage loaded");
+    toast.success("Example passage loaded");
   };
 
   const handleAddManualPassage = () => {
@@ -250,7 +233,7 @@ export function ReadingEditorPage({
       globalOptions: []
     };
     setPassages([newPassage, ...passages]);
-    setSaveMessage("New passage added");
+    toast.success("New passage added");
     setActiveTab("guided");
   };
 
@@ -371,38 +354,6 @@ export function ReadingEditorPage({
               <p className="font-medium">
                 Please select a file from the dashboard to start editing
               </p>
-            </div>
-          )}
-
-          {/* Messages */}
-          {saveMessage && (
-            <div
-              className={`mb-4 p-4 rounded-lg flex items-center gap-3 animate-in slide-in-from-top ${
-                darkMode
-                  ? "bg-green-900/30 border border-green-700 text-green-100"
-                  : "bg-green-50 border border-green-200 text-green-700"
-              }`}
-            >
-              <CheckCircle className="w-5 h-5 flex-shrink-0" />
-              <p>{saveMessage}</p>
-            </div>
-          )}
-
-          {errorMessage && (
-            <div
-              className={`mb-4 p-4 rounded-lg flex items-start gap-3 animate-in slide-in-from-top ${
-                darkMode
-                  ? "bg-red-900/30 border border-red-700 text-red-100"
-                  : "bg-red-50 border border-red-200 text-red-700"
-              }`}
-            >
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Validation Error</p>
-                <p className="text-sm whitespace-pre-line mt-1">
-                  {errorMessage}
-                </p>
-              </div>
             </div>
           )}
 
