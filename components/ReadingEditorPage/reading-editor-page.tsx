@@ -139,10 +139,10 @@ export function ReadingEditorPage({
     }
   };
 
-  const handleImportBehavior = (behavior: "override" | "add" | "new", newSetName?: string) => {
+  const handleImportBehavior = async (behavior: "override" | "add" | "new", newSetName?: string) => {
     if (behavior === "new" && activeSubjectId) {
       const defaultName = newSetName?.trim() || `New Set`;
-      const newId = createReadingSet(activeSubjectId, defaultName);
+      const newId = await createReadingSet(activeSubjectId, defaultName);
       
       updateReadingSet(activeSubjectId, newId, pendingImportPassages);
       setActiveReadingSet(newId);

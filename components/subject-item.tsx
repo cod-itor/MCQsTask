@@ -3,6 +3,16 @@
 import { useState } from "react"
 import { useSubjects } from "@/lib/subject-context"
 import type { Subject } from "@/lib/types"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface SubjectItemProps {
   subject: Subject
@@ -15,6 +25,7 @@ export default function SubjectItem({ subject, isActive, onClick, darkMode }: Su
   const { toggleFavorite, renameSubject, deleteSubject } = useSubjects()
   const [showMenu, setShowMenu] = useState(false)
   const [isRenaming, setIsRenaming] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [newName, setNewName] = useState(subject.name)
 
   const handleRename = () => {
@@ -109,9 +120,7 @@ export default function SubjectItem({ subject, isActive, onClick, darkMode }: Su
           <button
             onClick={(e) => {
               e.stopPropagation()
-              if (confirm(`Delete "${subject.name}" and all its MCQs?`)) {
-                deleteSubject(subject.id)
-              }
+              setShowDeleteModal(true)
               setShowMenu(false)
             }}
             className={`w-full text-left px-4 py-2 text-sm rounded-b-lg text-red-600 ${
@@ -122,6 +131,28 @@ export default function SubjectItem({ subject, isActive, onClick, darkMode }: Su
           </button>
         </div>
       )}
+
+      <AlertDialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <AlertDialogContent className={darkMode ? "bg-slate-900 border-slate-800 text-white" : ""}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this subject?</AlertDialogTitle>
+            <AlertDialogDescription className={darkMode ? "text-slate-400" : ""}>
+              This will permanently delete "{subject.name}" and all its MCQs, reading passages, and audio flashcards. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className={darkMode ? "bg-slate-800 text-white border-slate-700 hover:bg-slate-700" : ""}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteSubject(subject.id)}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

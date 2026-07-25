@@ -16,7 +16,7 @@ import { Plus, FileText, LayoutList } from "lucide-react";
 interface SelectSetModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: "mcq" | "reading" | "listening";
+  category: "mcq" | "reading" | "Audio Flashcard";
   onSelect: () => void; // Called when a set is selected or created
   darkMode: boolean;
 }
@@ -28,27 +28,27 @@ export function SelectSetModal({
   onSelect,
   darkMode,
 }: SelectSetModalProps) {
-  const { 
-    activeSubjectId, 
-    mcqSets, 
-    readingSets, 
+  const {
+    activeSubjectId,
+    mcqSets,
+    readingSets,
     listeningSets,
-    setActiveMcqSet, 
+    setActiveMcqSet,
     setActiveReadingSet,
     setActiveListeningSet,
     createMcqSet,
     createReadingSet,
     createListeningSet
   } = useSubjects();
-  
+
   const [showNewInput, setShowNewInput] = useState(false);
   const [newSetName, setNewSetName] = useState("");
 
   if (!activeSubjectId) return null;
 
-  const sets = category === "mcq" 
-    ? (mcqSets[activeSubjectId] || []) 
-    : category === "reading" 
+  const sets = category === "mcq"
+    ? (mcqSets[activeSubjectId] || [])
+    : category === "reading"
       ? (readingSets[activeSubjectId] || [])
       : (listeningSets[activeSubjectId] || []);
 
@@ -64,17 +64,17 @@ export function SelectSetModal({
     onSelect();
   };
 
-  const handleCreateNew = () => {
+  const handleCreateNew = async () => {
     const defaultName = newSetName.trim() || `Set ${sets.length + 1}`;
     let newId = "";
     if (category === "mcq") {
-      newId = createMcqSet(activeSubjectId, defaultName);
+      newId = await createMcqSet(activeSubjectId, defaultName);
       setActiveMcqSet(newId);
     } else if (category === "reading") {
-      newId = createReadingSet(activeSubjectId, defaultName);
+      newId = await createReadingSet(activeSubjectId, defaultName);
       setActiveReadingSet(newId);
     } else {
-      newId = createListeningSet(activeSubjectId, defaultName);
+      newId = await createListeningSet(activeSubjectId, defaultName);
       setActiveListeningSet(newId);
     }
     setNewSetName("");
@@ -95,7 +95,7 @@ export function SelectSetModal({
     <AlertDialog open={open} onOpenChange={handleModalClose}>
       <AlertDialogContent className={`max-w-md ${darkMode ? "bg-slate-800 border-slate-700" : ""}`}>
         <AlertDialogTitle className={darkMode ? "text-white" : "text-gray-900"}>
-          Select {category === "mcq" ? "MCQ" : category === "reading" ? "Reading" : "Listening"} File
+          Select {category === "mcq" ? "MCQ" : category === "reading" ? "Reading" : "Audio Flashcard"} File
         </AlertDialogTitle>
         <AlertDialogDescription>
           Choose a file to open or create a new one.
@@ -112,18 +112,17 @@ export function SelectSetModal({
                 key={set.id}
                 onClick={() => handleSelect(set.id)}
                 variant="outline"
-                className={`w-full justify-start h-auto py-3 ${
-                  darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-white" : ""
-                }`}
+                className={`w-full justify-start h-auto py-3 ${darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-white" : ""
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   {category === "mcq" ? <LayoutList className="w-5 h-5 opacity-70" /> : <FileText className="w-5 h-5 opacity-70" />}
                   <div className="text-left">
                     <div className="font-semibold">{set.name}</div>
                     <div className="text-xs opacity-70">
-                      {category === "mcq" 
-                        ? `${(set as any).mcqs?.length || 0} Questions` 
-                        : category === "listening"
+                      {category === "mcq"
+                        ? `${(set as any).mcqs?.length || 0} Questions`
+                        : category === "Audio Flashcard"
                           ? `${(set as any).questions?.length || 0} Words`
                           : `${(set as any).passages?.length || 0} Passages`
                       }
@@ -140,9 +139,8 @@ export function SelectSetModal({
             <Button
               onClick={() => setShowNewInput(true)}
               variant="outline"
-              className={`w-full border-dashed ${
-                darkMode ? "border-slate-600 hover:bg-slate-700 text-blue-400" : "text-blue-600"
-              }`}
+              className={`w-full border-dashed ${darkMode ? "border-slate-600 hover:bg-slate-700 text-blue-400" : "text-blue-600"
+                }`}
             >
               <Plus className="w-4 h-4 mr-2" />
               Create New File
@@ -158,14 +156,14 @@ export function SelectSetModal({
                 autoFocus
               />
               <div className="flex gap-2">
-                <Button 
+                <Button
                   onClick={() => setShowNewInput(false)}
-                  variant="ghost" 
+                  variant="ghost"
                   className="flex-1"
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={handleCreateNew}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >

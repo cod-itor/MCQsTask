@@ -44,10 +44,10 @@ export default function MCQsPage({
   const listeningCount = (listeningSets[activeSubjectId || ""] || []).flatMap(set => set.questions).length;
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalCategory, setModalCategory] = useState<"mcq" | "reading" | "listening">("mcq");
+  const [modalCategory, setModalCategory] = useState<"mcq" | "reading" | "Audio Flashcard">("mcq");
   const [modalAction, setModalAction] = useState<"practice" | "exam" | "edit">("practice");
 
-  const openModal = (category: "mcq" | "reading" | "listening", action: "practice" | "exam" | "edit") => {
+  const openModal = (category: "mcq" | "reading" | "Audio Flashcard", action: "practice" | "exam" | "edit") => {
     setModalCategory(category);
     setModalAction(action);
     setModalOpen(true);
@@ -69,35 +69,31 @@ export default function MCQsPage({
 
   return (
     <div
-      className={`min-h-screen pt-32 transition-colors duration-300 md:pt-20 ${
-        darkMode
+      className={`min-h-screen pt-32 transition-colors duration-300 md:pt-20 ${darkMode
           ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
           : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
-      }`}
+        }`}
     >
       <div className="container mx-auto px-4 py-6 md:py-12 max-w-6xl">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
           <div
-            className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold mb-4 ${
-              darkMode
+            className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold mb-4 ${darkMode
                 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                 : "bg-blue-100 text-blue-700 border border-blue-200"
-            }`}
+              }`}
           >
             ✨ Intelligent Testing Platform
           </div>
           <h1
-            className={`text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 ${
-              darkMode ? "text-white bg-clip-text" : "text-gray-900"
-            }`}
+            className={`text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 ${darkMode ? "text-white bg-clip-text" : "text-gray-900"
+              }`}
           >
             Master Your Exams
           </h1>
           <p
-            className={`text-base md:text-xl max-w-2xl mx-auto ${
-              darkMode ? "text-slate-400" : "text-gray-600"
-            }`}
+            className={`text-base md:text-xl max-w-2xl mx-auto ${darkMode ? "text-slate-400" : "text-gray-600"
+              }`}
           >
             Practice smarter, perform better with adaptive learning
           </p>
@@ -107,24 +103,21 @@ export default function MCQsPage({
         {subjects.length === 0 ? (
           <div className="max-w-md mx-auto">
             <div
-              className={`rounded-2xl p-8 md:p-12 text-center border-2 border-dashed ${
-                darkMode
+              className={`rounded-2xl p-8 md:p-12 text-center border-2 border-dashed ${darkMode
                   ? "bg-slate-800/50 border-slate-700"
                   : "bg-white border-gray-300 shadow-lg"
-              }`}
+                }`}
             >
               <div className="text-5xl mb-4">📚</div>
               <h3
-                className={`text-xl font-semibold mb-2 ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"
+                  }`}
               >
                 Start Your Journey
               </h3>
               <p
-                className={`mb-6 ${
-                  darkMode ? "text-slate-400" : "text-gray-600"
-                }`}
+                className={`mb-6 ${darkMode ? "text-slate-400" : "text-gray-600"
+                  }`}
               >
                 Create your first subject to begin practicing
               </p>
@@ -139,24 +132,21 @@ export default function MCQsPage({
         ) : !activeSubjectId ? (
           <div className="max-w-md mx-auto">
             <div
-              className={`rounded-2xl p-8 md:p-12 text-center border-2 border-dashed ${
-                darkMode
+              className={`rounded-2xl p-8 md:p-12 text-center border-2 border-dashed ${darkMode
                   ? "bg-slate-800/50 border-slate-700"
                   : "bg-white border-yellow-300 shadow-lg"
-              }`}
+                }`}
             >
               <div className="text-5xl mb-4">👆</div>
               <h3
-                className={`text-xl font-semibold mb-2 ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"
+                  }`}
               >
                 Choose a Subject
               </h3>
               <p
-                className={`mb-6 ${
-                  darkMode ? "text-slate-400" : "text-gray-600"
-                }`}
+                className={`mb-6 ${darkMode ? "text-slate-400" : "text-gray-600"
+                  }`}
               >
                 Select a subject from the sidebar to get started
               </p>
@@ -174,11 +164,10 @@ export default function MCQsPage({
           <>
             {/* Subject Info Banner */}
             <div
-              className={`max-w-2xl mx-auto mb-8 rounded-2xl p-4 md:p-6 text-center border backdrop-blur-sm ${
-                darkMode
+              className={`max-w-2xl mx-auto mb-8 rounded-2xl p-4 md:p-6 text-center border backdrop-blur-sm ${darkMode
                   ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
                   : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-900 shadow-md"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <span className="text-2xl">📁</span>
@@ -186,29 +175,26 @@ export default function MCQsPage({
                   {currentSubject?.name}
                 </span>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    darkMode
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${darkMode
                       ? "bg-blue-500/20 text-blue-300"
                       : "bg-blue-200 text-blue-800"
-                  }`}
+                    }`}
                 >
                   {mcqCount} MCQs
                 </span>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    darkMode
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${darkMode
                       ? "bg-emerald-500/20 text-emerald-300"
                       : "bg-emerald-200 text-emerald-800"
-                  }`}
+                    }`}
                 >
                   {readingCount} Reading Passages
                 </span>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    darkMode
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${darkMode
                       ? "bg-purple-500/20 text-purple-300"
                       : "bg-purple-200 text-purple-800"
-                  }`}
+                    }`}
                 >
                   {listeningCount} Listening Words
                 </span>
@@ -220,288 +206,264 @@ export default function MCQsPage({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto mb-8">
                 {/* MCQ Practice Test Card */}
                 {mcqCount > 0 && (
-                <Card
-                  className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${
-                    darkMode
-                      ? "bg-gradient-to-br from-slate-800 to-slate-900 border-blue-500/30 hover:border-blue-500/60 hover:shadow-2xl hover:shadow-blue-500/20"
-                      : "bg-gradient-to-br from-white to-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-2xl shadow-lg"
-                  } rounded-2xl`}
-                  onClick={() => openModal("mcq", "practice")}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
-                  <CardHeader className="relative pb-4 flex-none">
-                    <div className="flex items-start justify-between mb-2">
-                      <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-                          darkMode ? "bg-blue-500/20" : "bg-blue-100"
-                        }`}
-                      >
-                        🎯
-                      </div>
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          darkMode
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-green-100 text-green-700"
-                        }`}
-                      >
-                        RECOMMENDED
-                      </div>
-                    </div>
-                    <CardTitle
-                      className={`text-2xl md:text-3xl font-bold ${
-                        darkMode ? "text-blue-400" : "text-blue-600"
-                      }`}
-                    >
-                      Practice Mode
-                    </CardTitle>
-                    <CardDescription
-                      className={`text-base ${
-                        darkMode ? "text-slate-400" : "text-gray-600"
-                      }`}
-                    >
-                      Learn at your own pace
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative flex-1 flex flex-col space-y-4">
-                    <div className="space-y-3 flex-1">
-                      {[
-                        { icon: "🔄", text: "Unlimited attempts" },
-                        { icon: "🎲", text: "Shuffle questions" },
-                        { icon: "⏱️", text: "No time pressure" },
-                        { icon: "⚡", text: "Instant feedback" },
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <span className="text-xl">{feature.icon}</span>
-                          <span
-                            className={`${
-                              darkMode ? "text-slate-300" : "text-gray-700"
-                            } font-medium`}
-                          >
-                            {feature.text}
-                          </span>
+                  <Card
+                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                        ? "bg-gradient-to-br from-slate-800 to-slate-900 border-blue-500/30 hover:border-blue-500/60 hover:shadow-2xl hover:shadow-blue-500/20"
+                        : "bg-gradient-to-br from-white to-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-2xl shadow-lg"
+                      } rounded-2xl`}
+                    onClick={() => openModal("mcq", "practice")}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative pb-4 flex-none">
+                      <div className="flex items-start justify-between mb-2">
+                        <div
+                          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${darkMode ? "bg-blue-500/20" : "bg-blue-100"
+                            }`}
+                        >
+                          🎯
                         </div>
-                      ))}
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
-                      Start Practicing →
-                    </Button>
-                  </CardContent>
-                </Card>
+                        <div
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${darkMode
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-green-100 text-green-700"
+                            }`}
+                        >
+                          RECOMMENDED
+                        </div>
+                      </div>
+                      <CardTitle
+                        className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-blue-400" : "text-blue-600"
+                          }`}
+                      >
+                        Practice Mode
+                      </CardTitle>
+                      <CardDescription
+                        className={`text-base ${darkMode ? "text-slate-400" : "text-gray-600"
+                          }`}
+                      >
+                        Learn at your own pace
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="relative flex-1 flex flex-col space-y-4">
+                      <div className="space-y-3 flex-1">
+                        {[
+                          { icon: "🔄", text: "Unlimited attempts" },
+                          { icon: "🎲", text: "Shuffle questions" },
+                          { icon: "⏱️", text: "No time pressure" },
+                          { icon: "⚡", text: "Instant feedback" },
+                        ].map((feature, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xl">{feature.icon}</span>
+                            <span
+                              className={`${darkMode ? "text-slate-300" : "text-gray-700"
+                                } font-medium`}
+                            >
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
+                        Start Practicing →
+                      </Button>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Exam Test Card */}
                 {mcqCount > 0 && (
-                <Card
-                  className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${
-                    darkMode
-                      ? "bg-gradient-to-br from-slate-800 to-slate-900 border-indigo-500/30 hover:border-indigo-500/60 hover:shadow-2xl hover:shadow-indigo-500/20"
-                      : "bg-gradient-to-br from-white to-indigo-50 border-indigo-200 hover:border-indigo-400 hover:shadow-2xl shadow-lg"
-                  } rounded-2xl`}
-                  onClick={() => openModal("mcq", "exam")}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                  <CardHeader className="relative pb-4 flex-none">
-                    <div className="flex items-start justify-between mb-2">
-                      <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-                          darkMode ? "bg-indigo-500/20" : "bg-indigo-100"
-                        }`}
-                      >
-                        🏆
-                      </div>
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          darkMode
-                            ? "bg-purple-500/20 text-purple-400"
-                            : "bg-purple-100 text-purple-700"
-                        }`}
-                      >
-                        CHALLENGE
-                      </div>
-                    </div>
-                    <CardTitle
-                      className={`text-2xl md:text-3xl font-bold ${
-                        darkMode ? "text-indigo-400" : "text-indigo-600"
-                      }`}
-                    >
-                      Exam Mode
-                    </CardTitle>
-                    <CardDescription
-                      className={`text-base ${
-                        darkMode ? "text-slate-400" : "text-gray-600"
-                      }`}
-                    >
-                      Test your knowledge
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative flex-1 flex flex-col space-y-4">
-                    <div className="space-y-3 flex-1">
-                      {[
-                        { icon: "⏰", text: "Timed exam" },
-                        { icon: "🎯", text: "Random questions" },
-                        { icon: "📊", text: "Auto-submit" },
-                        { icon: "📈", text: "Performance analytics" },
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <span className="text-xl">{feature.icon}</span>
-                          <span
-                            className={`${
-                              darkMode ? "text-slate-300" : "text-gray-700"
-                            } font-medium`}
-                          >
-                            {feature.text}
-                          </span>
+                  <Card
+                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                        ? "bg-gradient-to-br from-slate-800 to-slate-900 border-indigo-500/30 hover:border-indigo-500/60 hover:shadow-2xl hover:shadow-indigo-500/20"
+                        : "bg-gradient-to-br from-white to-indigo-50 border-indigo-200 hover:border-indigo-400 hover:shadow-2xl shadow-lg"
+                      } rounded-2xl`}
+                    onClick={() => openModal("mcq", "exam")}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative pb-4 flex-none">
+                      <div className="flex items-start justify-between mb-2">
+                        <div
+                          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${darkMode ? "bg-indigo-500/20" : "bg-indigo-100"
+                            }`}
+                        >
+                          🏆
                         </div>
-                      ))}
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
-                      Take Exam →
-                    </Button>
-                  </CardContent>
-                </Card>
+                        <div
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${darkMode
+                              ? "bg-purple-500/20 text-purple-400"
+                              : "bg-purple-100 text-purple-700"
+                            }`}
+                        >
+                          CHALLENGE
+                        </div>
+                      </div>
+                      <CardTitle
+                        className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-indigo-400" : "text-indigo-600"
+                          }`}
+                      >
+                        Exam Mode
+                      </CardTitle>
+                      <CardDescription
+                        className={`text-base ${darkMode ? "text-slate-400" : "text-gray-600"
+                          }`}
+                      >
+                        Test your knowledge
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="relative flex-1 flex flex-col space-y-4">
+                      <div className="space-y-3 flex-1">
+                        {[
+                          { icon: "⏰", text: "Timed exam" },
+                          { icon: "🎯", text: "Random questions" },
+                          { icon: "📊", text: "Auto-submit" },
+                          { icon: "📈", text: "Performance analytics" },
+                        ].map((feature, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xl">{feature.icon}</span>
+                            <span
+                              className={`${darkMode ? "text-slate-300" : "text-gray-700"
+                                } font-medium`}
+                            >
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
+                        Take Exam →
+                      </Button>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Reading Test Mode Card */}
                 {readingCount > 0 && (
-                <Card
-                  className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${
-                    darkMode
-                      ? "bg-gradient-to-br from-slate-800 to-slate-900 border-emerald-500/30 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/20"
-                      : "bg-gradient-to-br from-white to-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl shadow-lg"
-                  } rounded-2xl`}
-                  onClick={() => openModal("reading", "practice")}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
-                  <CardHeader className="relative pb-4 flex-none">
-                    <div className="flex items-start justify-between mb-2">
-                      <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-                          darkMode ? "bg-emerald-500/20" : "bg-emerald-100"
-                        }`}
-                      >
-                        📖
-                      </div>
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          darkMode
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : "bg-emerald-100 text-emerald-700"
-                        }`}
-                      >
-                        IELTS STYLE
-                      </div>
-                    </div>
-                    <CardTitle
-                      className={`text-2xl md:text-3xl font-bold ${
-                        darkMode ? "text-emerald-400" : "text-emerald-600"
-                      }`}
-                    >
-                      Reading Practice
-                    </CardTitle>
-                    <CardDescription
-                      className={`text-base ${
-                        darkMode ? "text-slate-400" : "text-gray-600"
-                      }`}
-                    >
-                      Master reading comprehension
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative flex-1 flex flex-col space-y-4">
-                    <div className="space-y-3 flex-1">
-                      {[
-                        { icon: "📝", text: "Fill-in-the-blank format" },
-                        { icon: "🔍", text: "Split-screen reading" },
-                        { icon: "⚡", text: "Instant scoring" },
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <span className="text-xl">{feature.icon}</span>
-                          <span
-                            className={`${
-                              darkMode ? "text-slate-300" : "text-gray-700"
-                            } font-medium`}
-                          >
-                            {feature.text}
-                          </span>
+                  <Card
+                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                        ? "bg-gradient-to-br from-slate-800 to-slate-900 border-emerald-500/30 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/20"
+                        : "bg-gradient-to-br from-white to-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl shadow-lg"
+                      } rounded-2xl`}
+                    onClick={() => openModal("reading", "practice")}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative pb-4 flex-none">
+                      <div className="flex items-start justify-between mb-2">
+                        <div
+                          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${darkMode ? "bg-emerald-500/20" : "bg-emerald-100"
+                            }`}
+                        >
+                          📖
                         </div>
-                      ))}
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
-                      Start Reading Practice →
-                    </Button>
-                  </CardContent>
-                </Card>
+                        <div
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${darkMode
+                              ? "bg-emerald-500/20 text-emerald-400"
+                              : "bg-emerald-100 text-emerald-700"
+                            }`}
+                        >
+                          IELTS STYLE
+                        </div>
+                      </div>
+                      <CardTitle
+                        className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-emerald-400" : "text-emerald-600"
+                          }`}
+                      >
+                        Reading Practice
+                      </CardTitle>
+                      <CardDescription
+                        className={`text-base ${darkMode ? "text-slate-400" : "text-gray-600"
+                          }`}
+                      >
+                        Master reading comprehension
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="relative flex-1 flex flex-col space-y-4">
+                      <div className="space-y-3 flex-1">
+                        {[
+                          { icon: "📝", text: "Fill-in-the-blank format" },
+                          { icon: "🔍", text: "Split-screen reading" },
+                          { icon: "⚡", text: "Instant scoring" },
+                        ].map((feature, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xl">{feature.icon}</span>
+                            <span
+                              className={`${darkMode ? "text-slate-300" : "text-gray-700"
+                                } font-medium`}
+                            >
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
+                        Start Reading Practice →
+                      </Button>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Listening Practice Card */}
                 {listeningCount > 0 && (
-                <Card
-                  className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${
-                    darkMode
-                      ? "bg-gradient-to-br from-slate-800 to-slate-900 border-purple-500/30 hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/20"
-                      : "bg-gradient-to-br from-white to-purple-50 border-purple-200 hover:border-purple-400 hover:shadow-2xl shadow-lg"
-                  } rounded-2xl`}
-                  onClick={() => openModal("listening", "practice")}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-                  <CardHeader className="relative pb-4 flex-none">
-                    <div className="flex items-start justify-between mb-2">
-                      <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-                          darkMode ? "bg-purple-500/20" : "bg-purple-100"
-                        }`}
-                      >
-                        🎧
-                      </div>
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          darkMode
-                            ? "bg-purple-500/20 text-purple-400"
-                            : "bg-purple-100 text-purple-700"
-                        }`}
-                      >
-                        NEW
-                      </div>
-                    </div>
-                    <CardTitle
-                      className={`text-2xl md:text-3xl font-bold ${
-                        darkMode ? "text-purple-400" : "text-purple-600"
-                      }`}
-                    >
-                      Listening Practice
-                    </CardTitle>
-                    <CardDescription
-                      className={`text-base ${
-                        darkMode ? "text-slate-400" : "text-gray-600"
-                      }`}
-                    >
-                      Improve pronunciation & listening
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative flex-1 flex flex-col space-y-4">
-                    <div className="space-y-3 flex-1">
-                      {[
-                        { icon: "🔊", text: "Auto-speak questions" },
-                        { icon: "⏱️", text: "Adjustable intervals" },
-                        { icon: "⚙️", text: "Speed control" },
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <span className="text-xl">{feature.icon}</span>
-                          <span
-                            className={`${
-                              darkMode ? "text-slate-300" : "text-gray-700"
-                            } font-medium`}
-                          >
-                            {feature.text}
-                          </span>
+                  <Card
+                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                        ? "bg-gradient-to-br from-slate-800 to-slate-900 border-purple-500/30 hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/20"
+                        : "bg-gradient-to-br from-white to-purple-50 border-purple-200 hover:border-purple-400 hover:shadow-2xl shadow-lg"
+                      } rounded-2xl`}
+                    onClick={() => openModal("Audio Flashcard", "practice")}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative pb-4 flex-none">
+                      <div className="flex items-start justify-between mb-2">
+                        <div
+                          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${darkMode ? "bg-purple-500/20" : "bg-purple-100"
+                            }`}
+                        >
+                          🎧
                         </div>
-                      ))}
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
-                      Start Listening Practice →
-                    </Button>
-                  </CardContent>
-                </Card>
+                        <div
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${darkMode
+                              ? "bg-purple-500/20 text-purple-400"
+                              : "bg-purple-100 text-purple-700"
+                            }`}
+                        >
+                          NEW
+                        </div>
+                      </div>
+                      <CardTitle
+                        className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-purple-400" : "text-purple-600"
+                          }`}
+                      >
+                        Listening Practice
+                      </CardTitle>
+                      <CardDescription
+                        className={`text-base ${darkMode ? "text-slate-400" : "text-gray-600"
+                          }`}
+                      >
+                        Improve pronunciation & listening
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="relative flex-1 flex flex-col space-y-4">
+                      <div className="space-y-3 flex-1">
+                        {[
+                          { icon: "🔊", text: "Auto-speak questions" },
+                          { icon: "⏱️", text: "Adjustable intervals" },
+                          { icon: "⚙️", text: "Speed control" },
+                        ].map((feature, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xl">{feature.icon}</span>
+                            <span
+                              className={`${darkMode ? "text-slate-300" : "text-gray-700"
+                                } font-medium`}
+                            >
+                              {feature.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
+                        Start Listening Practice →
+                      </Button>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             )}
@@ -511,11 +473,10 @@ export default function MCQsPage({
               <Button
                 variant="outline"
                 onClick={() => openModal("mcq", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
-                  darkMode
+                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
-                }`}
+                  }`}
               >
                 {mcqCount === 0
                   ? "📥 Load Your First MCQs"
@@ -524,11 +485,10 @@ export default function MCQsPage({
               <Button
                 variant="outline"
                 onClick={() => openModal("reading", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
-                  darkMode
+                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
-                }`}
+                  }`}
               >
                 {readingCount === 0
                   ? "📥 Load Reading Passages"
@@ -536,12 +496,11 @@ export default function MCQsPage({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => openModal("listening", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${
-                  darkMode
+                onClick={() => openModal("Audio Flashcard", "edit")}
+                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
-                }`}
+                  }`}
               >
                 {listeningCount === 0
                   ? "📥 Load Listening Sets"
@@ -553,17 +512,15 @@ export default function MCQsPage({
             {mcqCount === 0 && (
               <div className="max-w-md mx-auto mt-8">
                 <div
-                  className={`rounded-xl p-6 text-center ${
-                    darkMode
+                  className={`rounded-xl p-6 text-center ${darkMode
                       ? "bg-yellow-500/10 border border-yellow-500/30"
                       : "bg-yellow-50 border border-yellow-200"
-                  }`}
+                    }`}
                 >
                   <span className="text-3xl mb-2 block">💡</span>
                   <p
-                    className={`text-sm ${
-                      darkMode ? "text-yellow-400" : "text-yellow-800"
-                    }`}
+                    className={`text-sm ${darkMode ? "text-yellow-400" : "text-yellow-800"
+                      }`}
                   >
                     Load some MCQs to start practicing and track your progress!
                   </p>
@@ -571,7 +528,7 @@ export default function MCQsPage({
               </div>
             )}
 
-            <SelectSetModal 
+            <SelectSetModal
               open={modalOpen}
               onOpenChange={setModalOpen}
               category={modalCategory}

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle, Copy, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface HowToImportModalProps {
-  category: "mcq" | "reading" | "listening";
+  category: "mcq" | "reading" | "Audio Flashcard";
   darkMode: boolean;
 }
 
@@ -33,9 +33,9 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
           format: `[\n  {\n    "title": "Passage Title",\n    "content": "Paragraph 1...\\n\\nParagraph 2...",\n    "questions": [\n      {\n        "q": "Question here",\n        "options": ["A", "B", "C"],\n        "answer": "A"\n      }\n    ]\n  }\n]`,
           prompt: `Please format the following reading passage and its questions strictly as a JSON array. Each object in the array should represent a passage with properties: "title" (string), "content" (string, use \\n\\n for paragraphs), and "questions" (an array of question objects). Each question object must have: "q" (string), "options" (array of strings), and "answer" (the correct option as a string). Text: [paste your text here]`
         };
-      case "listening":
+      case "Audio Flashcard":
         return {
-          title: "Listening Format",
+          title: "Audio Flashcard Format",
           format: `[\n  { "q": "Accommodate" },\n  { "q": "Benevolent" },\n  { "q": "Chronological" }\n]`,
           prompt: `Please extract the key vocabulary words from the following text and format them strictly as a JSON array. Each object in the array should have a single property "q" whose value is the word string. Text: [paste your text here]`
         };
@@ -69,7 +69,7 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
             How to Import JSON
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6 py-4">
           <div>
             <h3 className="font-semibold mb-2">Example JSON Format</h3>
@@ -82,7 +82,7 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
           </div>
 
           <div className={`rounded-xl border ${darkMode ? "border-slate-700 bg-slate-800/50" : "border-gray-200 bg-gray-50"}`}>
-            <button 
+            <button
               className="w-full flex items-center justify-between p-4 font-semibold text-left focus:outline-none"
               onClick={() => setShowAIInstructions(!showAIInstructions)}
             >
@@ -92,13 +92,13 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
               </span>
               {showAIInstructions ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
             </button>
-            
+
             {showAIInstructions && (
               <div className={`p-4 pt-0 text-sm ${darkMode ? "text-slate-300" : "text-gray-600"}`}>
                 <p className="mb-4 leading-relaxed">
                   You don't have to write the JSON manually! You can use an AI like Google Gemini or ChatGPT to automatically convert your study materials into the correct format. Just copy the prompt below, paste it into the AI along with your text, and save the AI's response as a <code className="bg-slate-500/20 px-1 py-0.5 rounded">.json</code> file.
                 </p>
-                
+
                 <div className="relative">
                   <div className={`p-4 pr-12 rounded-lg text-sm leading-relaxed ${darkMode ? "bg-slate-950 text-slate-300 border border-slate-800" : "bg-white text-gray-700 border border-gray-200"}`}>
                     {details.prompt}

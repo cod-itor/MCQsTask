@@ -46,7 +46,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
   const { subjects, activeSubjectId, activeListeningSetId, getListeningSet, updateListeningSet, createListeningSet, setActiveListeningSet } = useSubjects();
   const [questions, setQuestions] = useState<ListeningQuestion[]>([]);
   const [lastValidQuestions, setLastValidQuestions] = useState<ListeningQuestion[]>([]);
-  
+
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportQuestions, setPendingImportQuestions] = useState<ListeningQuestion[]>([]);
@@ -102,7 +102,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
           return;
         }
       }
-    } catch (err) {}
+    } catch (err) { }
 
     const result = await parseListeningJSONFile(file);
     if (result.isValid && result.questions) {
@@ -117,14 +117,14 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
     }
   };
 
-  const handleImportBehavior = (behavior: "override" | "add" | "new", newSetName?: string) => {
+  const handleImportBehavior = async (behavior: "override" | "add" | "new", newSetName?: string) => {
     if (behavior === "new" && activeSubjectId) {
       const defaultName = newSetName?.trim() || `New Set`;
-      const newId = createListeningSet(activeSubjectId, defaultName);
-      
+      const newId = await createListeningSet(activeSubjectId, defaultName);
+
       updateListeningSet(activeSubjectId, newId, pendingImportQuestions);
       setActiveListeningSet(newId);
-      
+
       setQuestions(pendingImportQuestions);
       toast.success(`Successfully created "${defaultName}" with ${pendingImportQuestions.length} Words`);
     } else if (behavior === "override") {
@@ -212,11 +212,10 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
 
   return (
     <div
-      className={`fixed inset-0 overflow-y-auto pb-12 transition-colors duration-300 z-50 ${
-        darkMode
+      className={`fixed inset-0 overflow-y-auto pb-12 transition-colors duration-300 z-50 ${darkMode
           ? "bg-slate-900"
           : "bg-gray-50"
-      }`}
+        }`}
     >
       {/* Sticky Header */}
       <div className={`sticky top-0 z-40 border-b ${darkMode ? "bg-slate-900/90 border-slate-700/50" : "bg-white/90 border-gray-200"} backdrop-blur-md shadow-sm`}>
@@ -232,7 +231,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`text-sm ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
-                  {currentSubject?.name || "No Subject Selected"} 
+                  {currentSubject?.name || "No Subject Selected"}
                   {currentSet && <span className="mx-2">•</span>}
                   {currentSet?.name && <span className="font-medium">{currentSet.name}</span>}
                 </span>
@@ -278,9 +277,9 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
                     <Upload className="w-4 h-4 mr-2" /> Import JSON
                   </Button>
                 </div>
-                <HowToImportModal category="listening" darkMode={darkMode} />
+                <HowToImportModal category="Audio Flashcard" darkMode={darkMode} />
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {questions.length > 0 && (
                   <>
@@ -321,7 +320,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
                   <input type="file" accept=".json" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">Import JSON</Button>
                 </div>
-                <HowToImportModal category="listening" darkMode={darkMode} />
+                <HowToImportModal category="Audio Flashcard" darkMode={darkMode} />
               </div>
             ) : (
               <div className="space-y-3">

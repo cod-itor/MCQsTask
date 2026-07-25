@@ -20,7 +20,7 @@ export async function parseListeningJSONFile(file: File): Promise<ValidationResu
   }
 }
 
-export function exportListeningToJSON(questions: any[], filename = "listening.json") {
+export function exportListeningToJSON(questions: any[], filename = "Audio Flashcard.json") {
   // Strip out internal IDs before exporting
   const exportData = questions.map((q) => {
     const { id, ...rest } = q

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useSubjects } from "@/lib/subject-context";
-import { Moon, Sun, Menu, Download } from "lucide-react";
+import { Moon, Sun, Menu, Download, LogOut } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import CreateSubjectModal from "./create-subject-modal";
@@ -11,6 +11,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { logout } from "@/app/(Auth)/login/actions";
 
 interface NavbarProps {
   darkMode: boolean;
@@ -18,6 +29,7 @@ interface NavbarProps {
   onOpenMobileSidebar?: () => void;
   onCreateSubject?: () => void;
   currentPage?: "home" | "mcqs" | "about";
+  isLoggedIn?: boolean;
 }
 
 export default function Navbar({
@@ -26,10 +38,12 @@ export default function Navbar({
   onOpenMobileSidebar,
   onCreateSubject,
   currentPage = "home",
+  isLoggedIn = false,
 }: NavbarProps) {
   const { subjects } = useSubjects();
   const hasSubjects = subjects.length > 0;
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleCreateClick = () => {
     if (onCreateSubject) {
@@ -45,32 +59,29 @@ export default function Navbar({
 
   const getNavButtonClass = (page: "home" | "mcqs" | "about") => {
     const isActive = currentPage === page;
-    return `px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
-      isActive
+    return `px-6 py-2.5 rounded-full text-sm font-medium transition-all ${isActive
         ? darkMode
           ? "bg-slate-800 text-white"
           : "bg-gray-100 text-gray-900"
         : darkMode
-        ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-    }`;
+          ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+      }`;
   };
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 ${
-          darkMode ? "bg-slate-900" : "bg-white"
-        } shadow-sm`}
+        className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? "bg-slate-900" : "bg-white"
+          } shadow-sm`}
       >
         <div className="h-20 px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto">
           {/* Left: App Name */}
           <div className="flex items-center gap-2">
             <Link
               href="/home"
-              className={`font-bold text-xl ${
-                darkMode ? "text-white" : "text-gray-900"
-              } hover:opacity-80 transition-opacity`}
+              className={`font-bold text-xl ${darkMode ? "text-white" : "text-gray-900"
+                } hover:opacity-80 transition-opacity`}
             >
               DITOR<sup className="text-sm text-gray-400">v2.2</sup>
             </Link>
@@ -78,9 +89,8 @@ export default function Navbar({
 
           {/* Center: Navigation Pills - Desktop */}
           <div
-            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-full ${
-              darkMode ? "bg-slate-800/50" : "bg-gray-50"
-            }`}
+            className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-full ${darkMode ? "bg-slate-800/50" : "bg-gray-50"
+              }`}
           >
             <Link
               href="/home"
@@ -109,9 +119,8 @@ export default function Navbar({
               variant="ghost"
               size="sm"
               onClick={onToggleDarkMode}
-              className={`rounded-full w-10 h-10 p-0 hidden md:flex items-center justify-center ${
-                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
-              }`}
+              className={`rounded-full w-10 h-10 p-0 hidden md:flex items-center justify-center ${darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+                }`}
             >
               {darkMode ? (
                 <Sun className="w-4 h-4" />
@@ -119,15 +128,40 @@ export default function Navbar({
                 <Moon className="w-4 h-4" />
               )}
             </Button>
+
+            {/* Auth Actions */}
+            {isLoggedIn ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowLogoutModal(true)}
+                className={`rounded-full w-10 h-10 p-0 flex items-center justify-center text-red-500 hover:text-red-600 ${darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+                  }`}
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className={`rounded-full ${darkMode ? "text-slate-300 hover:text-white" : "text-gray-600"}`}>
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm" className="rounded-full bg-blue-600 hover:bg-blue-700 text-white">
+                    Register
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             {/* Dark Mode Toggle - Mobile */}
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleDarkMode}
-              className={`md:hidden rounded-full w-10 h-10 p-0 flex items-center justify-center ${
-                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
-              }`}
+              className={`md:hidden rounded-full w-10 h-10 p-0 flex items-center justify-center ${darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+                }`}
             >
               {darkMode ? (
                 <Sun className="w-4 h-4" />
@@ -136,97 +170,66 @@ export default function Navbar({
               )}
             </Button>
 
-            {/* Download/Subjects Button */}
-            {hasSubjects ? (
-              <div className="hidden md:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white">
-                      <Download className="w-4 h-4 mr-2" />
-                      Subjects
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={handleCreateClick}>
-                      + New Subject
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
+            {/* Mobile Menu */}
+            {isLoggedIn && (
               <Button
-                onClick={handleCreateClick}
-                className="hidden md:flex rounded-full px-6 py-2.5 font-medium bg-blue-600 hover:bg-blue-700 text-white"
+                variant="ghost"
+                size="sm"
+                onClick={onOpenMobileSidebar}
+                className={`md:hidden rounded-full w-10 h-10 p-0 ${darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
+                  }`}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Get Started
+                <Menu className="w-5 h-5" />
               </Button>
             )}
-
-            {/* Mobile Menu */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onOpenMobileSidebar}
-              className={`md:hidden rounded-full w-10 h-10 p-0 ${
-                darkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
-              }`}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
           </div>
         </div>
 
         {/* Mobile Navigation - Bottom Pills */}
         <div
-          className={`md:hidden border-t ${
-            darkMode ? "border-slate-800" : "border-gray-200"
-          }`}
+          className={`md:hidden border-t ${darkMode ? "border-slate-800" : "border-gray-200"
+            }`}
         >
           <div
-            className={`flex items-center justify-center gap-2 px-4 py-3 ${
-              darkMode ? "bg-slate-900" : "bg-white"
-            }`}
+            className={`flex items-center justify-center gap-2 px-4 py-3 ${darkMode ? "bg-slate-900" : "bg-white"
+              }`}
           >
             <Link
               href="/home"
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
-                currentPage === "home"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "home"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
             >
               Home
             </Link>
             <Link
               href="/mcqs"
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
-                currentPage === "mcqs"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "mcqs"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
             >
               MCQs
             </Link>
             <Link
               href="/about"
-              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${
-                currentPage === "about"
+              className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "about"
                   ? darkMode
                     ? "bg-slate-800 text-white"
                     : "bg-gray-100 text-gray-900"
                   : darkMode
-                  ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
+                    ? "text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
             >
               About
             </Link>
@@ -240,6 +243,27 @@ export default function Navbar({
       {showCreateModal && (
         <CreateSubjectModal onClose={handleCloseModal} darkMode={darkMode} />
       )}
+
+      <AlertDialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <AlertDialogContent className={darkMode ? "bg-slate-900 border-slate-800 text-white" : ""}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+            <AlertDialogDescription className={darkMode ? "text-slate-400" : ""}>
+              You will need to sign in again to access your subjects and MCQs.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className={darkMode ? "bg-slate-800 text-white border-slate-700 hover:bg-slate-700" : ""}>
+              Cancel
+            </AlertDialogCancel>
+            <form action={logout}>
+              <AlertDialogAction type="submit" className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
+                Log out
+              </AlertDialogAction>
+            </form>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -3,9 +3,6 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { SubjectProvider } from "@/lib/subject-context"
-import RootLayoutClient from "@/components/root-layout-client"
-import { DarkModeProvider } from "@/lib/dark-mode-context"
 import { Toaster } from "sonner"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -34,7 +31,9 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default function RootLayout({
+export const dynamic = "force-dynamic"
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -60,12 +59,8 @@ export default function RootLayout({
         />
       </head>
       <body className={`font-sans antialiased`}>
-        <SubjectProvider>
-          <DarkModeProvider>
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </DarkModeProvider>
-        </SubjectProvider>
-        <Toaster position="top-center" richColors />
+        {children}
+        <Toaster position="top-right" richColors />
         <Analytics />
       </body>
     </html>

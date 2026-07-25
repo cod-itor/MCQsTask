@@ -2,25 +2,37 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/navbar";
 import SubjectSidebar from "@/components/subject-sidebar";
 import MobileSidebarDrawer from "@/components/mobile-sidebar-drawer";
 import CreateSubjectModal from "@/components/create-subject-modal";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useDarkMode } from "@/lib/dark-mode-context";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "sonner";
 
 interface RootLayoutClientProps {
   children: React.ReactNode;
+  isLoggedIn: boolean;
+  username?: string;
 }
 
-export default function RootLayoutClient({ children }: RootLayoutClientProps) {
+export default function RootLayoutClient({ children, isLoggedIn, username }: RootLayoutClientProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    if (isLoggedIn && username && searchParams.get('logged_in') === 'true') {
+      toast.success(`Welcome back, ${username}!`);
+      router.replace(pathname);
+    }
+  }, [isLoggedIn, username, searchParams, pathname, router]);
 
 
   const handleCreateSubject = () => {
@@ -34,12 +46,14 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
     (window as any).openMobileSidebar = () => setMobileDrawerOpen(true);
   }
 
-  const showSidebar = pathname === "/mcqs";
+  // Sidebar is only shown on /mcqs AND if the user is logged in
+  const showSidebar = pathname.startsWith("/mcqs") && isLoggedIn;
+  
   const gapFixPage =
     pathname === "/" ||
     pathname === "/home" ||
     pathname === "/about" ||
-    pathname === "/mcqs";
+    pathname.startsWith("/mcqs");
 
   const getCurrentPage = (): "home" | "mcqs" | "about" => {
     if (pathname.startsWith("/mcqs")) return "mcqs";
@@ -47,15 +61,20 @@ export default function RootLayoutClient({ children }: RootLayoutClientProps) {
     return "home";
   };
 
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
+
   return (
     <>
-      <Navbar
-        darkMode={darkMode}
-        onToggleDarkMode={toggleDarkMode}
-        onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
-        onCreateSubject={handleCreateSubject}
-        currentPage={getCurrentPage()}
-      />
+      {!isAuthPage && (
+        <Navbar
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
+          onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+          onCreateSubject={handleCreateSubject}
+          currentPage={getCurrentPage()}
+          isLoggedIn={isLoggedIn}
+        />
+      )}
 
       <main className={`min-h-screen ${darkMode ? "dark" : ""}`}>
         <div

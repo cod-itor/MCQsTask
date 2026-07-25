@@ -155,10 +155,10 @@ export function MCQEditorPage({
     }
   };
 
-  const handleImportBehavior = (behavior: "override" | "add" | "new", newSetName?: string) => {
+  const handleImportBehavior = async (behavior: "override" | "add" | "new", newSetName?: string) => {
     if (behavior === "new" && activeSubjectId) {
       const defaultName = newSetName?.trim() || `New Set`;
-      const newId = createMcqSet(activeSubjectId, defaultName);
+      const newId = await createMcqSet(activeSubjectId, defaultName);
       
       updateMcqSet(activeSubjectId, newId, pendingImportMcqs);
       setActiveMcqSet(newId);
