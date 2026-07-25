@@ -141,6 +141,11 @@ export function MCQEditorPage({
           e.target.value = '';
           return;
         }
+        if (("q" in parsed[0] || "word" in parsed[0] || "question" in parsed[0]) && !("opts" in parsed[0] || "options" in parsed[0])) {
+          toast.error("This file is for Listening Practice. Please import it in the Listening editor.");
+          e.target.value = '';
+          return;
+        }
       }
     } catch (err) {
       // Ignore JSON parse errors here; parseJSONFile will catch and report them

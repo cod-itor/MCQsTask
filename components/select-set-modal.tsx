@@ -16,7 +16,7 @@ import { Plus, FileText, LayoutList } from "lucide-react";
 interface SelectSetModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: "mcq" | "reading";
+  category: "mcq" | "reading" | "listening";
   onSelect: () => void; // Called when a set is selected or created
   darkMode: boolean;
 }
@@ -32,10 +32,13 @@ export function SelectSetModal({
     activeSubjectId, 
     mcqSets, 
     readingSets, 
+    listeningSets,
     setActiveMcqSet, 
     setActiveReadingSet,
+    setActiveListeningSet,
     createMcqSet,
-    createReadingSet
+    createReadingSet,
+    createListeningSet
   } = useSubjects();
   
   const [showNewInput, setShowNewInput] = useState(false);
@@ -45,13 +48,17 @@ export function SelectSetModal({
 
   const sets = category === "mcq" 
     ? (mcqSets[activeSubjectId] || []) 
-    : (readingSets[activeSubjectId] || []);
+    : category === "reading" 
+      ? (readingSets[activeSubjectId] || [])
+      : (listeningSets[activeSubjectId] || []);
 
   const handleSelect = (setId: string) => {
     if (category === "mcq") {
       setActiveMcqSet(setId);
-    } else {
+    } else if (category === "reading") {
       setActiveReadingSet(setId);
+    } else {
+      setActiveListeningSet(setId);
     }
     onOpenChange(false);
     onSelect();
@@ -63,9 +70,12 @@ export function SelectSetModal({
     if (category === "mcq") {
       newId = createMcqSet(activeSubjectId, defaultName);
       setActiveMcqSet(newId);
-    } else {
+    } else if (category === "reading") {
       newId = createReadingSet(activeSubjectId, defaultName);
       setActiveReadingSet(newId);
+    } else {
+      newId = createListeningSet(activeSubjectId, defaultName);
+      setActiveListeningSet(newId);
     }
     setNewSetName("");
     setShowNewInput(false);
@@ -85,7 +95,7 @@ export function SelectSetModal({
     <AlertDialog open={open} onOpenChange={handleModalClose}>
       <AlertDialogContent className={`max-w-md ${darkMode ? "bg-slate-800 border-slate-700" : ""}`}>
         <AlertDialogTitle className={darkMode ? "text-white" : "text-gray-900"}>
-          Select {category === "mcq" ? "MCQ" : "Reading"} File
+          Select {category === "mcq" ? "MCQ" : category === "reading" ? "Reading" : "Listening"} File
         </AlertDialogTitle>
         <AlertDialogDescription>
           Choose a file to open or create a new one.

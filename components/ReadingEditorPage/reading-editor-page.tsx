@@ -124,9 +124,14 @@ export function ReadingEditorPage({
       const text = await file.text();
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        if ("q" in parsed[0] || "question" in parsed[0] || "opts" in parsed[0] || "options" in parsed[0]) {
+        if (("q" in parsed[0] || "question" in parsed[0] || "opts" in parsed[0] || "options" in parsed[0]) && ("opts" in parsed[0] || "options" in parsed[0])) {
           toast.error("This file is for MCQs. Please import it in the MCQ editor.");
           // reset the input so they can upload again if needed
+          e.target.value = '';
+          return;
+        }
+        if (("q" in parsed[0] || "word" in parsed[0] || "question" in parsed[0]) && !("opts" in parsed[0] || "options" in parsed[0])) {
+          toast.error("This file is for Listening Practice. Please import it in the Listening editor.");
           e.target.value = '';
           return;
         }

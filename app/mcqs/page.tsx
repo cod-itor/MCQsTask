@@ -28,6 +28,14 @@ export default function MCQsHub() {
     router.push("/mcqs/reading-input")
   }
 
+  const handleStartListeningPractice = () => {
+    router.push("/mcqs/listening-practice")
+  }
+
+  const handleInputListening = () => {
+    router.push("/mcqs/listening-input")
+  }
+
   const handleOpenMobileSidebar = () => {
     if (typeof window !== "undefined" && (window as any).openMobileSidebar) {
       (window as any).openMobileSidebar()
@@ -47,6 +55,8 @@ export default function MCQsHub() {
       onInputMcqs={handleInputMcqs}
       onStartReadingPractice={handleStartReadingPractice}
       onInputReading={handleInputReading}
+      onStartListeningPractice={handleStartListeningPractice}
+      onInputListening={handleInputListening}
       darkMode={darkMode}
       onCreateSubject={handleCreateSubject}
       onOpenMobileSidebar={handleOpenMobileSidebar}

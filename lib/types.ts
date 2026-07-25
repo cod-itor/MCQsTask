@@ -18,9 +18,11 @@ export interface SubjectData {
   subjects: Subject[]
   mcqSets: Record<string, MCQSet[]> 
   readingSets: Record<string, ReadingSet[]> 
+  listeningSets: Record<string, ListeningSet[]>
   activeSubjectId: string | null
   activeMcqSetId: string | null
   activeReadingSetId: string | null
+  activeListeningSetId: string | null
 }
 
 export interface MCQSet {
@@ -52,6 +54,19 @@ export interface ReadingPassage {
   content: string
   globalOptions?: string[]
   questions: ReadingQuestion[]
+}
+
+export interface ListeningQuestion {
+  id: string
+  q: string
+}
+
+export interface ListeningSet {
+  id: string
+  subjectId: string
+  name: string
+  createdAt: number
+  questions: ListeningQuestion[]
 }
 
 export interface ExamState {

@@ -2,19 +2,22 @@
 
 import type React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
-import type { Subject, MCQ, ReadingPassage, MCQSet, ReadingSet } from "./types";
+import type { Subject, MCQ, ReadingPassage, MCQSet, ReadingSet, ListeningSet, ListeningQuestion } from "./types";
 
 interface SubjectContextType {
   subjects: Subject[];
   activeSubjectId: string | null;
   activeMcqSetId: string | null;
   activeReadingSetId: string | null;
+  activeListeningSetId: string | null;
   mcqSets: Record<string, MCQSet[]>;
   readingSets: Record<string, ReadingSet[]>;
+  listeningSets: Record<string, ListeningSet[]>;
   
   setActiveSubject: (id: string | null) => void;
   setActiveMcqSet: (id: string | null) => void;
   setActiveReadingSet: (id: string | null) => void;
+  setActiveListeningSet: (id: string | null) => void;
   
   createSubject: (name: string) => string;
   renameSubject: (id: string, newName: string) => void;
@@ -31,6 +34,11 @@ interface SubjectContextType {
   deleteReadingSet: (subjectId: string, setId: string) => void;
   getReadingSet: (subjectId: string | null, setId: string | null) => ReadingSet | null;
 
+  createListeningSet: (subjectId: string, name: string) => string;
+  updateListeningSet: (subjectId: string, setId: string, questions: ListeningQuestion[]) => void;
+  deleteListeningSet: (subjectId: string, setId: string) => void;
+  getListeningSet: (subjectId: string | null, setId: string | null) => ListeningSet | null;
+
   // Legacy for compatibility if needed elsewhere
   getMcqsForSubject: (subjectId: string | null) => MCQ[];
   getReadingPassagesForSubject: (subjectId: string | null) => ReadingPassage[];
@@ -42,25 +50,31 @@ const SUBJECT_STORAGE_KEY = "mcq_subjects";
 const MCQS_STORAGE_KEY = "mcq_data";
 const ACTIVE_SUBJECT_KEY = "active_subject";
 const READING_PASSAGES_STORAGE_KEY = "mcq_reading_passages";
+const LISTENING_SETS_STORAGE_KEY = "mcq_listening_sets";
 const ACTIVE_MCQ_SET_KEY = "active_mcq_set";
 const ACTIVE_READING_SET_KEY = "active_reading_set";
+const ACTIVE_LISTENING_SET_KEY = "active_listening_set";
 
 export function SubjectProvider({ children }: { children: React.ReactNode }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>(null);
   const [activeMcqSetId, setActiveMcqSetId] = useState<string | null>(null);
   const [activeReadingSetId, setActiveReadingSetId] = useState<string | null>(null);
+  const [activeListeningSetId, setActiveListeningSetId] = useState<string | null>(null);
   
   const [mcqSets, setMcqSets] = useState<Record<string, MCQSet[]>>({});
   const [readingSets, setReadingSets] = useState<Record<string, ReadingSet[]>>({});
+  const [listeningSets, setListeningSets] = useState<Record<string, ListeningSet[]>>({});
 
   useEffect(() => {
     const savedSubjects = localStorage.getItem(SUBJECT_STORAGE_KEY);
     const savedMcqs = localStorage.getItem(MCQS_STORAGE_KEY);
     const savedReadingPassages = localStorage.getItem(READING_PASSAGES_STORAGE_KEY);
+    const savedListeningSets = localStorage.getItem(LISTENING_SETS_STORAGE_KEY);
     const savedActiveSubject = localStorage.getItem(ACTIVE_SUBJECT_KEY);
     const savedActiveMcqSet = localStorage.getItem(ACTIVE_MCQ_SET_KEY);
     const savedActiveReadingSet = localStorage.getItem(ACTIVE_READING_SET_KEY);
+    const savedActiveListeningSet = localStorage.getItem(ACTIVE_LISTENING_SET_KEY);
 
     if (savedSubjects) {
       setSubjects(JSON.parse(savedSubjects));
@@ -108,9 +122,14 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
       setReadingSets(migrated ? newReadingSets : parsed);
     }
     
+    if (savedListeningSets) {
+      setListeningSets(JSON.parse(savedListeningSets));
+    }
+    
     if (savedActiveSubject) setActiveSubjectId(savedActiveSubject);
     if (savedActiveMcqSet) setActiveMcqSetId(savedActiveMcqSet);
     if (savedActiveReadingSet) setActiveReadingSetId(savedActiveReadingSet);
+    if (savedActiveListeningSet) setActiveListeningSetId(savedActiveListeningSet);
   }, []);
 
   useEffect(() => {
@@ -126,6 +145,10 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
   }, [readingSets]);
 
   useEffect(() => {
+    localStorage.setItem(LISTENING_SETS_STORAGE_KEY, JSON.stringify(listeningSets));
+  }, [listeningSets]);
+
+  useEffect(() => {
     if (activeSubjectId) localStorage.setItem(ACTIVE_SUBJECT_KEY, activeSubjectId);
     else localStorage.removeItem(ACTIVE_SUBJECT_KEY);
   }, [activeSubjectId]);
@@ -139,6 +162,11 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     if (activeReadingSetId) localStorage.setItem(ACTIVE_READING_SET_KEY, activeReadingSetId);
     else localStorage.removeItem(ACTIVE_READING_SET_KEY);
   }, [activeReadingSetId]);
+
+  useEffect(() => {
+    if (activeListeningSetId) localStorage.setItem(ACTIVE_LISTENING_SET_KEY, activeListeningSetId);
+    else localStorage.removeItem(ACTIVE_LISTENING_SET_KEY);
+  }, [activeListeningSetId]);
 
   const updateSubjectMcqCount = (subjectId: string, currentMcqSets: Record<string, MCQSet[]>) => {
     setSubjects(prev => prev.map(s => {
@@ -160,6 +188,7 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     setSubjects([...subjects, newSubject]);
     setMcqSets({ ...mcqSets, [newSubject.id]: [] });
     setReadingSets({ ...readingSets, [newSubject.id]: [] });
+    setListeningSets({ ...listeningSets, [newSubject.id]: [] });
     return newSubject.id;
   };
 
@@ -177,6 +206,10 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     const newRP = { ...readingSets };
     delete newRP[id];
     setReadingSets(newRP);
+    
+    const newLS = { ...listeningSets };
+    delete newLS[id];
+    setListeningSets(newLS);
     
     if (activeSubjectId === id) setActiveSubjectId(null);
   };
@@ -268,6 +301,45 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
     return (readingSets[subjectId] || []).find(s => s.id === setId) || null;
   };
 
+  const createListeningSet = (subjectId: string, name: string) => {
+    const newSetId = `listeningset-${Date.now()}`;
+    const newSet: ListeningSet = {
+      id: newSetId,
+      subjectId,
+      name,
+      createdAt: Date.now(),
+      questions: []
+    };
+    
+    setListeningSets({
+      ...listeningSets,
+      [subjectId]: [...(listeningSets[subjectId] || []), newSet]
+    });
+    return newSetId;
+  };
+
+  const updateListeningSet = (subjectId: string, setId: string, questions: ListeningQuestion[]) => {
+    setListeningSets({
+      ...listeningSets,
+      [subjectId]: (listeningSets[subjectId] || []).map(set => 
+        set.id === setId ? { ...set, questions } : set
+      )
+    });
+  };
+
+  const deleteListeningSet = (subjectId: string, setId: string) => {
+    setListeningSets({
+      ...listeningSets,
+      [subjectId]: (listeningSets[subjectId] || []).filter(set => set.id !== setId)
+    });
+    if (activeListeningSetId === setId) setActiveListeningSetId(null);
+  };
+
+  const getListeningSet = (subjectId: string | null, setId: string | null) => {
+    if (!subjectId || !setId) return null;
+    return (listeningSets[subjectId] || []).find(s => s.id === setId) || null;
+  };
+
   const getMcqsForSubject = (subjectId: string | null) => {
     if (!subjectId) return [];
     return (mcqSets[subjectId] || []).flatMap(set => set.mcqs);
@@ -285,11 +357,14 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
         activeSubjectId,
         activeMcqSetId,
         activeReadingSetId,
+        activeListeningSetId,
         mcqSets,
         readingSets,
+        listeningSets,
         setActiveSubject: setActiveSubjectId,
         setActiveMcqSet: setActiveMcqSetId,
         setActiveReadingSet: setActiveReadingSetId,
+        setActiveListeningSet: setActiveListeningSetId,
         createSubject,
         renameSubject,
         deleteSubject,
@@ -302,6 +377,10 @@ export function SubjectProvider({ children }: { children: React.ReactNode }) {
         updateReadingSet,
         deleteReadingSet,
         getReadingSet,
+        createListeningSet,
+        updateListeningSet,
+        deleteListeningSet,
+        getListeningSet,
         getMcqsForSubject,
         getReadingPassagesForSubject
       }}
