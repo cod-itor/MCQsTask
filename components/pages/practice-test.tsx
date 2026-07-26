@@ -368,7 +368,7 @@ export default function PracticeTest({
                     }`}
                   >
                     <h2
-                      className={`text-lg font-semibold ${
+                      className={`text-lg font-semibold whitespace-pre-wrap ${
                         darkMode ? "text-slate-100" : "text-gray-900"
                       }`}
                     >
@@ -417,9 +417,9 @@ export default function PracticeTest({
                             </div>
 
                             <span
-                              className={
+                              className={`whitespace-pre-wrap ${
                                 darkMode ? "text-slate-100" : "text-gray-900"
-                              }
+                              }`}
                             >
                               {option}
                             </span>
@@ -493,7 +493,7 @@ export default function PracticeTest({
                         </p>
                         {current.explanation && (
                           <p
-                            className={`text-sm mt-2 italic ${
+                            className={`text-sm mt-2 italic whitespace-pre-wrap ${
                               darkMode ? "text-slate-200" : "text-gray-700"
                             }`}
                           >

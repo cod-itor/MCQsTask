@@ -1,11 +1,13 @@
 import type { ValidationResult } from "./listening-validation"
 import { validateListeningQuestions } from "./listening-validation"
+import { sanitizeParsedJSON } from "./utils"
 
 export async function parseListeningJSONFile(file: File): Promise<ValidationResult> {
   try {
     const text = await file.text()
     const data = JSON.parse(text)
-    return validateListeningQuestions(data)
+    const sanitizedData = sanitizeParsedJSON(data)
+    return validateListeningQuestions(sanitizedData)
   } catch (error) {
     if (error instanceof SyntaxError) {
       return {

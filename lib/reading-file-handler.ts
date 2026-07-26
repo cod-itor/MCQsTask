@@ -1,11 +1,13 @@
 import type { ReadingValidationResult } from "./reading-validation"
 import { validateReadingPassages } from "./reading-validation"
+import { sanitizeParsedJSON } from "./utils"
 
 export async function parseReadingJSONFile(file: File): Promise<ReadingValidationResult> {
   try {
     const text = await file.text()
     const data = JSON.parse(text)
-    return validateReadingPassages(data)
+    const sanitizedData = sanitizeParsedJSON(data)
+    return validateReadingPassages(sanitizedData)
   } catch (error) {
     if (error instanceof SyntaxError) {
       return {

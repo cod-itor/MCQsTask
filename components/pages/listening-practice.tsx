@@ -500,7 +500,7 @@ export default function ListeningPractice({
 
                     <div className="flex-1 flex flex-col items-center text-center overflow-y-auto mb-6 px-2">
                       <div className="my-auto w-full py-4">
-                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center ${darkMode ? "text-white" : "text-gray-900"}`}>
+                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${darkMode ? "text-white" : "text-gray-900"}`}>
                           {currentCard?.q}
                         </h1>
                         
@@ -573,7 +573,7 @@ export default function ListeningPractice({
                     </motion.div>
                     <div className="text-center opacity-50 text-sm mb-4">Answer</div>
                     <div className="flex-1 flex flex-col items-center justify-center text-center">
-                      <p className={`text-xl font-medium ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
+                      <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
                         {currentCard?.a || "No answer provided"}
                       </p>
                     </div>

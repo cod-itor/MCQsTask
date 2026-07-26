@@ -1,11 +1,13 @@
 import type { ValidationResult } from "./mcq-validation"
 import { validateMCQs } from "./mcq-validation"
+import { sanitizeParsedJSON } from "./utils"
 
 export async function parseJSONFile(file: File): Promise<ValidationResult> {
   try {
     const text = await file.text()
     const data = JSON.parse(text)
-    return validateMCQs(data)
+    const sanitizedData = sanitizeParsedJSON(data)
+    return validateMCQs(sanitizedData)
   } catch (error) {
     if (error instanceof SyntaxError) {
       return {

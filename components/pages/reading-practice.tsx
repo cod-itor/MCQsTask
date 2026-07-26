@@ -160,7 +160,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
               {index + 1}.
             </span>
             <div className={`p-4 rounded-lg flex-1 border ${darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : "bg-blue-50 border-blue-200"}`}>
-              <h3 className={`text-base font-semibold ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
+              <h3 className={`text-base font-semibold whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
                 {q.text}
               </h3>
             </div>
@@ -202,7 +202,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
                     }`}>
                       {label}
                     </div>
-                    <span className={darkMode ? "text-slate-100" : "text-gray-900"}>{opt}</span>
+                    <span className={`whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>{opt}</span>
                   </div>
                   
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -242,7 +242,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
           <span className={`font-bold mr-2 mt-1.5 ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
             {index + 1}.
           </span>
-          <div className="flex-1 items-center flex-wrap mt-1">
+          <div className="flex-1 items-center flex-wrap mt-1 whitespace-pre-wrap">
             {parts.map((part, i) => (
               <span key={i}>
                 {part}
