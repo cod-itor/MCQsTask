@@ -23,8 +23,9 @@ import { HowToImportModal } from "@/components/how-to-import-modal";
 import { parseReadingJSONFile, exportReadingToJSON } from "@/lib/reading-file-handler";
 import { toast } from "sonner";
 import { validateReadingPassages } from "@/lib/reading-validation";
-import { Upload, AlertCircle, CheckCircle, FileText, Plus } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, FileText, Plus, Loader2 } from "lucide-react";
 import type { ReadingPassage } from "@/lib/types";
+import { motion } from "framer-motion";
 
 const generateUniqueId = () => crypto.randomUUID();
 
@@ -70,6 +71,7 @@ export function ReadingEditorPage({
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportPassages, setPendingImportPassages] = useState<ReadingPassage[]>([]);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const currentSet = getReadingSet(activeSubjectId, activeReadingSetId);
@@ -185,16 +187,25 @@ export function ReadingEditorPage({
     setShowSaveDialog(true);
   };
 
-  const confirmSave = () => {
+  const confirmSave = async () => {
     if (!activeSubjectId || !activeReadingSetId) return;
-    updateReadingSet(activeSubjectId, activeReadingSetId, passages);
-    setLastValidPassages(passages);
-    toast.success(`Saved ${passages.length} Passages to "${currentSet?.name || 'Set'}"`);
-    setShowSaveDialog(false);
+    setIsSaving(true);
+    try {
+      await updateReadingSet(activeSubjectId, activeReadingSetId, passages);
+      setLastValidPassages(passages);
+      toast.success(
+        `Saved ${passages.length} passages to "${currentSet?.name || "Set"}"`
+      );
+      setShowSaveDialog(false);
 
-    setTimeout(() => {
-      onReadingLoaded();
-    }, 1500);
+      setTimeout(() => {
+        onReadingLoaded();
+      }, 1500);
+    } catch (e) {
+      toast.error("Failed to save reading passages");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleRollback = () => {
@@ -313,11 +324,11 @@ export function ReadingEditorPage({
                   <>
                     <Button
                       onClick={handleSave}
-                      disabled={!canSave}
+                      disabled={!canSave || isSaving}
                       className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Save Changes
+                      {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                     <EditorActionsMenu
                       onExport={() =>
@@ -359,14 +370,19 @@ export function ReadingEditorPage({
 
           {/* Empty State */}
           {isEmptyState && activeSubjectId && activeReadingSetId && (
-            <Card
-              className={`border-2 border-dashed ${
-                darkMode
-                  ? "bg-slate-800/50 border-slate-600"
-                  : "bg-white border-gray-300"
-              }`}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <CardContent className="py-12">
+              <Card
+                className={`border-2 border-dashed ${
+                  darkMode
+                    ? "bg-slate-800/50 border-slate-600"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <CardContent className="py-12">
                 <div className="text-center max-w-md mx-auto">
                   <FileText
                     className={`w-16 h-16 mx-auto mb-4 ${
@@ -432,6 +448,7 @@ export function ReadingEditorPage({
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
           )}
 
           {/* Main Editor Content */}
@@ -516,16 +533,25 @@ export function ReadingEditorPage({
             </AlertDialogDescription>
             <div className="flex gap-3 justify-end">
               <AlertDialogCancel
+                disabled={isSaving}
                 className={darkMode ? "bg-slate-700 border-slate-600" : ""}
               >
                 Cancel
               </AlertDialogCancel>
-              <AlertDialogAction
+              <Button
                 onClick={confirmSave}
-                className="bg-blue-600 hover:bg-blue-700"
+                disabled={isSaving}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                Save
-              </AlertDialogAction>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
             </div>
           </AlertDialogContent>
         </AlertDialog>

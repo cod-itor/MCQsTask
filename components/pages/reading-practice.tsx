@@ -28,10 +28,12 @@ interface ReadingPracticeProps {
   onOpenMobileSidebar?: () => void
 }
 
+const EMPTY_PASSAGES: any[] = [];
+
 export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar }: ReadingPracticeProps) {
   const { activeSubjectId, activeReadingSetId, getReadingSet } = useSubjects()
   const currentSet = getReadingSet(activeSubjectId, activeReadingSetId)
-  const passages = currentSet ? currentSet.passages : []
+  const passages = currentSet ? currentSet.passages : EMPTY_PASSAGES
   const isMobile = useIsMobile()
 
   const [currentPassageIndex, setCurrentPassageIndex] = useState(0)

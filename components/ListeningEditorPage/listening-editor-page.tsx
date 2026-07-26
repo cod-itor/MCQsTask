@@ -20,6 +20,8 @@ import { parseListeningJSONFile, exportListeningToJSON } from "@/lib/listening-f
 import { toast } from "sonner";
 import { validateListeningQuestions } from "@/lib/listening-validation";
 import type { ListeningQuestion } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const generateUniqueId = () => crypto.randomUUID();
 
@@ -51,6 +53,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
   const [showImportBehavior, setShowImportBehavior] = useState(false);
   const [pendingImportQuestions, setPendingImportQuestions] = useState<ListeningQuestion[]>([]);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const currentSet = getListeningSet(activeSubjectId, activeListeningSetId);
@@ -163,16 +166,23 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
     setShowSaveDialog(true);
   };
 
-  const confirmSave = () => {
+  const confirmSave = async () => {
     if (!activeSubjectId || !activeListeningSetId) return;
-    updateListeningSet(activeSubjectId, activeListeningSetId, questions);
-    setLastValidQuestions(questions);
-    toast.success(`Saved ${questions.length} Words to "${currentSet?.name || 'Set'}"`);
-    setShowSaveDialog(false);
+    setIsSaving(true);
+    try {
+      await updateListeningSet(activeSubjectId, activeListeningSetId, questions);
+      setLastValidQuestions(questions);
+      toast.success(`Saved ${questions.length} Words to "${currentSet?.name || 'Set'}"`);
+      setShowSaveDialog(false);
 
-    setTimeout(() => {
-      onLoaded();
-    }, 1500);
+      setTimeout(() => {
+        onLoaded();
+      }, 1500);
+    } catch (error) {
+      toast.error("Failed to save words");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleRollback = () => {
@@ -312,7 +322,12 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
           </CardHeader>
           <CardContent className="space-y-4">
             {questions.length === 0 ? (
-              <div className={`text-center py-12 border-2 border-dashed rounded-xl ${darkMode ? "border-slate-700 bg-slate-800/50" : "border-gray-200 bg-gray-50"}`}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`text-center py-12 border-2 border-dashed rounded-xl ${darkMode ? "border-slate-700 bg-slate-800/50" : "border-gray-200 bg-gray-50"}`}
+              >
                 <div className="text-4xl mb-3">🎧</div>
                 <h3 className={`text-lg font-medium mb-1 ${darkMode ? "text-slate-300" : "text-gray-700"}`}>No words yet</h3>
                 <p className={`text-sm mb-4 ${darkMode ? "text-slate-500" : "text-gray-500"}`}>Add words manually or import a JSON file.</p>
@@ -321,7 +336,7 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white">Import JSON</Button>
                 </div>
                 <HowToImportModal category="Audio Flashcard" darkMode={darkMode} />
-              </div>
+              </motion.div>
             ) : (
               <div className="space-y-3">
                 {questions.map((q, i) => (
@@ -354,8 +369,17 @@ export function ListeningEditorPage({ onLoaded, darkMode, onBack }: ListeningEdi
             Are you sure you want to save {questions.length} words to "{currentSet?.name || 'this set'}"?
           </AlertDialogDescription>
           <div className="flex justify-end gap-3 mt-4">
-            <AlertDialogCancel className={darkMode ? "bg-slate-700 border-slate-600 text-white hover:bg-slate-600" : ""}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmSave} className="bg-purple-600 hover:bg-purple-700 text-white border-0">Save & Continue</AlertDialogAction>
+            <AlertDialogCancel disabled={isSaving} className={darkMode ? "bg-slate-700 border-slate-600 text-white hover:bg-slate-600" : ""}>Cancel</AlertDialogCancel>
+            <Button onClick={confirmSave} disabled={isSaving} className="bg-purple-600 hover:bg-purple-700 text-white border-0">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save & Continue"
+              )}
+            </Button>
           </div>
         </AlertDialogContent>
       </AlertDialog>

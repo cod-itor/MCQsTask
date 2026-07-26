@@ -11,6 +11,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 interface MCQsPageProps {
   onStartPractice: () => void;
@@ -203,11 +219,17 @@ export default function MCQsPage({
 
             {/* Test Mode Cards */}
             {(mcqCount > 0 || readingCount > 0 || listeningCount > 0) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto mb-8">
+              <motion.div 
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto mb-8"
+              >
                 {/* MCQ Practice Test Card */}
                 {mcqCount > 0 && (
-                  <Card
-                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                  <motion.div variants={item} className="h-full">
+                    <Card
+                      className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full ${darkMode
                         ? "bg-gradient-to-br from-slate-800 to-slate-900 border-blue-500/30 hover:border-blue-500/60 hover:shadow-2xl hover:shadow-blue-500/20"
                         : "bg-gradient-to-br from-white to-blue-50 border-blue-200 hover:border-blue-400 hover:shadow-2xl shadow-lg"
                       } rounded-2xl`}
@@ -268,12 +290,14 @@ export default function MCQsPage({
                       </Button>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 )}
 
                 {/* Exam Test Card */}
                 {mcqCount > 0 && (
-                  <Card
-                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                  <motion.div variants={item} className="h-full">
+                    <Card
+                      className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full ${darkMode
                         ? "bg-gradient-to-br from-slate-800 to-slate-900 border-indigo-500/30 hover:border-indigo-500/60 hover:shadow-2xl hover:shadow-indigo-500/20"
                         : "bg-gradient-to-br from-white to-indigo-50 border-indigo-200 hover:border-indigo-400 hover:shadow-2xl shadow-lg"
                       } rounded-2xl`}
@@ -334,12 +358,14 @@ export default function MCQsPage({
                       </Button>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 )}
 
                 {/* Reading Test Mode Card */}
                 {readingCount > 0 && (
-                  <Card
-                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                  <motion.div variants={item} className="h-full">
+                    <Card
+                      className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full ${darkMode
                         ? "bg-gradient-to-br from-slate-800 to-slate-900 border-emerald-500/30 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/20"
                         : "bg-gradient-to-br from-white to-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-2xl shadow-lg"
                       } rounded-2xl`}
@@ -399,12 +425,14 @@ export default function MCQsPage({
                       </Button>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 )}
 
                 {/* Listening Practice Card */}
                 {listeningCount > 0 && (
-                  <Card
-                    className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col ${darkMode
+                  <motion.div variants={item} className="h-full">
+                    <Card
+                      className={`group cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] flex flex-col h-full ${darkMode
                         ? "bg-gradient-to-br from-slate-800 to-slate-900 border-purple-500/30 hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/20"
                         : "bg-gradient-to-br from-white to-purple-50 border-purple-200 hover:border-purple-400 hover:shadow-2xl shadow-lg"
                       } rounded-2xl`}
@@ -464,8 +492,9 @@ export default function MCQsPage({
                       </Button>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             )}
 
             {/* Load Data Section */}

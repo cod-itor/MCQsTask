@@ -3,6 +3,7 @@
 import MCQsPage from "@/components/pages/mcqs-page"
 import { useRouter } from "next/navigation"
 import { useDarkMode } from "@/lib/dark-mode-context"
+import { motion } from "framer-motion"
 
 export default function MCQsHub() {
   const router = useRouter()
@@ -49,17 +50,19 @@ export default function MCQsHub() {
   }
 
   return (
-    <MCQsPage
-      onStartPractice={handleStartPractice}
-      onStartExam={handleStartExam}
-      onInputMcqs={handleInputMcqs}
-      onStartReadingPractice={handleStartReadingPractice}
-      onInputReading={handleInputReading}
-      onStartListeningPractice={handleStartListeningPractice}
-      onInputListening={handleInputListening}
-      darkMode={darkMode}
-      onCreateSubject={handleCreateSubject}
-      onOpenMobileSidebar={handleOpenMobileSidebar}
-    />
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <MCQsPage
+        onStartPractice={handleStartPractice}
+        onStartExam={handleStartExam}
+        onInputMcqs={handleInputMcqs}
+        onStartReadingPractice={handleStartReadingPractice}
+        onInputReading={handleInputReading}
+        onStartListeningPractice={handleStartListeningPractice}
+        onInputListening={handleInputListening}
+        darkMode={darkMode}
+        onCreateSubject={handleCreateSubject}
+        onOpenMobileSidebar={handleOpenMobileSidebar}
+      />
+    </motion.div>
   )
 }

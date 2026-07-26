@@ -31,6 +31,8 @@ interface MCQ {
   explanation?: string;
 }
 
+const EMPTY_MCQS: MCQ[] = [];
+
 export default function PracticeTest({
   onBack,
   darkMode,
@@ -40,7 +42,7 @@ export default function PracticeTest({
     useSubjects();
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
-  const mcqs = currentSet ? currentSet.mcqs : [];
+  const mcqs = currentSet ? currentSet.mcqs : EMPTY_MCQS;
 
   const [displayQuestions, setDisplayQuestions] = useState<ShuffledQuestion[]>(
     []

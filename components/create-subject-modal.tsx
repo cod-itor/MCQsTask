@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useSubjects } from "@/lib/subject-context";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface CreateSubjectModalProps {
   onClose: () => void;
@@ -18,7 +19,9 @@ export default function CreateSubjectModal({
   const [subjectName, setSubjectName] = useState("");
   const [error, setError] = useState("");
 
-  const handleCreate = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreate = async () => {
     if (!subjectName.trim()) {
       setError("Subject name is required");
       return;
@@ -29,9 +32,18 @@ export default function CreateSubjectModal({
       return;
     }
 
-    createSubject(subjectName.trim());
-    setSubjectName("");
-    onClose();
+    setIsLoading(true);
+    try {
+      await createSubject(subjectName.trim());
+      toast.success(`Subject "${subjectName.trim()}" created successfully!`);
+      setSubjectName("");
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to create subject");
+      setError(err?.message || "Failed to create subject");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -182,10 +194,17 @@ export default function CreateSubjectModal({
           </Button>
           <Button
             onClick={handleCreate}
-            disabled={!subjectName.trim()}
+            disabled={!subjectName.trim() || isLoading}
             className="flex-1 h-11 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
-            Create Subject
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Subject"
+            )}
           </Button>
         </div>
       </div>

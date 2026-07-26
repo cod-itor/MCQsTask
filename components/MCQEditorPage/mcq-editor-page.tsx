@@ -25,8 +25,9 @@ import { EditorActionsMenu } from "./editor-actions-menu";
 import { parseJSONFile, exportMCQsToJSON } from "@/lib/mcq-file-handler";
 import { toast } from "sonner";
 import { validateMCQs } from "@/lib/mcq-validation";
-import { Upload, AlertCircle, CheckCircle, FileText, Plus } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, FileText, Plus, Loader2 } from "lucide-react";
 import type { MCQ } from "@/lib/types";
+import { motion } from "framer-motion";
 
 // Generate unique ID for MCQs using crypto.randomUUID
 const generateUniqueId = () => {
@@ -73,6 +74,7 @@ export function MCQEditorPage({
   const [pendingImportMcqs, setPendingImportMcqs] = useState<MCQ[]>([]);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [showAddManual, setShowAddManual] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentSubject = subjects.find((s) => s.id === activeSubjectId);
   const currentSet = getMcqSet(activeSubjectId, activeMcqSetId);
@@ -220,16 +222,23 @@ export function MCQEditorPage({
     setShowSaveDialog(true);
   };
 
-  const confirmSave = () => {
+  const confirmSave = async () => {
     if (!activeSubjectId || !activeMcqSetId) return;
-    updateMcqSet(activeSubjectId, activeMcqSetId, mcqs);
-    setLastValidMcqs(mcqs);
-    toast.success(`Saved ${mcqs.length} MCQs to "${currentSet?.name || 'Set'}"`);
-    setShowSaveDialog(false);
+    setIsSaving(true);
+    try {
+      await updateMcqSet(activeSubjectId, activeMcqSetId, mcqs);
+      setLastValidMcqs(mcqs);
+      toast.success(`Saved ${mcqs.length} MCQs to "${currentSet?.name || 'Set'}"`);
+      setShowSaveDialog(false);
 
-    setTimeout(() => {
-      onMcqsLoaded();
-    }, 1500);
+      setTimeout(() => {
+        onMcqsLoaded();
+      }, 1500);
+    } catch (error) {
+      toast.error("Failed to save MCQs");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleRollback = () => {
@@ -374,81 +383,87 @@ export function MCQEditorPage({
             </div>
           )}
 
-          {/* Empty State - Getting Started */}
+          {/* Empty State / Upload JSON */}
           {isEmptyState && activeSubjectId && activeMcqSetId && (
-            <Card
-              className={`border-2 border-dashed ${
-                darkMode
-                  ? "bg-slate-800/50 border-slate-600"
-                  : "bg-white border-gray-300"
-              }`}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <CardContent className="py-12">
-                <div className="text-center max-w-md mx-auto">
-                  <FileText
-                    className={`w-16 h-16 mx-auto mb-4 ${
-                      darkMode ? "text-gray-600" : "text-gray-400"
-                    }`}
-                  />
-                  <h2
-                    className={`text-2xl font-bold mb-2 ${
-                      darkMode ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    No Questions Yet
-                  </h2>
-                  <p
-                    className={`mb-6 ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    Get started by adding questions to your collection
-                  </p>
+              <Card
+                className={`border-2 border-dashed ${
+                  darkMode
+                    ? "bg-slate-800/50 border-slate-600"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <CardContent className="py-12">
+                  <div className="text-center max-w-md mx-auto">
+                    <FileText
+                      className={`w-16 h-16 mx-auto mb-4 ${
+                        darkMode ? "text-gray-600" : "text-gray-400"
+                      }`}
+                    />
+                    <h2
+                      className={`text-2xl font-bold mb-2 ${
+                        darkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      No Questions Yet
+                    </h2>
+                    <p
+                      className={`mb-6 ${
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      Get started by adding questions to your collection
+                    </p>
 
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <div>
-                      <input
-                        type="file"
-                        accept=".json"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="json-upload-empty"
-                      />
-                      <label htmlFor="json-upload-empty">
-                        <Button
-                          asChild
-                          className="gap-2 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                        >
-                          <span>
-                            <Upload className="w-4 h-4" />
-                            Import JSON File
-                          </span>
-                        </Button>
-                      </label>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <div>
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="json-upload-empty"
+                        />
+                        <label htmlFor="json-upload-empty">
+                          <Button
+                            asChild
+                            className="gap-2 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                          >
+                            <span>
+                              <Upload className="w-4 h-4" />
+                              Import JSON File
+                            </span>
+                          </Button>
+                        </label>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowAddManual(true)}
+                        className="gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Manually
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={handleLoadExample}
+                        className="gap-2"
+                      >
+                        Load Example
+                      </Button>
+                      
+                      <HowToImportModal category="mcq" darkMode={darkMode} />
                     </div>
-
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowAddManual(true)}
-                      className="gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Manually
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      onClick={handleLoadExample}
-                      className="gap-2"
-                    >
-                      Load Example
-                    </Button>
-                    
-                    <HowToImportModal category="mcq" darkMode={darkMode} />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
 
           {/* Main Editor Content */}
@@ -544,16 +559,25 @@ export function MCQEditorPage({
             </AlertDialogDescription>
             <div className="flex gap-3 justify-end">
               <AlertDialogCancel
+                disabled={isSaving}
                 className={darkMode ? "bg-slate-700 border-slate-600" : ""}
               >
                 Cancel
               </AlertDialogCancel>
-              <AlertDialogAction
+              <Button
                 onClick={confirmSave}
-                className="bg-blue-600 hover:bg-blue-700"
+                disabled={isSaving}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                Save
-              </AlertDialogAction>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
             </div>
           </AlertDialogContent>
         </AlertDialog>

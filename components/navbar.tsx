@@ -2,8 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { useSubjects } from "@/lib/subject-context";
 import { Moon, Sun, Menu, Download, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import CreateSubjectModal from "./create-subject-modal";
 import {
   DropdownMenu,
@@ -44,6 +45,22 @@ export default function Navbar({
   const hasSubjects = subjects.length > 0;
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isScrolledDown, setIsScrolledDown] = useState(false);
+
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      setIsScrolledDown(false);
+      return;
+    }
+    const previous = scrollY.getPrevious() || 0;
+    if (latest > previous && latest > 50) {
+      setIsScrolledDown(true);
+    } else if (latest < previous) {
+      setIsScrolledDown(false);
+    }
+  });
 
   const handleCreateClick = () => {
     if (onCreateSubject) {
@@ -72,10 +89,18 @@ export default function Navbar({
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? "bg-slate-900" : "bg-white"
-          } shadow-sm`}
+        className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? "bg-slate-900" : "bg-white"} shadow-sm transition-colors duration-300`}
       >
-        <div className="h-20 px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto">
+        <motion.div 
+          initial={false}
+          animate={{ 
+            height: isScrolledDown ? 0 : 80,
+            opacity: isScrolledDown ? 0 : 1,
+            marginBottom: isScrolledDown ? -1 : 0 // prevent layout gap
+          }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="px-4 md:px-6 flex items-center justify-between max-w-7xl mx-auto overflow-hidden"
+        >
           {/* Left: App Name */}
           <div className="flex items-center gap-2">
             <Link
@@ -94,18 +119,21 @@ export default function Navbar({
           >
             <Link
               href="/home"
+              prefetch={true}
               className={getNavButtonClass("home")}
             >
               Home
             </Link>
             <Link
               href="/mcqs"
+              prefetch={true}
               className={getNavButtonClass("mcqs")}
             >
               MCQs
             </Link>
             <Link
               href="/about"
+              prefetch={true}
               className={getNavButtonClass("about")}
             >
               About Us
@@ -183,7 +211,7 @@ export default function Navbar({
               </Button>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Mobile Navigation - Bottom Pills */}
         <div
@@ -196,6 +224,7 @@ export default function Navbar({
           >
             <Link
               href="/home"
+              prefetch={true}
               className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "home"
                   ? darkMode
                     ? "bg-slate-800 text-white"
@@ -209,6 +238,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/mcqs"
+              prefetch={true}
               className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "mcqs"
                   ? darkMode
                     ? "bg-slate-800 text-white"
@@ -222,6 +252,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/about"
+              prefetch={true}
               className={`flex-1 max-w-[120px] py-2 rounded-full text-sm font-medium transition-all text-center ${currentPage === "about"
                   ? darkMode
                     ? "bg-slate-800 text-white"

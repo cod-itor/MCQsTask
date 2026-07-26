@@ -5,6 +5,22 @@ import { useSubjects } from "@/lib/subject-context";
 import { Button } from "@/components/ui/button";
 import SubjectItem from "./subject-item";
 import CreateSubjectModal from "./create-subject-modal";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, x: -20 },
+  show: { opacity: 1, x: 0 }
+};
 
 interface SubjectSidebarProps {
   isOpen?: boolean;
@@ -147,17 +163,18 @@ export default function SubjectSidebar({
                       Favorites
                     </p>
                   </div>
-                  <div className="space-y-2">
+                  <motion.div variants={container} initial="hidden" animate="show" className="space-y-2">
                     {favorites.map((subject) => (
-                      <SubjectItem
-                        key={subject.id}
-                        subject={subject}
-                        isActive={activeSubjectId === subject.id}
-                        onClick={() => setActiveSubject(subject.id)}
-                        darkMode={darkMode}
-                      />
+                      <motion.div variants={item} key={subject.id}>
+                        <SubjectItem
+                          subject={subject}
+                          isActive={activeSubjectId === subject.id}
+                          onClick={() => setActiveSubject(subject.id)}
+                          darkMode={darkMode}
+                        />
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
 
@@ -176,17 +193,18 @@ export default function SubjectSidebar({
                       </p>
                     </div>
                   )}
-                  <div className="space-y-2">
+                  <motion.div variants={container} initial="hidden" animate="show" className="space-y-2">
                     {others.map((subject) => (
-                      <SubjectItem
-                        key={subject.id}
-                        subject={subject}
-                        isActive={activeSubjectId === subject.id}
-                        onClick={() => setActiveSubject(subject.id)}
-                        darkMode={darkMode}
-                      />
+                      <motion.div variants={item} key={subject.id}>
+                        <SubjectItem
+                          subject={subject}
+                          isActive={activeSubjectId === subject.id}
+                          onClick={() => setActiveSubject(subject.id)}
+                          darkMode={darkMode}
+                        />
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
             </div>

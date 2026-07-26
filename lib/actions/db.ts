@@ -13,12 +13,17 @@ export async function getSubjects() {
     return []
   }
 
-  // Ensure user exists in our DB
-  await prisma.user.upsert({
-    where: { id: user.id },
-    update: { email: user.email! },
-    create: { id: user.id, email: user.email! }
-  })
+  // Ensure user exists in our DB (wrap in try-catch to prevent parallel rendering race conditions)
+  try {
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: { email: user.email! },
+      create: { id: user.id, email: user.email! }
+    })
+  } catch (error) {
+    // Ignore P2002 errors here, it just means the user was already created in parallel
+    console.error("Prisma upsert in getSubjects failed, likely a race condition:", error)
+  }
 
   const subjects = await prisma.subject.findMany({
     where: { userId: user.id },

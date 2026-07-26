@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/navbar";
 import SubjectSidebar from "@/components/subject-sidebar";
 import MobileSidebarDrawer from "@/components/mobile-sidebar-drawer";
@@ -27,8 +27,11 @@ export default function RootLayoutClient({ children, isLoggedIn, username }: Roo
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
+  const hasToastedRef = useRef(false);
+  
   useEffect(() => {
-    if (isLoggedIn && username && searchParams.get('logged_in') === 'true') {
+    if (isLoggedIn && username && searchParams.get('logged_in') === 'true' && !hasToastedRef.current) {
+      hasToastedRef.current = true;
       toast.success(`Welcome back, ${username}!`);
       router.replace(pathname);
     }
@@ -44,6 +47,7 @@ export default function RootLayoutClient({ children, isLoggedIn, username }: Roo
 
   if (typeof window !== "undefined") {
     (window as any).openMobileSidebar = () => setMobileDrawerOpen(true);
+    (window as any).closeDesktopSidebar = () => setDesktopSidebarOpen(false);
   }
 
   // Sidebar is only shown on /mcqs AND if the user is logged in

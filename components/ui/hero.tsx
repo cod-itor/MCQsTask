@@ -44,7 +44,7 @@ export function Hero({ darkMode = false }: HeroProps) {
 
   return (
     <section
-      className={`relative min-h-screen w-full flex items-center justify-center overflow-hidden px-4 py-20 ${
+      className={`relative min-h-screen w-full flex items-center justify-center overflow-hidden px-4 pt-40 pb-20 md:pt-32 ${
         darkMode
           ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
           : "bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50"

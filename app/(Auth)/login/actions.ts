@@ -29,12 +29,13 @@ export async function login(formData: FormData) {
       }
       return { error: error.message || 'Invalid email or password.' }
     }
-
-    revalidatePath('/', 'layout')
-    redirect('/home?logged_in=true')
   } catch (e: any) {
-    return { error: e?.message || JSON.stringify(e) || 'An unexpected error occurred.' }
+    if (e?.message === 'NEXT_REDIRECT') throw e;
+    return { error: e instanceof Error ? e.message : String(e) }
   }
+
+  revalidatePath('/', 'layout')
+  redirect('/home?logged_in=true')
 }
 
 export async function signup(formData: FormData) {
@@ -59,12 +60,22 @@ export async function signup(formData: FormData) {
 
     const validData = validation.data
 
-    const existingUser = await prisma.user.findUnique({
-      where: { username: validData.username }
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: validData.username },
+          { email: validData.email }
+        ]
+      }
     })
 
     if (existingUser) {
-      return { error: 'Username is already taken' }
+      if (existingUser.username === validData.username) {
+        return { error: 'Username is already taken' }
+      }
+      if (existingUser.email === validData.email) {
+        return { error: 'Email is already registered. Please sign in instead.' }
+      }
     }
 
     const { data, error } = await supabase.auth.signUp({
@@ -96,8 +107,9 @@ export async function signup(formData: FormData) {
 
     return { success: true, message: "Successfully created account! Please check your email to verify." }
   } catch (e: any) {
+    if (e?.message === 'NEXT_REDIRECT') throw e;
     console.error("Action exception:", e)
-    return { error: e?.message || JSON.stringify(e) || 'An unexpected server error occurred.' }
+    return { error: e instanceof Error ? e.message : String(e) }
   }
 }
 
