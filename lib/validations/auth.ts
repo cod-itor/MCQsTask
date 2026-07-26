@@ -5,7 +5,8 @@ export const loginSchema = z.object({
     .trim()
     .min(5, "Email is too short.")
     .max(254, "Email is too long.")
-    .email("Please enter a valid email address."),
+    .email("Please enter a valid email address.")
+    .endsWith("@gmail.com", "Only @gmail.com email addresses are allowed."),
   password: z.string()
     .min(1, "Password is required.")
     .max(128, "Password is too long."),
@@ -20,7 +21,8 @@ export const registerSchema = z.object({
     .trim()
     .min(5, "Email is too short.")
     .max(254, "Email is too long.")
-    .email("Please enter a valid email address."),
+    .email("Please enter a valid email address.")
+    .endsWith("@gmail.com", "Only @gmail.com email addresses are allowed."),
   password: z.string()
     .min(8, "Password must be at least 8 characters.")
     .max(128, "Password is too long.")
