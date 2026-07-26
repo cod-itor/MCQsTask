@@ -350,7 +350,7 @@ export default function ListeningPractice({
                   Settings
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className={`w-56 p-2 ${darkMode ? "bg-slate-800 border-slate-700 text-slate-200" : ""}`}>
+              <DropdownMenuContent align="end" className={`w-56 p-2 z-[110] ${darkMode ? "bg-slate-800 border-slate-700 text-slate-200" : ""}`}>
                 <div className="mb-2 px-2 pb-2 border-b border-gray-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold">Speed</span>
