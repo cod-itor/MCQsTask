@@ -13,6 +13,10 @@ export default function ReadingInputPage() {
     router.push("/mcqs")
   }
 
+  const handleBack = () => {
+    router.push("/mcqs")
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined" && (window as any).closeDesktopSidebar) {
       (window as any).closeDesktopSidebar();
@@ -23,6 +27,7 @@ export default function ReadingInputPage() {
     <ReadingInput
       onReadingLoaded={handleReadingLoaded}
       darkMode={darkMode}
+      onBack={handleBack}
     />
   )
 }

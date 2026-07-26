@@ -73,7 +73,7 @@ export default function RootLayoutClient({ children, isLoggedIn, username }: Roo
         <Navbar
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
-          onOpenMobileSidebar={() => setMobileDrawerOpen(true)}
+          onOpenMobileSidebar={() => setMobileDrawerOpen(prev => !prev)}
           onCreateSubject={handleCreateSubject}
           currentPage={getCurrentPage()}
           isLoggedIn={isLoggedIn}

@@ -11,12 +11,14 @@ import type { ReadingPassage } from "@/lib/types";
 interface ReadingStructuredEditorProps {
   passages: ReadingPassage[];
   onChange: (passages: ReadingPassage[]) => void;
+  displayedPassages?: ReadingPassage[];
   darkMode: boolean;
 }
 
 export function ReadingStructuredEditor({
   passages,
   onChange,
+  displayedPassages,
   darkMode,
 }: ReadingStructuredEditorProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
@@ -27,8 +29,11 @@ export function ReadingStructuredEditor({
       if (editingIndex === null) return;
 
       const updated = [...passages];
-      updated[editingIndex] = updatedPassage;
-      onChange(updated);
+      const actualIndex = passages.findIndex(p => p.id === updatedPassage.id);
+      if (actualIndex >= 0) {
+        updated[actualIndex] = updatedPassage;
+        onChange(updated);
+      }
       setEditingIndex(null);
     },
     [editingIndex, passages, onChange]
@@ -36,7 +41,8 @@ export function ReadingStructuredEditor({
 
   const removePassage = useCallback(
     (index: number) => {
-      const updated = passages.filter((_, i) => i !== index);
+      const passageToRemove = (displayedPassages || passages)[index];
+      const updated = passages.filter((p) => p.id !== passageToRemove.id);
       onChange(updated);
       if (expandedIndex === index) {
         setExpandedIndex(null);
@@ -46,12 +52,13 @@ export function ReadingStructuredEditor({
   );
 
   const handleNext = useCallback(() => {
-    if (editingIndex !== null && editingIndex < passages.length - 1) {
+    const renderList = displayedPassages || passages;
+    if (editingIndex !== null && editingIndex < renderList.length - 1) {
       const newIndex = editingIndex + 1;
       setEditingIndex(newIndex);
       setExpandedIndex(newIndex);
     }
-  }, [editingIndex, passages.length]);
+  }, [editingIndex, displayedPassages, passages]);
 
   const handlePrevious = useCallback(() => {
     if (editingIndex !== null && editingIndex > 0) {
@@ -63,8 +70,9 @@ export function ReadingStructuredEditor({
 
   const handleJumpTo = useCallback(
     (passageNumber: number) => {
+      const renderList = displayedPassages || passages;
       const newIndex = passageNumber - 1;
-      if (newIndex >= 0 && newIndex < passages.length) {
+      if (newIndex >= 0 && newIndex < renderList.length) {
         setEditingIndex(null);
         setExpandedIndex(null);
         setTimeout(() => {
@@ -73,11 +81,13 @@ export function ReadingStructuredEditor({
         }, 0);
       }
     },
-    [passages.length]
+    [displayedPassages, passages]
   );
 
+  const renderList = displayedPassages || passages;
+
   if (editingIndex !== null && expandedIndex === editingIndex) {
-    const passageToEdit = passages[editingIndex];
+    const passageToEdit = renderList[editingIndex];
 
     return (
       <div className="space-y-4">
@@ -89,7 +99,7 @@ export function ReadingStructuredEditor({
           onCancel={() => setEditingIndex(null)}
           darkMode={darkMode}
           passageNumber={editingIndex + 1}
-          totalPassages={passages.length}
+          totalPassages={renderList.length}
           onNext={handleNext}
           onPrevious={handlePrevious}
           onJumpTo={handleJumpTo}
@@ -100,7 +110,7 @@ export function ReadingStructuredEditor({
 
   return (
     <div className="space-y-4">
-      {passages.map((passage, displayIndex) => (
+      {renderList.map((passage, displayIndex) => (
         <Card
           key={`passage-${passage.id || displayIndex}`}
           className={`cursor-pointer transition-all ${

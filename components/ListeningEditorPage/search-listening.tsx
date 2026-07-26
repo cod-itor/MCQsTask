@@ -5,58 +5,51 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X, Search } from "lucide-react";
-import type { MCQ } from "@/lib/types";
+import type { ListeningQuestion } from "@/lib/types";
 
-interface SearchMcqsProps {
-  mcqs: MCQ[];
-  onFilterChange: (filtered: MCQ[]) => void;
+interface SearchListeningProps {
+  questions: ListeningQuestion[];
+  onFilterChange: (filtered: ListeningQuestion[]) => void;
   darkMode: boolean;
 }
 
-export function SearchMcqs({
-  mcqs,
+export function SearchListening({
+  questions,
   onFilterChange,
   darkMode,
-}: SearchMcqsProps) {
+}: SearchListeningProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchInQuestion, setSearchInQuestion] = useState(true);
-  const [searchInAnswers, setSearchInAnswers] = useState(true);
+  const [searchInWord, setSearchInWord] = useState(true);
+  const [searchInAnswer, setSearchInAnswer] = useState(true);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
-      onFilterChange(mcqs);
+      onFilterChange(questions);
       return;
     }
     const lowerQuery = searchQuery.toLowerCase();
-    const filtered = mcqs.filter((mcq) => {
-      const matchesQuestion =
-        searchInQuestion && mcq.q.toLowerCase().includes(lowerQuery);
-      const matchesAnswers =
-        searchInAnswers &&
-        mcq.opts.some((opt) => opt.toLowerCase().includes(lowerQuery));
-      return matchesQuestion || matchesAnswers;
+    const filtered = questions.filter((q) => {
+      const matchesWord = searchInWord && q.q.toLowerCase().includes(lowerQuery);
+      const matchesAnswer = searchInAnswer && q.a?.toLowerCase().includes(lowerQuery);
+      return matchesWord || matchesAnswer;
     });
     onFilterChange(filtered);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mcqs]);
+  }, [questions]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (query: string, word: boolean, answer: boolean) => {
     setSearchQuery(query);
 
     if (!query.trim()) {
-      onFilterChange(mcqs);
+      onFilterChange(questions);
       return;
     }
 
     const lowerQuery = query.toLowerCase();
-    const filtered = mcqs.filter((mcq) => {
-      const matchesQuestion =
-        searchInQuestion && mcq.q.toLowerCase().includes(lowerQuery);
-      const matchesAnswers =
-        searchInAnswers &&
-        mcq.opts.some((opt) => opt.toLowerCase().includes(lowerQuery));
-
-      return matchesQuestion || matchesAnswers;
+    const filtered = questions.filter((q) => {
+      const matchesWord = word && q.q.toLowerCase().includes(lowerQuery);
+      const matchesAnswer = answer && q.a?.toLowerCase().includes(lowerQuery);
+      return matchesWord || matchesAnswer;
     });
 
     onFilterChange(filtered);
@@ -64,7 +57,7 @@ export function SearchMcqs({
 
   const handleClear = () => {
     setSearchQuery("");
-    onFilterChange(mcqs);
+    onFilterChange(questions);
   };
 
   return (
@@ -77,9 +70,9 @@ export function SearchMcqs({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search questions and answers..."
+            placeholder="Search words and translations..."
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value, searchInWord, searchInAnswer)}
             className={`pl-10 ${
               darkMode ? "bg-slate-900 border-slate-600" : ""
             }`}
@@ -95,40 +88,38 @@ export function SearchMcqs({
         </div>
       </div>
 
-      {/* Search toggles */}
       <div className="flex gap-2 mt-4 flex-wrap">
         <Button
-          variant={searchInQuestion ? "default" : "outline"}
+          variant={searchInWord ? "default" : "outline"}
           size="sm"
           onClick={() => {
-            setSearchInQuestion(!searchInQuestion);
-            handleSearch(searchQuery);
+            const next = !searchInWord;
+            setSearchInWord(next);
+            handleSearch(searchQuery, next, searchInAnswer);
           }}
-          className={searchInQuestion ? "bg-blue-600" : ""}
+          className={searchInWord ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
         >
-          Question
+          Word
         </Button>
         <Button
-          variant={searchInAnswers ? "default" : "outline"}
+          variant={searchInAnswer ? "default" : "outline"}
           size="sm"
           onClick={() => {
-            setSearchInAnswers(!searchInAnswers);
-            handleSearch(searchQuery);
+            const next = !searchInAnswer;
+            setSearchInAnswer(next);
+            handleSearch(searchQuery, searchInWord, next);
           }}
-          className={searchInAnswers ? "bg-blue-600" : ""}
+          className={searchInAnswer ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
         >
-          Answers
+          Translation
         </Button>
       </div>
 
       {searchQuery && (
         <div className="mt-3">
           <Badge variant="outline">
-            {mcqs.length > 0
-              ? `${Math.max(
-                  0,
-                  mcqs.length - (mcqs.length - Math.min(mcqs.length, 999))
-                )} of ${mcqs.length} shown`
+            {questions.length > 0
+              ? `${Math.max(0, questions.length - (questions.length - Math.min(questions.length, 999)))} of ${questions.length} shown`
               : "0 results"}
           </Badge>
         </div>

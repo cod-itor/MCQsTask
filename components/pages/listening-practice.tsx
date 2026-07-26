@@ -293,7 +293,7 @@ export default function ListeningPractice({
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Button>
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-4">No Listening Practice Data</h2>
+            <h2 className="text-2xl font-bold mb-4">No Flashcard Practice Data</h2>
             <p className="text-gray-500 mb-6">Please load a Listening JSON file first.</p>
             <Button onClick={onBack}>Return to Dashboard</Button>
           </div>
@@ -317,20 +317,9 @@ export default function ListeningPractice({
   return (
     <div 
       ref={containerRef}
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${isFullscreen ? (darkMode ? "bg-slate-950" : "bg-gray-100") : (darkMode ? "bg-slate-900 pt-32 md:pt-20" : "bg-gray-50 pt-32 md:pt-20")}`}
+      className={`fixed inset-0 z-[100] flex flex-col transition-colors duration-300 overflow-y-auto ${darkMode ? "bg-slate-900" : "bg-gray-50"} ${isFullscreen ? "p-0" : "pt-4 md:pt-8"}`}
     >
-      {/* Top Mobile Header (only visible when not fullscreen) */}
-      {!isFullscreen && (
-        <header className={`fixed top-0 w-full z-40 transition-colors duration-300 ${darkMode ? "bg-slate-900/90 border-slate-700" : "bg-white/90 border-gray-200"} backdrop-blur-md border-b h-16 flex items-center md:hidden`}>
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <Button variant="ghost" size="icon" onClick={onOpenMobileSidebar} className={darkMode ? "text-slate-300" : "text-gray-600"}>
-              <span className="text-xl">☰</span>
-            </Button>
-            <span className={`font-bold ${darkMode ? "text-white" : "text-gray-800"}`}>Listening Practice</span>
-            <div className="w-10"></div>
-          </div>
-        </header>
-      )}
+
 
       {/* Main Content Area */}
       <div className="flex-1 container mx-auto px-4 max-w-5xl py-6 flex flex-col relative h-full">
@@ -422,9 +411,6 @@ export default function ListeningPractice({
           <Button variant="ghost" size="icon" onClick={handleUndo} disabled={history.length === 0} title="Undo (Ctrl+Z)" className={darkMode ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-900"}>
             <RotateCcw className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleFullscreen} title="Fullscreen" className={darkMode ? "text-slate-400 hover:text-white" : "text-gray-500 hover:text-gray-900"}>
-            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
-          </Button>
         </div>
 
         {/* Score Counters (Quizlet style) */}
@@ -489,16 +475,16 @@ export default function ListeningPractice({
                   >
                     {/* Drag Overlays */}
                     <motion.div 
-                      className="absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none bg-slate-950/20 backdrop-blur-[2px]"
+                      className={`absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none ${darkMode ? "bg-slate-800" : "bg-white"}`}
                       style={{ opacity: knowOpacity }}
                     >
-                      <span className="text-6xl md:text-8xl font-black text-emerald-400 drop-shadow-2xl tracking-tighter rotate-12">Know</span>
+                      <span className="text-6xl md:text-8xl font-black text-emerald-500 drop-shadow-md tracking-tighter">Know</span>
                     </motion.div>
                     <motion.div 
-                      className="absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none bg-slate-950/20 backdrop-blur-[2px]"
+                      className={`absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none ${darkMode ? "bg-slate-800" : "bg-white"}`}
                       style={{ opacity: learningOpacity }}
                     >
-                      <span className="text-5xl md:text-7xl font-black text-orange-400 drop-shadow-2xl tracking-tighter -rotate-12 text-center leading-tight">Still<br/>learning</span>
+                      <span className="text-5xl md:text-7xl font-black text-orange-500 drop-shadow-md tracking-tighter text-center leading-tight">Still<br/>learning</span>
                     </motion.div>
                     <div className="flex justify-between items-start mb-4">
                       <Button
@@ -524,7 +510,7 @@ export default function ListeningPractice({
                             animate={{ opacity: 1, y: 0 }}
                             className={`mt-6 mx-auto p-4 rounded-xl text-sm max-w-sm shrink-0 ${darkMode ? "bg-slate-700 text-slate-300" : "bg-gray-100 text-gray-600"}`}
                           >
-                            Hint: Try listening to the audio again slowly, or focus on the main verb.
+                            {currentCard?.a ? `Hint: ${currentCard.a.substring(0, Math.max(3, Math.floor(currentCard.a.length / 3)))}...` : "Hint: Try listening to the audio again slowly, or focus on the main verb."}
                           </motion.div>
                         )}
                       </div>
@@ -574,21 +560,21 @@ export default function ListeningPractice({
                   >
                     {/* Drag Overlays */}
                     <motion.div 
-                      className="absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none bg-slate-950/20 backdrop-blur-[2px]"
+                      className={`absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none ${darkMode ? "bg-slate-800" : "bg-white"}`}
                       style={{ opacity: knowOpacity }}
                     >
-                      <span className="text-6xl md:text-8xl font-black text-emerald-400 drop-shadow-2xl tracking-tighter rotate-12">Know</span>
+                      <span className="text-6xl md:text-8xl font-black text-emerald-500 drop-shadow-md tracking-tighter">Know</span>
                     </motion.div>
                     <motion.div 
-                      className="absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none bg-slate-950/20 backdrop-blur-[2px]"
+                      className={`absolute inset-0 z-50 flex items-center justify-center rounded-3xl pointer-events-none ${darkMode ? "bg-slate-800" : "bg-white"}`}
                       style={{ opacity: learningOpacity }}
                     >
-                      <span className="text-5xl md:text-7xl font-black text-orange-400 drop-shadow-2xl tracking-tighter -rotate-12 text-center leading-tight">Still<br/>learning</span>
+                      <span className="text-5xl md:text-7xl font-black text-orange-500 drop-shadow-md tracking-tighter text-center leading-tight">Still<br/>learning</span>
                     </motion.div>
                     <div className="text-center opacity-50 text-sm mb-4">Answer</div>
                     <div className="flex-1 flex flex-col items-center justify-center text-center">
-                      <p className={`text-xl font-medium italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
-                        "No answer provided"
+                      <p className={`text-xl font-medium ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
+                        {currentCard?.a || "No answer provided"}
                       </p>
                     </div>
                     <div className="mt-auto text-center text-sm font-medium opacity-50 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">

@@ -36,8 +36,8 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
       case "Audio Flashcard":
         return {
           title: "Audio Flashcard Format",
-          format: `[\n  { "q": "Accommodate" },\n  { "q": "Benevolent" },\n  { "q": "Chronological" }\n]`,
-          prompt: `Please extract the key vocabulary words from the following text and format them strictly as a JSON array. Each object in the array should have a single property "q" whose value is the word string. Text: [paste your text here]`
+          format: `[\n  {\n    "q": "Accommodate",\n    "a": "To provide lodging or sufficient space for"\n  },\n  {\n    "q": "Benevolent",\n    "a": "Well meaning and kindly"\n  }\n]`,
+          prompt: `Please extract the key vocabulary words from the following text and format them strictly as a JSON array. Each object in the array should have a property "q" whose value is the word string, and an optional property "a" whose value is the definition or translation. Text: [paste your text here]`
         };
     }
   };
@@ -62,7 +62,7 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
           How to Import
         </Button>
       </DialogTrigger>
-      <DialogContent className={`max-w-2xl max-h-[85vh] overflow-y-auto ${darkMode ? "bg-slate-900 border-slate-700 text-slate-200" : "bg-white text-gray-900"}`}>
+      <DialogContent className={`w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto ${darkMode ? "bg-slate-900 border-slate-700 text-slate-200" : "bg-white text-gray-900"}`}>
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-blue-500" />

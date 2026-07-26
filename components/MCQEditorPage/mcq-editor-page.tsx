@@ -109,9 +109,7 @@ export function MCQEditorPage({
     }
   }, [activeSubjectId, activeMcqSetId, mcqSets]);
 
-  useEffect(() => {
-    setFilteredMcqs(mcqs);
-  }, [mcqs]);
+
 
   // Messages are now handled entirely by sonner toasts
 
@@ -130,7 +128,7 @@ export function MCQEditorPage({
           return;
         }
         if (("q" in parsed[0] || "word" in parsed[0] || "question" in parsed[0]) && !("opts" in parsed[0] || "options" in parsed[0])) {
-          toast.error("This file is for Listening Practice. Please import it in the Listening editor.");
+          toast.error("This file is for Flashcard Practice. Please import it in the Listening editor.");
           e.target.value = '';
           return;
         }
@@ -160,9 +158,8 @@ export function MCQEditorPage({
   const handleImportBehavior = async (behavior: "override" | "add" | "new", newSetName?: string) => {
     if (behavior === "new" && activeSubjectId) {
       const defaultName = newSetName?.trim() || `New Set`;
-      const newId = await createMcqSet(activeSubjectId, defaultName);
+      const newId = await createMcqSet(activeSubjectId, defaultName, pendingImportMcqs);
       
-      updateMcqSet(activeSubjectId, newId, pendingImportMcqs);
       setActiveMcqSet(newId);
       
       setMcqs(pendingImportMcqs);
@@ -334,7 +331,7 @@ export function MCQEditorPage({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 {!isEmptyState && (
                   <>
                     <Button

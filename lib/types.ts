@@ -59,6 +59,7 @@ export interface ReadingPassage {
 export interface ListeningQuestion {
   id: string
   q: string
+  a?: string
 }
 
 export interface ListeningSet {

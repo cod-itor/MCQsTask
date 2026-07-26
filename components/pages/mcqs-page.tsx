@@ -460,21 +460,21 @@ export default function MCQsPage({
                         className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-purple-400" : "text-purple-600"
                           }`}
                       >
-                        Listening Practice
+                        Flashcard Practice
                       </CardTitle>
                       <CardDescription
-                        className={`text-base ${darkMode ? "text-slate-400" : "text-gray-600"
+                        className={`text-base leading-snug mt-2 ${darkMode ? "text-slate-400" : "text-gray-600"
                           }`}
                       >
-                        Improve pronunciation & listening
+                        Active recall and spaced repetition flashcards for rapid memorization and listening skills.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="relative flex-1 flex flex-col space-y-4">
                       <div className="space-y-3 flex-1">
                         {[
-                          { icon: "🔊", text: "Auto-speak questions" },
-                          { icon: "⏱️", text: "Adjustable intervals" },
-                          { icon: "⚙️", text: "Speed control" },
+                          { icon: "🧠", text: "Active recall testing" },
+                          { icon: "🔊", text: "Auto-speak pronunciation" },
+                          { icon: "⏱️", text: "Spaced repetition" },
                         ].map((feature, i) => (
                           <div key={i} className="flex items-center gap-3">
                             <span className="text-xl">{feature.icon}</span>
@@ -488,7 +488,7 @@ export default function MCQsPage({
                         ))}
                       </div>
                       <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-base font-semibold rounded-xl shadow-lg group-hover:shadow-xl transition-all mt-auto">
-                        Start Listening Practice →
+                        Start Flashcard Practice →
                       </Button>
                     </CardContent>
                   </Card>

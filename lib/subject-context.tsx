@@ -36,17 +36,17 @@ interface SubjectContextType {
   deleteSubject: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   
-  createMcqSet: (subjectId: string, name: string) => Promise<string>;
+  createMcqSet: (subjectId: string, name: string, initialMcqs?: MCQ[]) => Promise<string>;
   updateMcqSet: (subjectId: string, setId: string, mcqs: MCQ[]) => Promise<void>;
   deleteMcqSet: (subjectId: string, setId: string) => Promise<void>;
   getMcqSet: (subjectId: string | null, setId: string | null) => MCQSet | null;
   
-  createReadingSet: (subjectId: string, name: string) => Promise<string>;
+  createReadingSet: (subjectId: string, name: string, initialPassages?: ReadingPassage[]) => Promise<string>;
   updateReadingSet: (subjectId: string, setId: string, passages: ReadingPassage[]) => Promise<void>;
   deleteReadingSet: (subjectId: string, setId: string) => Promise<void>;
   getReadingSet: (subjectId: string | null, setId: string | null) => ReadingSet | null;
 
-  createListeningSet: (subjectId: string, name: string) => Promise<string>;
+  createListeningSet: (subjectId: string, name: string, initialQuestions?: ListeningQuestion[]) => Promise<string>;
   updateListeningSet: (subjectId: string, setId: string, questions: ListeningQuestion[]) => Promise<void>;
   deleteListeningSet: (subjectId: string, setId: string) => Promise<void>;
   getListeningSet: (subjectId: string | null, setId: string | null) => ListeningSet | null;
@@ -204,14 +204,14 @@ export function SubjectProvider({
     setSubjects(subjects.map((s) => s.id === id ? { ...s, isFavorite: !s.isFavorite } : s));
   };
 
-  const createMcqSet = async (subjectId: string, name: string) => {
-    const dbSet = await savePracticeSet(subjectId, name, 'mcq', []);
+  const createMcqSet = async (subjectId: string, name: string, initialMcqs: MCQ[] = []) => {
+    const dbSet = await savePracticeSet(subjectId, name, 'mcq', initialMcqs);
     const newSet: MCQSet = {
       id: dbSet.id,
       subjectId,
       name,
       createdAt: new Date(dbSet.createdAt).getTime(),
-      mcqs: []
+      mcqs: initialMcqs
     };
     
     setMcqSets(prev => ({
@@ -252,14 +252,14 @@ export function SubjectProvider({
     return (mcqSets[subjectId] || []).find(s => s.id === setId) || null;
   };
 
-  const createReadingSet = async (subjectId: string, name: string) => {
-    const dbSet = await savePracticeSet(subjectId, name, 'reading', []);
+  const createReadingSet = async (subjectId: string, name: string, initialPassages: ReadingPassage[] = []) => {
+    const dbSet = await savePracticeSet(subjectId, name, 'reading', initialPassages);
     const newSet: ReadingSet = {
       id: dbSet.id,
       subjectId,
       name,
       createdAt: new Date(dbSet.createdAt).getTime(),
-      passages: []
+      passages: initialPassages
     };
     setReadingSets(prev => ({
       ...prev,
@@ -295,14 +295,14 @@ export function SubjectProvider({
     return (readingSets[subjectId] || []).find(s => s.id === setId) || null;
   };
 
-  const createListeningSet = async (subjectId: string, name: string) => {
-    const dbSet = await savePracticeSet(subjectId, name, 'listening', []);
+  const createListeningSet = async (subjectId: string, name: string, initialQuestions: ListeningQuestion[] = []) => {
+    const dbSet = await savePracticeSet(subjectId, name, 'listening', initialQuestions);
     const newSet: ListeningSet = {
       id: dbSet.id,
       subjectId,
       name,
       createdAt: new Date(dbSet.createdAt).getTime(),
-      questions: []
+      questions: initialQuestions
     };
     setListeningSets(prev => ({
       ...prev,

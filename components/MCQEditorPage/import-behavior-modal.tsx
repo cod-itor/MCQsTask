@@ -16,7 +16,7 @@ interface ImportBehaviorModalProps {
   onOpenChange: (open: boolean) => void;
   newMcqs: any[]; // Using any[] since it's shared between MCQ and ReadingPassage
   existingMcqCount: number;
-  onConfirm: (behavior: "override" | "add" | "new", newSetName?: string) => void;
+  onConfirm: (behavior: "override" | "add" | "new", newSetName?: string) => Promise<void> | void;
   darkMode: boolean;
 }
 
@@ -30,12 +30,14 @@ export function ImportBehaviorModal({
 }: ImportBehaviorModalProps) {
   const [newSetName, setNewSetName] = useState("");
   const [showNewInput, setShowNewInput] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset state when modal opens
   useEffect(() => {
     if (open) {
       setNewSetName("");
       setShowNewInput(false);
+      setIsSubmitting(false);
     }
   }, [open]);
 
@@ -51,25 +53,31 @@ export function ImportBehaviorModal({
         </AlertDialogDescription>
         <div className="space-y-3 my-4">
           <Button
-            onClick={() => {
-              onConfirm("override");
+            onClick={async () => {
+              setIsSubmitting(true);
+              await onConfirm("override");
+              setIsSubmitting(false);
               onOpenChange(false);
             }}
+            disabled={isSubmitting}
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
-            Override Existing ({existingMcqCount} will be replaced)
+            {isSubmitting ? "Importing..." : `Override Existing (${existingMcqCount} will be replaced)`}
           </Button>
           <Button
-            onClick={() => {
-              onConfirm("add");
+            onClick={async () => {
+              setIsSubmitting(true);
+              await onConfirm("add");
+              setIsSubmitting(false);
               onOpenChange(false);
             }}
+            disabled={isSubmitting}
             variant="outline"
             className={`w-full ${
               darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600" : ""
             }`}
           >
-            Add to Existing ({existingMcqCount + newMcqs.length} total)
+            {isSubmitting ? "Importing..." : `Add to Existing (${existingMcqCount + newMcqs.length} total)`}
           </Button>
           
           {!showNewInput ? (
@@ -101,13 +109,16 @@ export function ImportBehaviorModal({
                   Cancel
                 </Button>
                 <Button 
-                  onClick={() => {
-                    onConfirm("new", newSetName);
+                  onClick={async () => {
+                    setIsSubmitting(true);
+                    await onConfirm("new", newSetName);
+                    setIsSubmitting(false);
                     onOpenChange(false);
                   }}
+                  disabled={isSubmitting || !newSetName.trim()}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  Create & Import
+                  {isSubmitting ? "Creating..." : "Create & Import"}
                 </Button>
               </div>
             </div>

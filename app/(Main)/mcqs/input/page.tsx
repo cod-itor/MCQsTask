@@ -13,11 +13,15 @@ export default function InputPage() {
     router.push("/mcqs")
   }
 
+  const handleBack = () => {
+    router.push("/mcqs")
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined" && (window as any).closeDesktopSidebar) {
       (window as any).closeDesktopSidebar();
     }
   }, []);
 
-  return <MCQInput onMcqsLoaded={handleMcqsLoaded} darkMode={darkMode} />
+  return <MCQInput onMcqsLoaded={handleMcqsLoaded} darkMode={darkMode} onBack={handleBack} />
 }

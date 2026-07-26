@@ -43,6 +43,7 @@ export function SelectSetModal({
 
   const [showNewInput, setShowNewInput] = useState(false);
   const [newSetName, setNewSetName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!activeSubjectId) return null;
 
@@ -65,22 +66,27 @@ export function SelectSetModal({
   };
 
   const handleCreateNew = async () => {
-    const defaultName = newSetName.trim() || `Set ${sets.length + 1}`;
-    let newId = "";
-    if (category === "mcq") {
-      newId = await createMcqSet(activeSubjectId, defaultName);
-      setActiveMcqSet(newId);
-    } else if (category === "reading") {
-      newId = await createReadingSet(activeSubjectId, defaultName);
-      setActiveReadingSet(newId);
-    } else {
-      newId = await createListeningSet(activeSubjectId, defaultName);
-      setActiveListeningSet(newId);
+    setIsSubmitting(true);
+    try {
+      const defaultName = newSetName.trim() || `Set ${sets.length + 1}`;
+      let newId = "";
+      if (category === "mcq") {
+        newId = await createMcqSet(activeSubjectId, defaultName);
+        setActiveMcqSet(newId);
+      } else if (category === "reading") {
+        newId = await createReadingSet(activeSubjectId, defaultName);
+        setActiveReadingSet(newId);
+      } else {
+        newId = await createListeningSet(activeSubjectId, defaultName);
+        setActiveListeningSet(newId);
+      }
+      setNewSetName("");
+      setShowNewInput(false);
+      onOpenChange(false);
+      onSelect();
+    } finally {
+      setIsSubmitting(false);
     }
-    setNewSetName("");
-    setShowNewInput(false);
-    onOpenChange(false);
-    onSelect();
   };
 
   const handleModalClose = (open: boolean) => {
@@ -163,11 +169,12 @@ export function SelectSetModal({
                 >
                   Cancel
                 </Button>
-                <Button
+                <Button 
                   onClick={handleCreateNew}
+                  disabled={isSubmitting}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  Create
+                  {isSubmitting ? "Creating..." : "Create"}
                 </Button>
               </div>
             </div>

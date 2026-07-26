@@ -26,6 +26,7 @@ import { validateReadingPassages } from "@/lib/reading-validation";
 import { Upload, AlertCircle, CheckCircle, FileText, Plus, Loader2 } from "lucide-react";
 import type { ReadingPassage } from "@/lib/types";
 import { motion } from "framer-motion";
+import { SearchReading } from "./search-reading";
 
 const generateUniqueId = () => crypto.randomUUID();
 
@@ -65,6 +66,7 @@ export function ReadingEditorPage({
 }: ReadingEditorPageProps) {
   const { subjects, activeSubjectId, activeReadingSetId, getReadingSet, updateReadingSet, createReadingSet, setActiveReadingSet, readingSets } = useSubjects();
   const [passages, setPassages] = useState<ReadingPassage[]>([]);
+  const [filteredPassages, setFilteredPassages] = useState<ReadingPassage[]>([]);
   const [lastValidPassages, setLastValidPassages] = useState<ReadingPassage[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"guided" | "json">("guided");
@@ -94,10 +96,12 @@ export function ReadingEditorPage({
       if (subjectSet) {
         const passagesWithIds = ensureUniqueIds(subjectSet.passages);
         setPassages(passagesWithIds);
+        setFilteredPassages(passagesWithIds);
         setLastValidPassages(passagesWithIds);
       }
     } else {
       setPassages([]);
+      setFilteredPassages([]);
       setLastValidPassages([]);
     }
   }, [activeSubjectId, activeReadingSetId, readingSets]);
@@ -119,7 +123,7 @@ export function ReadingEditorPage({
           return;
         }
         if (("q" in parsed[0] || "word" in parsed[0] || "question" in parsed[0]) && !("opts" in parsed[0] || "options" in parsed[0])) {
-          toast.error("This file is for Listening Practice. Please import it in the Listening editor.");
+          toast.error("This file is for Flashcard Practice. Please import it in the Listening editor.");
           e.target.value = '';
           return;
         }
@@ -144,19 +148,21 @@ export function ReadingEditorPage({
   const handleImportBehavior = async (behavior: "override" | "add" | "new", newSetName?: string) => {
     if (behavior === "new" && activeSubjectId) {
       const defaultName = newSetName?.trim() || `New Set`;
-      const newId = await createReadingSet(activeSubjectId, defaultName);
+      const newId = await createReadingSet(activeSubjectId, defaultName, pendingImportPassages);
       
-      updateReadingSet(activeSubjectId, newId, pendingImportPassages);
       setActiveReadingSet(newId);
       
       setPassages(pendingImportPassages);
+      setFilteredPassages(pendingImportPassages);
       toast.success(`Successfully created "${defaultName}" with ${pendingImportPassages.length} Passages`);
     } else if (behavior === "override") {
       setPassages(pendingImportPassages);
+      setFilteredPassages(pendingImportPassages);
       toast.success(`Successfully loaded ${pendingImportPassages.length} Passages (Overridden existing)`);
     } else {
       const combined = [...passages, ...pendingImportPassages];
       setPassages(combined);
+      setFilteredPassages(combined);
       toast.success(`Successfully added ${pendingImportPassages.length} Passages (${combined.length} total)`);
     }
     setShowImportBehavior(false);
@@ -165,6 +171,7 @@ export function ReadingEditorPage({
 
   const handleClearAll = () => {
     setPassages([]);
+    setFilteredPassages([]);
     setLastValidPassages([]);
     toast.success(`Deleted all passages`);
   };
@@ -210,6 +217,7 @@ export function ReadingEditorPage({
 
   const handleRollback = () => {
     setPassages(lastValidPassages);
+    setFilteredPassages(lastValidPassages);
     toast.success("Reverted to last saved state");
   };
 
@@ -227,6 +235,7 @@ export function ReadingEditorPage({
       globalOptions: ["sample", "real"]
     }];
     setPassages(example as ReadingPassage[]);
+    setFilteredPassages(example as ReadingPassage[]);
     toast.success("Example passage loaded");
   };
 
@@ -243,7 +252,9 @@ export function ReadingEditorPage({
       }],
       globalOptions: []
     };
-    setPassages([newPassage, ...passages]);
+    const updated = [newPassage, ...passages];
+    setPassages(updated);
+    setFilteredPassages(updated);
     toast.success("New passage added");
     setActiveTab("guided");
   };
@@ -319,13 +330,13 @@ export function ReadingEditorPage({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 {!isEmptyState && (
                   <>
                     <Button
                       onClick={handleSave}
                       disabled={!canSave || isSaving}
-                      className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
                       {isSaving ? "Saving..." : "Save Changes"}
@@ -454,11 +465,18 @@ export function ReadingEditorPage({
           {/* Main Editor Content */}
           {!isEmptyState && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-end gap-3 items-start sm:items-center">
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="flex-1 w-full">
+                  <SearchReading
+                    passages={passages}
+                    onFilterChange={setFilteredPassages}
+                    darkMode={darkMode}
+                  />
+                </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                   <Button
                     onClick={handleAddManualPassage}
-                    className="gap-2 flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                    className="gap-2 flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
                     <Plus className="w-4 h-4" />
                     Add Passage
@@ -505,6 +523,7 @@ export function ReadingEditorPage({
                   <ReadingStructuredEditor
                     passages={passages}
                     onChange={setPassages}
+                    displayedPassages={filteredPassages}
                     darkMode={darkMode}
                   />
                 </TabsContent>
@@ -541,7 +560,7 @@ export function ReadingEditorPage({
               <Button
                 onClick={confirmSave}
                 disabled={isSaving}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 {isSaving ? (
                   <>

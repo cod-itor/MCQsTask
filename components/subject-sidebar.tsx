@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import SubjectItem from "./subject-item";
 import CreateSubjectModal from "./create-subject-modal";
 import { motion } from "framer-motion";
+import { useRouter, usePathname } from "next/navigation";
 
 const container = {
   hidden: { opacity: 0 },
@@ -45,6 +46,19 @@ export default function SubjectSidebar({
   const others = subjects
     .filter((s) => !s.isFavorite)
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleSubjectClick = (subjectId: string) => {
+    setActiveSubject(subjectId);
+    if (!pathname.startsWith('/mcqs')) {
+      router.push('/mcqs');
+    }
+    if (onClose) {
+      onClose();
+    }
+  };
 
   const handleCreateClick = () => {
     if (onCreateSubjectClick) {
@@ -169,7 +183,7 @@ export default function SubjectSidebar({
                         <SubjectItem
                           subject={subject}
                           isActive={activeSubjectId === subject.id}
-                          onClick={() => setActiveSubject(subject.id)}
+                          onClick={() => handleSubjectClick(subject.id)}
                           darkMode={darkMode}
                         />
                       </motion.div>
@@ -199,7 +213,7 @@ export default function SubjectSidebar({
                         <SubjectItem
                           subject={subject}
                           isActive={activeSubjectId === subject.id}
-                          onClick={() => setActiveSubject(subject.id)}
+                          onClick={() => handleSubjectClick(subject.id)}
                           darkMode={darkMode}
                         />
                       </motion.div>
