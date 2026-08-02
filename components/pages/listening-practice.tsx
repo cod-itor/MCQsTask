@@ -3,11 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSubjects } from "@/lib/subject-context";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, Volume2, X, Check, Lightbulb, 
-  RotateCcw, Maximize, Minimize, Keyboard,
-  Play, Pause, Settings, RefreshCw, Shuffle 
-} from "lucide-react";
+import { Pause, Play, RefreshCw, Volume2, ArrowLeft, Check, XCircle, RotateCcw, Settings, Shuffle, Lightbulb, Maximize2, X, Keyboard } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { motion, AnimatePresence, useAnimation, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,11 +41,12 @@ export default function ListeningPractice({
   const [history, setHistory] = useState<{ card: any, action: "know" | "learning" }[]>([]);
   
   // Old Audio Settings State
-  const [autoSpeak, setAutoSpeak] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [repeatDelay, setRepeatDelay] = useState(5);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
+  const [autoSpeak, setAutoSpeak] = useState(false);
+  const [repeatDelay, setRepeatDelay] = useState(3);
+  const [expandedText, setExpandedText] = useState<{title: string, content: string} | null>(null);
 
   const controls = useAnimation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -499,10 +497,15 @@ export default function ListeningPractice({
                     </div>
 
                     <div className="flex-1 flex flex-col items-center text-center overflow-y-auto mb-6 px-2">
-                      <div className="my-auto w-full py-4">
-                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${darkMode ? "text-white" : "text-gray-900"}`}>
+                      <div className="my-auto w-full py-4 flex flex-col items-center">
+                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${currentCard?.q && currentCard.q.length > 120 ? 'line-clamp-4' : ''} ${darkMode ? "text-white" : "text-gray-900"}`}>
                           {currentCard?.q}
                         </h1>
+                        {currentCard?.q && currentCard.q.length > 120 && (
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Question", content: currentCard.q }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}>
+                            <Maximize2 className="w-3 h-3 mr-1" /> Read More
+                          </Button>
+                        )}
                         
                         {showHint && (
                           <motion.div 
@@ -572,10 +575,15 @@ export default function ListeningPractice({
                       <span className="text-5xl md:text-7xl font-black text-orange-500 drop-shadow-md tracking-tighter text-center leading-tight">Still<br/>learning</span>
                     </motion.div>
                     <div className="text-center opacity-50 text-sm mb-4">Answer</div>
-                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                      <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center overflow-y-auto">
+                      <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
                         {currentCard?.a || "No answer provided"}
                       </p>
+                      {currentCard?.a && currentCard.a.length > 150 && (
+                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Answer", content: currentCard.a }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}>
+                          <Maximize2 className="w-3 h-3 mr-1" /> Read More
+                        </Button>
+                      )}
                     </div>
                     <div className="mt-auto text-center text-sm font-medium opacity-50 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                       <span className="flex items-center gap-1">Swipe <ArrowLeft className="w-3 h-3"/> for Still Learning</span>
@@ -659,6 +667,19 @@ export default function ListeningPractice({
         </div>
 
       </div>
+      {/* Expansion Dialog */}
+      <Dialog open={!!expandedText} onOpenChange={(open) => !open && setExpandedText(null)}>
+        <DialogContent className={`max-w-2xl max-h-[80vh] overflow-y-auto flex flex-col ${darkMode ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white text-gray-900"}`}>
+          <DialogHeader>
+            <DialogTitle className="text-center opacity-70 text-sm uppercase tracking-wider font-semibold">
+              {expandedText?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 text-left font-serif leading-relaxed text-lg whitespace-pre-wrap pb-6">
+            {expandedText?.content}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
