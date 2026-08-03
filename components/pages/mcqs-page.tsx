@@ -101,7 +101,7 @@ export default function MCQsPage({
           : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
         }`}
     >
-      <div className="container mx-auto px-4 py-6 md:py-12 max-w-6xl">
+      <div className="w-full mx-auto px-4 py-6 md:py-12 max-w-6xl">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
           <div
@@ -509,11 +509,11 @@ export default function MCQsPage({
             )}
 
             {/* Load Data Section */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 text-center">
+            <div className="flex flex-wrap justify-center gap-4 text-center">
               <Button
                 variant="outline"
                 onClick={() => openModal("mcq", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
+                className={`px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base font-semibold rounded-xl transition-all whitespace-nowrap ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
                   }`}
@@ -525,7 +525,7 @@ export default function MCQsPage({
               <Button
                 variant="outline"
                 onClick={() => openModal("reading", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
+                className={`px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base font-semibold rounded-xl transition-all whitespace-nowrap ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
                   }`}
@@ -537,7 +537,7 @@ export default function MCQsPage({
               <Button
                 variant="outline"
                 onClick={() => openModal("Audio Flashcard", "edit")}
-                className={`px-8 py-6 text-base font-semibold rounded-xl transition-all ${darkMode
+                className={`px-4 sm:px-8 py-4 sm:py-6 text-sm sm:text-base font-semibold rounded-xl transition-all whitespace-nowrap ${darkMode
                     ? "bg-slate-800 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-500"
                     : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
                   }`}

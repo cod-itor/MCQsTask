@@ -160,7 +160,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
               {index + 1}.
             </span>
             <div className={`p-4 rounded-lg flex-1 border ${darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : "bg-blue-50 border-blue-200"}`}>
-              <h3 className={`text-base font-semibold whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
+              <h3 className={`text-base font-semibold break-words w-full whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
                 {q.text}
               </h3>
             </div>
@@ -202,7 +202,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
                     }`}>
                       {label}
                     </div>
-                    <span className={`whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>{opt}</span>
+                    <span className={`break-words w-full whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>{opt}</span>
                   </div>
                   
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -242,7 +242,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
           <span className={`font-bold mr-2 mt-1.5 ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
             {index + 1}.
           </span>
-          <div className="flex-1 items-center flex-wrap mt-1 whitespace-pre-wrap">
+          <div className="flex-1 items-center flex-wrap mt-1 break-words w-full whitespace-pre-wrap">
             {parts.map((part, i) => (
               <span key={i}>
                 {part}
@@ -375,7 +375,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
   const passageContent = (
     <div className={`p-4 md:p-8 ${!isMobile ? 'h-full overflow-y-auto' : ''} ${!isMobile ? (darkMode ? "border-r border-slate-700 bg-slate-900" : "border-r border-gray-200 bg-white") : ""}`}>
       <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 font-serif leading-tight">{currentPassage.header}</h2>
-      <div className={`prose max-w-none font-serif leading-loose text-base md:text-lg whitespace-pre-wrap ${darkMode ? "prose-invert text-slate-300" : "text-gray-800"}`}>
+      <div className={`prose max-w-none font-serif leading-loose text-base md:text-lg break-words w-full whitespace-pre-wrap ${darkMode ? "prose-invert text-slate-300" : "text-gray-800"}`}>
         {currentPassage.content.split('[blank]').map((part, i, arr) => (
           <span key={i}>
             {part}

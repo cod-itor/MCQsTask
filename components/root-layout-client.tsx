@@ -138,7 +138,7 @@ export default function RootLayoutClient({ children, isLoggedIn, username }: Roo
             />
 
             {/* Main Content */}
-            <div className="flex-1">{children}</div>
+            <div className="flex-1 min-w-0 overflow-x-hidden">{children}</div>
           </div>
         </div>
       </main>

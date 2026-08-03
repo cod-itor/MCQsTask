@@ -176,6 +176,14 @@ export function ListeningEditorPage({
       return;
     }
 
+    const payloadString = JSON.stringify(questions);
+    const sizeInBytes = new Blob([payloadString]).size;
+    // Next.js Server Actions limit is 5MB. We check against 4.8MB to be safe.
+    if (sizeInBytes > 4800000) {
+      toast.error(`Error: Data size is ${(sizeInBytes / 1024 / 1024).toFixed(2)}MB, which exceeds the 5MB limit. Please remove or compress some images.`);
+      return;
+    }
+
     setShowSaveDialog(true);
   };
 

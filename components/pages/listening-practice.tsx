@@ -321,7 +321,7 @@ export default function ListeningPractice({
 
 
       {/* Main Content Area */}
-      <div className="flex-1 container mx-auto px-4 max-w-5xl py-6 flex flex-col relative h-full">
+      <div className="flex-1 shrink-0 container mx-auto px-4 max-w-5xl py-6 flex flex-col relative min-h-full">
         
         {/* Settings Bar & Back Button */}
         <div className="flex items-center justify-between mb-6">
@@ -442,7 +442,7 @@ export default function ListeningPractice({
         </div>
 
         {/* 3D Flashcard Container */}
-        <div className="flex-1 flex flex-col items-center justify-center relative perspective-1000 mb-8 w-full min-h-[400px]">
+        <div className="shrink-0 flex flex-col items-center justify-center relative perspective-1000 mb-8 w-full min-h-[400px]">
           <AnimatePresence mode="wait">
             {queue.length > 0 ? (
               <motion.div
@@ -452,13 +452,13 @@ export default function ListeningPractice({
                 dragElastic={0.8}
                 onDragEnd={handleDragEnd}
                 animate={controls}
-                className={`w-full max-w-3xl relative cursor-pointer group ${currentCard?.imageUrl ? 'min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'h-[400px] sm:h-[450px] md:h-[500px]'}`}
+                className={`w-full max-w-3xl relative cursor-pointer group min-h-[400px] sm:min-h-[450px] md:min-h-[500px]`}
                 onClick={() => !isFlipped && setIsFlipped(true)}
                 style={{ x, transformStyle: "preserve-3d" }}
               >
                 {/* Flipping wrapper */}
                 <motion.div
-                  className={`w-full relative ${currentCard?.imageUrl ? '' : 'h-full'}`}
+                  className={`w-full relative`}
                   initial={false}
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
                   transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -468,7 +468,7 @@ export default function ListeningPractice({
                   {/* FRONT FACE (Merged UI) */}
                   <motion.div 
                     className={`w-full backface-hidden rounded-3xl p-6 md:p-10 flex flex-col border-2 ${
-                      currentCard?.imageUrl ? 'relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'absolute inset-0 h-full'
+                      !isFlipped ? 'relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'absolute inset-0 overflow-hidden'
                     } ${
                       darkMode ? "bg-slate-800" : "bg-white"
                     }`}
@@ -499,11 +499,11 @@ export default function ListeningPractice({
                       </Button>
                     </div>
 
-                    <div className={`flex flex-col items-center text-center px-2 w-full ${currentCard?.imageUrl ? 'mb-8' : 'flex-1 overflow-y-auto mb-6'}`}>
-                      <div className={`w-full py-4 flex flex-col items-center ${currentCard?.imageUrl ? '' : 'my-auto'}`}>
+                    <div className={`flex flex-col items-center text-center px-2 w-full mb-6 ${currentCard?.imageUrl ? 'justify-start' : 'flex-1 justify-center'}`}>
+                      <div className="w-full py-4 flex flex-col items-center shrink-0">
                         {currentCard?.imageUrl && (
                           <div className="mb-4 w-full flex justify-center relative group/image shrink-0">
-                            <img src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-700" style={{ maxHeight: '60vh' }} />
+                            <img draggable={false} src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 select-none" style={{ maxHeight: '60vh' }} />
                             <Button 
                               variant="secondary" 
                               size="icon" 
@@ -514,14 +514,9 @@ export default function ListeningPractice({
                             </Button>
                           </div>
                         )}
-                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${!currentCard?.imageUrl && currentCard?.q && currentCard.q.length > 120 ? 'line-clamp-4' : ''} ${darkMode ? "text-white" : "text-gray-900"} shrink-0`}>
+                        <h1 className={`font-bold break-words w-full text-center whitespace-pre-wrap text-2xl sm:text-3xl md:text-4xl ${darkMode ? "text-white" : "text-gray-900"} shrink-0`}>
                           {currentCard?.q}
                         </h1>
-                        {!currentCard?.imageUrl && currentCard?.q && currentCard.q.length > 120 && (
-                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Question", content: currentCard.q }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"} shrink-0`}>
-                            <Maximize2 className="w-3 h-3 mr-1" /> Read More
-                          </Button>
-                        )}
                         
                         {showHint && (
                           <motion.div 
@@ -566,7 +561,9 @@ export default function ListeningPractice({
 
                   {/* BACK FACE */}
                   <motion.div 
-                    className={`absolute inset-0 backface-hidden rounded-3xl p-8 flex flex-col border-2 ${
+                    className={`w-full backface-hidden rounded-3xl p-8 flex flex-col border-2 ${
+                      isFlipped ? 'relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'absolute inset-0 overflow-hidden'
+                    } ${
                       darkMode ? "bg-slate-800" : "bg-white"
                     }`}
                     style={{ 
@@ -595,7 +592,7 @@ export default function ListeningPractice({
                       <div className="w-full py-4 flex flex-col items-center shrink-0">
                         {currentCard?.imageUrl && (
                           <div className="mb-4 w-full flex justify-center max-h-48 md:max-h-56 relative group/image shrink-0">
-                            <img src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full max-h-full object-contain rounded-xl shadow-sm border border-slate-200 dark:border-slate-700" />
+                            <img draggable={false} src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full max-h-full object-contain rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 select-none" />
                             <Button 
                               variant="secondary" 
                               size="icon" 
@@ -606,7 +603,7 @@ export default function ListeningPractice({
                             </Button>
                           </div>
                         )}
-                        <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`} shrink-0`}>
+                        <p className={`text-xl font-medium break-words w-full whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`} shrink-0`}>
                           {currentCard?.a || "No answer provided"}
                         </p>
                         {currentCard?.a && currentCard.a.length > 150 && (
@@ -714,15 +711,15 @@ export default function ListeningPractice({
       
       {/* Fullscreen Image Dialog */}
       <Dialog open={!!fullscreenImageSrc} onOpenChange={(open) => !open && setFullscreenImageSrc(null)}>
-        <DialogContent className="max-w-5xl w-[95vw] h-[95vh] p-0 flex flex-col bg-black/95 border-slate-800" closeButton={false}>
-          <div className="absolute top-4 right-4 z-50">
-            <Button variant="ghost" size="icon" onClick={() => setFullscreenImageSrc(null)} className="text-white hover:bg-white/20 rounded-full">
-              <X className="w-6 h-6" />
-            </Button>
-          </div>
-          <div className="flex-1 w-full h-full flex items-center justify-center relative p-2" onClick={() => setFullscreenImageSrc(null)}>
+        <DialogContent className="max-w-[98vw] max-h-[98vh] w-[98vw] h-[98vh] p-0 bg-transparent border-none shadow-none [&>button]:hidden" showCloseButton={false}>
+          <div className="w-full h-full flex items-center justify-center p-4" onClick={() => setFullscreenImageSrc(null)}>
             {fullscreenImageSrc && (
-              <img src={fullscreenImageSrc} className="max-w-full max-h-full object-contain" alt="Fullscreen visual" />
+              <img 
+                src={fullscreenImageSrc} 
+                className="max-w-full max-h-[95vh] object-contain rounded-xl shadow-2xl" 
+                alt="Fullscreen visual" 
+                onClick={(e) => e.stopPropagation()}
+              />
             )}
           </div>
         </DialogContent>
