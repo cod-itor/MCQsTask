@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, FileText, LayoutList } from "lucide-react";
+import { Plus, FileText, LayoutList, Pencil, Trash2, Check, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface SelectSetModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   category: "mcq" | "reading" | "Audio Flashcard";
-  onSelect: () => void; // Called when a set is selected or created
+  onSelect: (isEmpty?: boolean) => void; // Called when a set is selected or created
   darkMode: boolean;
 }
 
@@ -38,12 +39,23 @@ export function SelectSetModal({
     setActiveListeningSet,
     createMcqSet,
     createReadingSet,
-    createListeningSet
+    createListeningSet,
+    renameMcqSet,
+    renameReadingSet,
+    renameListeningSet,
+    deleteMcqSet,
+    deleteReadingSet,
+    deleteListeningSet
   } = useSubjects();
 
   const [showNewInput, setShowNewInput] = useState(false);
   const [newSetName, setNewSetName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   if (!activeSubjectId) return null;
 
@@ -61,8 +73,56 @@ export function SelectSetModal({
     } else {
       setActiveListeningSet(setId);
     }
+    const isSetEmpty = category === "mcq"
+      ? ((mcqSets[activeSubjectId] || []).find(s => s.id === setId)?.mcqs?.length === 0)
+      : category === "reading"
+        ? ((readingSets[activeSubjectId] || []).find(s => s.id === setId)?.passages?.length === 0)
+        : ((listeningSets[activeSubjectId] || []).find(s => s.id === setId)?.questions?.length === 0);
+
     onOpenChange(false);
-    onSelect();
+    onSelect(isSetEmpty);
+  };
+
+  const handleEditSave = async (setId: string) => {
+    if (!editName.trim()) {
+      setEditingId(null);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      if (category === "mcq") {
+        await renameMcqSet(activeSubjectId, setId, editName.trim());
+      } else if (category === "reading") {
+        await renameReadingSet(activeSubjectId, setId, editName.trim());
+      } else {
+        await renameListeningSet(activeSubjectId, setId, editName.trim());
+      }
+    } catch (error) {
+      toast.error("Failed to rename file");
+    } finally {
+      setIsSubmitting(false);
+      setEditingId(null);
+    }
+  };
+
+  const handleDelete = async (setId: string) => {
+    setIsSubmitting(true);
+    try {
+      if (category === "mcq") {
+        await deleteMcqSet(activeSubjectId, setId);
+      } else if (category === "reading") {
+        await deleteReadingSet(activeSubjectId, setId);
+      } else {
+        await deleteListeningSet(activeSubjectId, setId);
+      }
+      toast.success("File deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete file");
+    } finally {
+      setIsSubmitting(false);
+      setDeletingId(null);
+    }
   };
 
   const handleCreateNew = async () => {
@@ -83,7 +143,7 @@ export function SelectSetModal({
       setNewSetName("");
       setShowNewInput(false);
       onOpenChange(false);
-      onSelect();
+      onSelect(true); // new sets are always empty
     } finally {
       setIsSubmitting(false);
     }
@@ -114,28 +174,92 @@ export function SelectSetModal({
             </div>
           ) : (
             sets.map(set => (
-              <Button
+              <div
                 key={set.id}
-                onClick={() => handleSelect(set.id)}
-                variant="outline"
-                className={`w-full justify-start h-auto py-3 ${darkMode ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-white" : ""
-                  }`}
+                className={`flex items-center justify-between w-full p-3 rounded-md border cursor-pointer transition-colors group ${
+                  darkMode 
+                    ? "bg-slate-700 border-slate-600 hover:bg-slate-600 text-white" 
+                    : "bg-white border-gray-200 hover:bg-gray-50 text-gray-900"
+                }`}
+                onClick={(e) => {
+                  // Only select if not clicking action buttons
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('.actions-container')) {
+                    handleSelect(set.id);
+                  }
+                }}
               >
-                <div className="flex items-center gap-3">
-                  {category === "mcq" ? <LayoutList className="w-5 h-5 opacity-70" /> : <FileText className="w-5 h-5 opacity-70" />}
-                  <div className="text-left">
-                    <div className="font-semibold">{set.name}</div>
-                    <div className="text-xs opacity-70">
-                      {category === "mcq"
-                        ? `${(set as any).mcqs?.length || 0} Questions`
-                        : category === "Audio Flashcard"
-                          ? `${(set as any).questions?.length || 0} Words`
-                          : `${(set as any).passages?.length || 0} Passages`
-                      }
-                    </div>
+                <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                  {category === "mcq" ? <LayoutList className="w-5 h-5 opacity-70 shrink-0" /> : <FileText className="w-5 h-5 opacity-70 shrink-0" />}
+                  <div className="text-left flex-1 min-w-0">
+                    {editingId === set.id ? (
+                      <div className="flex items-center gap-2 actions-container">
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className={`h-7 py-1 px-2 ${darkMode ? "bg-slate-800 border-slate-600 text-white" : "bg-white"}`}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleEditSave(set.id);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                        />
+                        <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 text-green-500" onClick={(e) => { e.stopPropagation(); handleEditSave(set.id); }}>
+                          <Check className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 text-red-500" onClick={(e) => { e.stopPropagation(); setEditingId(null); }}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="font-semibold truncate">{set.name}</div>
+                        <div className="text-xs opacity-70">
+                          {category === "mcq"
+                            ? `${(set as any).mcqs?.length || 0} Questions`
+                            : category === "Audio Flashcard"
+                              ? `${(set as any).questions?.length || 0} Words`
+                              : `${(set as any).passages?.length || 0} Passages`
+                          }
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              </Button>
+
+                {/* Actions */}
+                {editingId !== set.id && (
+                  <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity actions-container shrink-0 ml-2">
+                    {deletingId === set.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-red-500 font-medium">Delete?</span>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500 hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); handleDelete(set.id); }}>
+                          <Check className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-500 hover:bg-slate-500/10" onClick={(e) => { e.stopPropagation(); setDeletingId(null); }}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setEditName(set.name);
+                          setEditingId(set.id); 
+                        }}>
+                          <Pencil className="w-4 h-4 opacity-70 hover:opacity-100 text-blue-500" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setDeletingId(set.id); 
+                        }}>
+                          <Trash2 className="w-4 h-4 opacity-70 hover:opacity-100 text-red-500" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             ))
           )}
         </div>

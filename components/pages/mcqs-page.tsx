@@ -69,7 +69,18 @@ export default function MCQsPage({
     setModalOpen(true);
   };
 
-  const handleModalSelect = () => {
+  const handleModalSelect = (isEmpty?: boolean) => {
+    if (isEmpty) {
+      import("sonner").then(({ toast }) => {
+        toast.info("There are no questions in this file. Please import a JSON or add questions manually.");
+      });
+      // Always route to the editor (input page) when empty
+      if (modalCategory === "mcq") onInputMcqs();
+      else if (modalCategory === "reading") onInputReading();
+      else onInputListening();
+      return;
+    }
+
     if (modalAction === "practice") {
       if (modalCategory === "mcq") onStartPractice();
       else if (modalCategory === "reading") onStartReadingPractice();

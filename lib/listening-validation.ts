@@ -62,12 +62,14 @@ export function validateListeningQuestions(data: any[]): ValidationResult {
     }
 
     const answer = item.a || item.answer
+    const imageUrl = item.imageUrl || item.image
 
     if (!errors.some((e) => e.questionIndex === index)) {
       questions.push({
         id: `listening-${Date.now()}-${Math.random()}`,
         q: word,
         ...(answer && { a: answer }),
+        ...(imageUrl && { imageUrl }),
       })
     }
   })

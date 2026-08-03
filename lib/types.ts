@@ -60,6 +60,8 @@ export interface ListeningQuestion {
   id: string
   q: string
   a?: string
+  imageUrl?: string
+  originalImageUrl?: string
 }
 
 export interface ListeningSet {

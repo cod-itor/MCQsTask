@@ -37,6 +37,7 @@ export default function ListeningPractice({
   const [isFlipped, setIsFlipped] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenImageSrc, setFullscreenImageSrc] = useState<string | null>(null);
   const [isTrackProgress, setIsTrackProgress] = useState(true);
   const [history, setHistory] = useState<{ card: any, action: "know" | "learning" }[]>([]);
   
@@ -451,13 +452,13 @@ export default function ListeningPractice({
                 dragElastic={0.8}
                 onDragEnd={handleDragEnd}
                 animate={controls}
-                className="w-full max-w-3xl h-[400px] sm:h-[450px] md:h-[500px] relative cursor-pointer group"
+                className={`w-full max-w-3xl relative cursor-pointer group ${currentCard?.imageUrl ? 'min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'h-[400px] sm:h-[450px] md:h-[500px]'}`}
                 onClick={() => !isFlipped && setIsFlipped(true)}
                 style={{ x, transformStyle: "preserve-3d" }}
               >
                 {/* Flipping wrapper */}
                 <motion.div
-                  className="w-full h-full relative"
+                  className={`w-full relative ${currentCard?.imageUrl ? '' : 'h-full'}`}
                   initial={false}
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
                   transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
@@ -466,7 +467,9 @@ export default function ListeningPractice({
                   
                   {/* FRONT FACE (Merged UI) */}
                   <motion.div 
-                    className={`absolute inset-0 backface-hidden rounded-3xl p-6 md:p-10 flex flex-col border-2 ${
+                    className={`w-full backface-hidden rounded-3xl p-6 md:p-10 flex flex-col border-2 ${
+                      currentCard?.imageUrl ? 'relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px]' : 'absolute inset-0 h-full'
+                    } ${
                       darkMode ? "bg-slate-800" : "bg-white"
                     }`}
                     style={{ backfaceVisibility: "hidden", borderColor, boxShadow }}
@@ -496,13 +499,26 @@ export default function ListeningPractice({
                       </Button>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center text-center overflow-y-auto mb-6 px-2">
-                      <div className="my-auto w-full py-4 flex flex-col items-center">
-                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${currentCard?.q && currentCard.q.length > 120 ? 'line-clamp-4' : ''} ${darkMode ? "text-white" : "text-gray-900"}`}>
+                    <div className={`flex flex-col items-center text-center px-2 w-full ${currentCard?.imageUrl ? 'mb-8' : 'flex-1 overflow-y-auto mb-6'}`}>
+                      <div className={`w-full py-4 flex flex-col items-center ${currentCard?.imageUrl ? '' : 'my-auto'}`}>
+                        {currentCard?.imageUrl && (
+                          <div className="mb-4 w-full flex justify-center relative group/image shrink-0">
+                            <img src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-700" style={{ maxHeight: '60vh' }} />
+                            <Button 
+                              variant="secondary" 
+                              size="icon" 
+                              className="absolute top-2 right-2 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
+                              onClick={(e) => { e.stopPropagation(); setFullscreenImageSrc(currentCard.imageUrl!); }}
+                            >
+                              <Maximize2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                        <h1 className={`text-2xl sm:text-3xl md:text-4xl font-bold break-words w-full text-center whitespace-pre-wrap ${!currentCard?.imageUrl && currentCard?.q && currentCard.q.length > 120 ? 'line-clamp-4' : ''} ${darkMode ? "text-white" : "text-gray-900"} shrink-0`}>
                           {currentCard?.q}
                         </h1>
-                        {currentCard?.q && currentCard.q.length > 120 && (
-                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Question", content: currentCard.q }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}>
+                        {!currentCard?.imageUrl && currentCard?.q && currentCard.q.length > 120 && (
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Question", content: currentCard.q }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"} shrink-0`}>
                             <Maximize2 className="w-3 h-3 mr-1" /> Read More
                           </Button>
                         )}
@@ -574,16 +590,31 @@ export default function ListeningPractice({
                     >
                       <span className="text-5xl md:text-7xl font-black text-orange-500 drop-shadow-md tracking-tighter text-center leading-tight">Still<br/>learning</span>
                     </motion.div>
-                    <div className="text-center opacity-50 text-sm mb-4">Answer</div>
-                    <div className="flex-1 flex flex-col items-center justify-center text-center overflow-y-auto">
-                      <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`}`}>
-                        {currentCard?.a || "No answer provided"}
-                      </p>
-                      {currentCard?.a && currentCard.a.length > 150 && (
-                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Answer", content: currentCard.a }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}>
-                          <Maximize2 className="w-3 h-3 mr-1" /> Read More
-                        </Button>
-                      )}
+                    <div className="text-center opacity-50 text-sm mb-4 shrink-0">Answer</div>
+                    <div className={`flex-1 flex flex-col items-center text-center overflow-y-auto w-full ${currentCard?.imageUrl ? 'justify-start' : 'justify-center'}`}>
+                      <div className="w-full py-4 flex flex-col items-center shrink-0">
+                        {currentCard?.imageUrl && (
+                          <div className="mb-4 w-full flex justify-center max-h-48 md:max-h-56 relative group/image shrink-0">
+                            <img src={currentCard.imageUrl} alt="Flashcard visual" className="max-w-full max-h-full object-contain rounded-xl shadow-sm border border-slate-200 dark:border-slate-700" />
+                            <Button 
+                              variant="secondary" 
+                              size="icon" 
+                              className="absolute top-2 right-2 md:group-hover/image:opacity-100 md:opacity-0 transition-opacity rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
+                              onClick={(e) => { e.stopPropagation(); setFullscreenImageSrc(currentCard.imageUrl!); }}
+                            >
+                              <Maximize2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                        <p className={`text-xl font-medium whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`} shrink-0`}>
+                          {currentCard?.a || "No answer provided"}
+                        </p>
+                        {currentCard?.a && currentCard.a.length > 150 && (
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Answer", content: currentCard.a }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"} shrink-0`}>
+                            <Maximize2 className="w-3 h-3 mr-1" /> Read More
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <div className="mt-auto text-center text-sm font-medium opacity-50 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                       <span className="flex items-center gap-1">Swipe <ArrowLeft className="w-3 h-3"/> for Still Learning</span>
@@ -677,6 +708,22 @@ export default function ListeningPractice({
           </DialogHeader>
           <div className="mt-4 text-left font-serif leading-relaxed text-lg whitespace-pre-wrap pb-6">
             {expandedText?.content}
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Fullscreen Image Dialog */}
+      <Dialog open={!!fullscreenImageSrc} onOpenChange={(open) => !open && setFullscreenImageSrc(null)}>
+        <DialogContent className="max-w-5xl w-[95vw] h-[95vh] p-0 flex flex-col bg-black/95 border-slate-800" closeButton={false}>
+          <div className="absolute top-4 right-4 z-50">
+            <Button variant="ghost" size="icon" onClick={() => setFullscreenImageSrc(null)} className="text-white hover:bg-white/20 rounded-full">
+              <X className="w-6 h-6" />
+            </Button>
+          </div>
+          <div className="flex-1 w-full h-full flex items-center justify-center relative p-2" onClick={() => setFullscreenImageSrc(null)}>
+            {fullscreenImageSrc && (
+              <img src={fullscreenImageSrc} className="max-w-full max-h-full object-contain" alt="Fullscreen visual" />
+            )}
           </div>
         </DialogContent>
       </Dialog>

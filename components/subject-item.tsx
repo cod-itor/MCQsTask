@@ -22,7 +22,7 @@ interface SubjectItemProps {
 }
 
 export default function SubjectItem({ subject, isActive, onClick, darkMode }: SubjectItemProps) {
-  const { toggleFavorite, renameSubject, deleteSubject } = useSubjects()
+  const { toggleFavorite, renameSubject, deleteSubject, mcqSets, readingSets, listeningSets } = useSubjects()
   const [showMenu, setShowMenu] = useState(false)
   const [isRenaming, setIsRenaming] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -70,7 +70,11 @@ export default function SubjectItem({ subject, isActive, onClick, darkMode }: Su
           ) : (
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{subject.name}</p>
-              <p className={`text-xs ${darkMode ? "text-slate-400" : "text-gray-500"}`}>{subject.mcqCount} MCQs</p>
+              <p className={`text-xs ${darkMode ? "text-slate-400" : "text-gray-500"}`}>
+                {(mcqSets[subject.id]?.length || 0) + 
+                 (readingSets[subject.id]?.length || 0) + 
+                 (listeningSets[subject.id]?.length || 0)} Files
+              </p>
             </div>
           )}
         </div>

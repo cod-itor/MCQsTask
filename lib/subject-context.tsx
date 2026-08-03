@@ -38,16 +38,19 @@ interface SubjectContextType {
   
   createMcqSet: (subjectId: string, name: string, initialMcqs?: MCQ[]) => Promise<string>;
   updateMcqSet: (subjectId: string, setId: string, mcqs: MCQ[]) => Promise<void>;
+  renameMcqSet: (subjectId: string, setId: string, newName: string) => Promise<void>;
   deleteMcqSet: (subjectId: string, setId: string) => Promise<void>;
   getMcqSet: (subjectId: string | null, setId: string | null) => MCQSet | null;
   
   createReadingSet: (subjectId: string, name: string, initialPassages?: ReadingPassage[]) => Promise<string>;
   updateReadingSet: (subjectId: string, setId: string, passages: ReadingPassage[]) => Promise<void>;
+  renameReadingSet: (subjectId: string, setId: string, newName: string) => Promise<void>;
   deleteReadingSet: (subjectId: string, setId: string) => Promise<void>;
   getReadingSet: (subjectId: string | null, setId: string | null) => ReadingSet | null;
 
   createListeningSet: (subjectId: string, name: string, initialQuestions?: ListeningQuestion[]) => Promise<string>;
   updateListeningSet: (subjectId: string, setId: string, questions: ListeningQuestion[]) => Promise<void>;
+  renameListeningSet: (subjectId: string, setId: string, newName: string) => Promise<void>;
   deleteListeningSet: (subjectId: string, setId: string) => Promise<void>;
   getListeningSet: (subjectId: string | null, setId: string | null) => ListeningSet | null;
 
@@ -236,6 +239,20 @@ export function SubjectProvider({
     updateSubjectMcqCount(subjectId, updated);
   };
 
+  const renameMcqSet = async (subjectId: string, setId: string, newName: string) => {
+    const set = mcqSets[subjectId]?.find(s => s.id === setId);
+    if (!set) return;
+    
+    await updatePracticeSet(setId, newName, set.mcqs);
+    const updated = {
+      ...mcqSets,
+      [subjectId]: (mcqSets[subjectId] || []).map(s => 
+        s.id === setId ? { ...s, name: newName } : s
+      )
+    };
+    setMcqSets(updated);
+  };
+
   const deleteMcqSet = async (subjectId: string, setId: string) => {
     await deletePracticeSet(setId);
     const updated = {
@@ -281,6 +298,19 @@ export function SubjectProvider({
     }));
   };
 
+  const renameReadingSet = async (subjectId: string, setId: string, newName: string) => {
+    const set = readingSets[subjectId]?.find(s => s.id === setId);
+    if (!set) return;
+    
+    await updatePracticeSet(setId, newName, set.passages);
+    setReadingSets(prev => ({
+      ...prev,
+      [subjectId]: (prev[subjectId] || []).map(s => 
+        s.id === setId ? { ...s, name: newName } : s
+      )
+    }));
+  };
+
   const deleteReadingSet = async (subjectId: string, setId: string) => {
     await deletePracticeSet(setId);
     setReadingSets(prev => ({
@@ -320,6 +350,19 @@ export function SubjectProvider({
       ...prev,
       [subjectId]: (prev[subjectId] || []).map(s => 
         s.id === setId ? { ...s, questions } : s
+      )
+    }));
+  };
+
+  const renameListeningSet = async (subjectId: string, setId: string, newName: string) => {
+    const set = listeningSets[subjectId]?.find(s => s.id === setId);
+    if (!set) return;
+    
+    await updatePracticeSet(setId, newName, set.questions);
+    setListeningSets(prev => ({
+      ...prev,
+      [subjectId]: (prev[subjectId] || []).map(s => 
+        s.id === setId ? { ...s, name: newName } : s
       )
     }));
   };
@@ -370,14 +413,17 @@ export function SubjectProvider({
         toggleFavorite,
         createMcqSet,
         updateMcqSet,
+        renameMcqSet,
         deleteMcqSet,
         getMcqSet,
         createReadingSet,
         updateReadingSet,
+        renameReadingSet,
         deleteReadingSet,
         getReadingSet,
         createListeningSet,
         updateListeningSet,
+        renameListeningSet,
         deleteListeningSet,
         getListeningSet,
         getMcqsForSubject,
