@@ -449,7 +449,8 @@ export default function ListeningPractice({
                 key={currentCard?.q || "empty"}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.8}
+                dragElastic={1}
+                dragDirectionLock={true}
                 onDragEnd={handleDragEnd}
                 animate={controls}
                 className={`w-full max-w-3xl relative cursor-pointer group min-h-[400px] sm:min-h-[450px] md:min-h-[500px]`}
