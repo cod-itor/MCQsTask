@@ -732,8 +732,37 @@ export default function ListeningPractice({
               {expandedText?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4 text-left font-serif leading-relaxed text-lg whitespace-pre-wrap pb-6">
-            {expandedText?.content}
+                    <div className="mt-4 text-left font-serif leading-relaxed text-lg whitespace-pre-wrap pb-6">
+            <div dangerouslySetInnerHTML={{ __html: expandedText?.content || "" }} />
+            
+            {(currentCard?.easy || currentCard?.keywords || currentCard?.memory) && (
+              <div className={`w-full text-left space-y-3 mt-6 p-4 rounded-xl border ${darkMode ? "bg-slate-800/50 border-slate-700/50" : "bg-slate-50 border-slate-200"}`}>
+                {currentCard?.easy && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-emerald-400" : "text-emerald-600"}`}>
+                      <span>🟢</span> Easy Tip
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: currentCard.easy }} />
+                  </div>
+                )}
+                {currentCard?.keywords && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-amber-400" : "text-amber-600"}`}>
+                      <span>🔑</span> Key Words
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: currentCard.keywords }} />
+                  </div>
+                )}
+                {currentCard?.memory && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                      <span>🧠</span> Memory
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: currentCard.memory }} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
