@@ -24,20 +24,20 @@ export function HowToImportModal({ category, darkMode }: HowToImportModalProps) 
       case "mcq":
         return {
           title: "MCQ Format",
-          format: `[\n  {\n    "q": "What is 2 + 2?",\n    "options": ["3", "4", "5", "6"],\n    "answer": "4"\n  }\n]`,
-          prompt: `Please generate a set of multiple choice questions based on the following text. Format the output strictly as a JSON array where each object has the properties: "q" (the question string), "options" (an array of 4 string options), and "answer" (the correct string option which must exactly match one of the items in the options array). Text: [paste your text here]`
+          format: `[\n  {\n    "q": "What is the chemical formula for water?",\n    "options": ["H<sub>2</sub>O", "CO<sub>2</sub>", "O<sub>2</sub>", "NaCl"],\n    "answer": "H<sub>2</sub>O",\n    "explanation": "Water is two hydrogen atoms and one oxygen atom.<br><br><b>Note:</b> Easy to remember!"\n  }\n]`,
+          prompt: `Please generate a set of multiple choice questions based on the following text. Format the output strictly as a JSON array where each object has the properties: "q" (the question string), "options" (an array of 4 string options), "answer" (the correct string option which must exactly match one of the items in the options array), and optionally "explanation" (string). You can use standard HTML tags like <b>, <i>, <br>, <sub>, and <sup> directly inside the strings for rich formatting. Text: [paste your text here]`
         };
       case "reading":
         return {
           title: "Reading Format",
-          format: `[\n  {\n    "title": "Passage Title",\n    "content": "Paragraph 1...\\n\\nParagraph 2...",\n    "questions": [\n      {\n        "q": "Question here",\n        "options": ["A", "B", "C"],\n        "answer": "A"\n      }\n    ]\n  }\n]`,
-          prompt: `Please format the following reading passage and its questions strictly as a JSON array. Each object in the array should represent a passage with properties: "title" (string), "content" (string, use \\n\\n for paragraphs), and "questions" (an array of question objects). Each question object must have: "q" (string), "options" (array of strings), and "answer" (the correct option as a string). Text: [paste your text here]`
+          format: `[\n  {\n    "title": "Passage Title",\n    "content": "Paragraph 1...\\n\\nParagraph 2...",\n    "questions": [\n      {\n        "q": "What does <b>HTML</b> stand for?",\n        "options": ["A", "B", "C"],\n        "answer": "A"\n      }\n    ]\n  }\n]`,
+          prompt: `Please format the following reading passage and its questions strictly as a JSON array. Each object in the array should represent a passage with properties: "title" (string), "content" (string, use \\n\\n for paragraphs), and "questions" (an array of question objects). Each question object must have: "q" (string), "options" (array of strings), and "answer" (the correct option as a string). You can use standard HTML tags like <b>, <i>, <br>, <sub>, and <sup> directly inside the strings for rich formatting. Text: [paste your text here]`
         };
       case "Audio Flashcard":
         return {
           title: "Audio Flashcard Format",
-          format: `[\n  {\n    "q": "Accommodate",\n    "a": "To provide lodging or sufficient space for"\n  },\n  {\n    "q": "Benevolent",\n    "a": "Well meaning and kindly"\n  }\n]`,
-          prompt: `Please extract the key vocabulary words from the following text and format them strictly as a JSON array. Each object in the array should have a property "q" whose value is the word string, and an optional property "a" whose value is the definition or translation. Text: [paste your text here]`
+          format: `[\n  {\n    "q": "Water",\n    "a": "<b>H<sub>2</sub>O</b><br><br><b>Note:</b> Essential for life."\n  },\n  {\n    "q": "Benevolent",\n    "a": "Well meaning and kindly"\n  }\n]`,
+          prompt: `Please extract the key vocabulary words from the following text and format them strictly as a JSON array. Each object in the array should have a property "q" whose value is the word string, and an optional property "a" whose value is the definition or translation. You can use standard HTML tags like <b>, <i>, <br>, <sub>, and <sup> directly inside the strings for rich formatting (e.g. for chemistry or to append a <b>Note:</b> section to the answer). Text: [paste your text here]`
         };
     }
   };

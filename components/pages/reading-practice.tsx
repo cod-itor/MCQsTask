@@ -161,7 +161,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
             </span>
             <div className={`p-4 rounded-lg flex-1 border ${darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : "bg-blue-50 border-blue-200"}`}>
               <h3 className={`text-base font-semibold break-words w-full whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
-                {q.text}
+                <span dangerouslySetInnerHTML={{ __html: q.text }} />
               </h3>
             </div>
           </div>
@@ -202,7 +202,9 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
                     }`}>
                       {label}
                     </div>
-                    <span className={`break-words w-full whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>{opt}</span>
+                    <span className={`break-words w-full whitespace-pre-wrap ${darkMode ? "text-slate-100" : "text-gray-900"}`}>
+                      <span dangerouslySetInnerHTML={{ __html: opt }} />
+                    </span>
                   </div>
                   
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -222,7 +224,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
               <XCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold mb-1">Incorrect</p>
-                <p>The correct answer is: <span className="font-bold">{q.answer}</span></p>
+                <p>The correct answer is: <span className="font-bold"><span dangerouslySetInnerHTML={{ __html: q.answer }} /></span></p>
               </div>
             </div>
           )}
@@ -335,7 +337,7 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
             ))}
             {isSubmitted && isIncorrect && (
               <div className={`mt-2 text-sm px-3 py-2 rounded-md inline-block w-full ${darkMode ? "bg-red-900/20 text-red-400 border border-red-900/50" : "bg-red-50 text-red-700 border border-red-100"}`}>
-                Correct answer: <span className="font-semibold">{q.answer}</span>
+                Correct answer: <span className="font-semibold"><span dangerouslySetInnerHTML={{ __html: q.answer }} /></span>
               </div>
             )}
           </div>

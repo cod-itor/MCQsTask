@@ -516,7 +516,7 @@ export default function ListeningPractice({
                           </div>
                         )}
                         <h1 className={`font-bold break-words w-full text-center whitespace-pre-wrap text-2xl sm:text-3xl md:text-4xl ${darkMode ? "text-white" : "text-gray-900"} shrink-0`}>
-                          {currentCard?.q}
+                          <span dangerouslySetInnerHTML={{ __html: currentCard?.q || "" }} />
                         </h1>
                         
                         {showHint && (
@@ -604,9 +604,9 @@ export default function ListeningPractice({
                             </Button>
                           </div>
                         )}
-                        <p className={`text-xl font-medium break-words w-full whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`} shrink-0`}>
-                          {currentCard?.a || "No answer provided"}
-                        </p>
+                        <div className={`text-xl font-medium break-words w-full whitespace-pre-wrap ${currentCard?.a && currentCard.a.length > 150 ? 'line-clamp-5' : ''} ${currentCard?.a ? (darkMode ? "text-white" : "text-gray-900") : `italic ${darkMode ? "text-slate-400" : "text-gray-500"}`} shrink-0`}>
+                          {currentCard?.a ? <span dangerouslySetInnerHTML={{ __html: currentCard.a }} /> : "No answer provided"}
+                        </div>
                         {currentCard?.a && currentCard.a.length > 150 && (
                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedText({ title: "Answer", content: currentCard.a }); }} className={`mt-2 ${darkMode ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"} shrink-0`}>
                             <Maximize2 className="w-3 h-3 mr-1" /> Read More

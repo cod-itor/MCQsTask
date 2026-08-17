@@ -372,7 +372,7 @@ export default function PracticeTest({
                         darkMode ? "text-slate-100" : "text-gray-900"
                       }`}
                     >
-                      {current.q}
+                      <span dangerouslySetInnerHTML={{ __html: current.q || "" }} />
                     </h2>
                   </div>
 
@@ -421,7 +421,7 @@ export default function PracticeTest({
                                 darkMode ? "text-slate-100" : "text-gray-900"
                               }`}
                             >
-                              {option}
+                              <span dangerouslySetInnerHTML={{ __html: option }} />
                             </span>
                           </div>
 
@@ -481,24 +481,25 @@ export default function PracticeTest({
                         >
                           {isCorrect ? "Correct!" : "Incorrect"}
                         </p>
-                        <p
+                        <div
                           className={`text-sm mt-1 ${
                             darkMode ? "text-slate-200" : "text-gray-700"
                           }`}
                         >
                           Correct answer:{" "}
                           <span className="font-semibold">
-                            {current.opts[current.answer]}
+                            <span dangerouslySetInnerHTML={{ __html: current.opts[current.answer] }} />
                           </span>
-                        </p>
+                        </div>
                         {current.explanation && (
-                          <p
+                          <div
                             className={`text-sm mt-2 italic break-words w-full whitespace-pre-wrap ${
                               darkMode ? "text-slate-200" : "text-gray-700"
                             }`}
                           >
-                            <strong>Explanation:</strong> {current.explanation}
-                          </p>
+                            <strong>Explanation:</strong>{" "}
+                            <span dangerouslySetInnerHTML={{ __html: current.explanation }} />
+                          </div>
                         )}
                       </div>
                     </>

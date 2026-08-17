@@ -142,7 +142,7 @@ export function ListeningStructuredEditor({
 
         return (
           <div
-            key={q.id}
+            key={q.id ? `${q.id}-${i}` : `fallback-${i}`}
             className={`flex flex-col md:flex-row md:items-start gap-3 p-3 rounded-lg border ${
               darkMode
                 ? "bg-slate-900/50 border-slate-700"
