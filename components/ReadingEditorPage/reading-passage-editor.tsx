@@ -198,6 +198,39 @@ export function ReadingPassageEditor({
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Easy Tip</label>
+                      <Textarea
+                        value={q.easy || ""}
+                        onChange={(e) => updateQuestion(index, "easy", e.target.value)}
+                        placeholder="Simple explanation..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-amber-600 dark:text-amber-400">Key Words</label>
+                      <Textarea
+                        value={q.keywords || ""}
+                        onChange={(e) => updateQuestion(index, "keywords", e.target.value)}
+                        placeholder="Important keywords..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-600 dark:text-blue-400">Memory Tip</label>
+                      <Textarea
+                        value={q.memory || ""}
+                        onChange={(e) => updateQuestion(index, "memory", e.target.value)}
+                        placeholder="Memory trick..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-xs font-semibold">Correct Answer</label>
                     <Input
@@ -219,6 +252,39 @@ export function ReadingPassageEditor({
                       placeholder="e.g. temporary, contract, permanent"
                       className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Easy Tip</label>
+                      <Textarea
+                        value={q.easy || ""}
+                        onChange={(e) => updateQuestion(index, "easy", e.target.value)}
+                        placeholder="Simple explanation..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-amber-600 dark:text-amber-400">Key Words</label>
+                      <Textarea
+                        value={q.keywords || ""}
+                        onChange={(e) => updateQuestion(index, "keywords", e.target.value)}
+                        placeholder="Important keywords..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-blue-600 dark:text-blue-400">Memory Tip</label>
+                      <Textarea
+                        value={q.memory || ""}
+                        onChange={(e) => updateQuestion(index, "memory", e.target.value)}
+                        placeholder="Memory trick..."
+                        rows={2}
+                        className={darkMode ? "bg-slate-900 border-slate-600 text-slate-100" : ""}
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>

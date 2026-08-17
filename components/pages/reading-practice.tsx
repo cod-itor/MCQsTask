@@ -234,6 +234,34 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
               <p className="font-semibold mt-0.5">Correct!</p>
             </div>
           )}
+            {isSubmitted && (q.easy || q.keywords || q.memory) && (
+              <div className={`mt-4 ${parts.length > 1 ? "" : "ml-8"} text-left space-y-3 p-4 rounded-xl border ${darkMode ? "bg-slate-900/50 border-slate-700/50" : "bg-slate-50 border-slate-200"}`}>
+                {q.easy && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-emerald-400" : "text-emerald-600"}`}>
+                      <span>🟢</span> Easy Tip
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.easy }} />
+                  </div>
+                )}
+                {q.keywords && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-amber-400" : "text-amber-600"}`}>
+                      <span>🔑</span> Key Words
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.keywords }} />
+                  </div>
+                )}
+                {q.memory && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                      <span>🧠</span> Memory
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.memory }} />
+                  </div>
+                )}
+              </div>
+            )}
         </div>
       )
     }
@@ -338,6 +366,34 @@ export default function ReadingPractice({ onBack, darkMode, onOpenMobileSidebar 
             {isSubmitted && isIncorrect && (
               <div className={`mt-2 text-sm px-3 py-2 rounded-md inline-block w-full ${darkMode ? "bg-red-900/20 text-red-400 border border-red-900/50" : "bg-red-50 text-red-700 border border-red-100"}`}>
                 Correct answer: <span className="font-semibold"><span dangerouslySetInnerHTML={{ __html: q.answer }} /></span>
+              </div>
+            )}
+            {isSubmitted && (q.easy || q.keywords || q.memory) && (
+              <div className={`mt-4 ${parts.length > 1 ? "" : "ml-8"} text-left space-y-3 p-4 rounded-xl border ${darkMode ? "bg-slate-900/50 border-slate-700/50" : "bg-slate-50 border-slate-200"}`}>
+                {q.easy && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-emerald-400" : "text-emerald-600"}`}>
+                      <span>🟢</span> Easy Tip
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.easy }} />
+                  </div>
+                )}
+                {q.keywords && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-amber-400" : "text-amber-600"}`}>
+                      <span>🔑</span> Key Words
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.keywords }} />
+                  </div>
+                )}
+                {q.memory && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                      <span>🧠</span> Memory
+                    </div>
+                    <div className={`text-sm ${darkMode ? "text-slate-300" : "text-slate-700"}`} dangerouslySetInnerHTML={{ __html: q.memory }} />
+                  </div>
+                )}
               </div>
             )}
           </div>

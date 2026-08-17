@@ -48,6 +48,10 @@ export function ListeningStructuredEditor({
     onChange(questions.map((q) => (q.id === id ? { ...q, a: newAnswer } : q)));
   };
 
+  const handleUpdateField = (id: string, field: keyof ListeningQuestion, value: string) => {
+    onChange(questions.map((q) => (q.id === id ? { ...q, [field]: value } : q)));
+  };
+
   const processFile = (id: string, file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -214,6 +218,38 @@ export function ListeningStructuredEditor({
                   darkMode ? "bg-slate-800 border-slate-600 text-white" : ""
                 }`}
               />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <Textarea
+                  value={q.easy || ""}
+                  onChange={(e) => handleUpdateField(q.id, "easy", e.target.value)}
+                  onInput={handleAutoResize}
+                  placeholder="Easy tip (optional)"
+                  rows={1}
+                  className={`w-full min-h-[38px] resize-y overflow-hidden text-sm ${
+                    darkMode ? "bg-emerald-900/20 border-emerald-800 text-emerald-200" : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                  }`}
+                />
+                <Textarea
+                  value={q.keywords || ""}
+                  onChange={(e) => handleUpdateField(q.id, "keywords", e.target.value)}
+                  onInput={handleAutoResize}
+                  placeholder="Key words (optional)"
+                  rows={1}
+                  className={`w-full min-h-[38px] resize-y overflow-hidden text-sm ${
+                    darkMode ? "bg-amber-900/20 border-amber-800 text-amber-200" : "bg-amber-50 border-amber-200 text-amber-800"
+                  }`}
+                />
+                <Textarea
+                  value={q.memory || ""}
+                  onChange={(e) => handleUpdateField(q.id, "memory", e.target.value)}
+                  onInput={handleAutoResize}
+                  placeholder="Memory tip (optional)"
+                  rows={1}
+                  className={`w-full min-h-[38px] resize-y overflow-hidden text-sm ${
+                    darkMode ? "bg-blue-900/20 border-blue-800 text-blue-200" : "bg-blue-50 border-blue-200 text-blue-800"
+                  }`}
+                />
+              </div>
               {q.imageUrl && (
                 <div className={`relative mt-2 w-full rounded-md p-2 border flex justify-center ${
                   darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-gray-200"

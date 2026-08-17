@@ -197,6 +197,9 @@ export function QuestionEditor({
   const [options, setOptions] = useState<string[]>(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState(0);
   const [explanation, setExplanation] = useState("");
+  const [easy, setEasy] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [memory, setMemory] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -211,11 +214,17 @@ export function QuestionEditor({
       setOptions([...initialData.opts]);
       setCorrectAnswer(initialData.answer);
       setExplanation(initialData.explanation || "");
+      setEasy(initialData.easy || "");
+      setKeywords(initialData.keywords || "");
+      setMemory(initialData.memory || "");
     } else {
       setQuestion("");
       setOptions(["", "", "", ""]);
       setCorrectAnswer(0);
       setExplanation("");
+      setEasy("");
+      setKeywords("");
+      setMemory("");
     }
     setError("");
   }, [mode, initialData, questionNumber]);
@@ -269,6 +278,9 @@ export function QuestionEditor({
       opts: options,
       answer: correctAnswer,
       explanation: explanation || undefined,
+      easy: easy || undefined,
+      keywords: keywords || undefined,
+      memory: memory || undefined,
     };
 
     onSave(mcq);

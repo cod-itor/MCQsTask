@@ -57,6 +57,9 @@ export function validateReadingPassages(data: any[]): ReadingValidationResult {
           text: q.text,
           answer: q.answer,
           options: q.options && Array.isArray(q.options) ? q.options : undefined,
+          ...((q.easy && { easy: q.easy }) || {}),
+          ...((q.keywords && { keywords: q.keywords }) || {}),
+          ...((q.memory && { memory: q.memory }) || {})
         })
       }
     })

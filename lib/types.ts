@@ -4,6 +4,9 @@ export interface MCQ {
   opts: string[]
   answer: number
   explanation?: string
+  easy?: string
+  keywords?: string
+  memory?: string
 }
 
 export interface Subject {
@@ -46,6 +49,9 @@ export interface ReadingQuestion {
   text: string
   answer: string
   options?: string[]
+  easy?: string
+  keywords?: string
+  memory?: string
 }
 
 export interface ReadingPassage {
@@ -62,6 +68,9 @@ export interface ListeningQuestion {
   a?: string
   imageUrl?: string
   originalImageUrl?: string
+  easy?: string
+  keywords?: string
+  memory?: string
 }
 
 export interface ListeningSet {
